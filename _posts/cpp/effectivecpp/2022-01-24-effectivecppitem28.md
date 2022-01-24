@@ -5,7 +5,7 @@ categories: EffectiveCpp
 tag: [cpp, c++]
 toc: true
 ---
-# **항목 27: 내부에서 사용하는 객체에 대한 '핸들'을 반환하는 코드는 되도록 피하자**
+# **항목 28: 내부에서 사용하는 객체에 대한 '핸들'을 반환하는 코드는 되도록 피하자**
 
 ## **ex1)**
 사각형을 추상화한 `Rectangle` 클래스를 만들었는데, 이 클래스의 객체를 썼을 때의 메모리 부담을 최대한 줄이고 싶다.
@@ -20,16 +20,18 @@ pulibc:
     void setX(int newVal);
     void setY(int newVal);
     ...
-    struct RectData {   // Rectangle에 쓰는 점 데이터
-        Point ulhc;     // upper left-hand corner
-        Point lrhc;     // lower right-hand corner
-    };
-    class Rectangle {
-        ...
-    private:
-        std::tr1::shared_ptr<RectData> pData;
-    }
-}
+};
+
+struct RectData {   // Rectangle에 쓰는 점 데이터
+    Point ulhc;     // upper left-hand corner
+    Point lrhc;     // lower right-hand corner
+};
+
+class Rectangle {
+    ...
+private:
+    std::tr1::shared_ptr<RectData> pData;
+};
 ```
 `Point`가 사용자 정의 타입이니 값에 의한 전달보다 참조에 의한 전달 방식을 쓰는 편이 더 효율적이라고 생각한다. 그래서 이들 두 멤버 함수는 (스마트) 포인터로 물어둔 `Point`객체에 대한 참조자를 반환하는 형태로 만든다.
 ```cpp
