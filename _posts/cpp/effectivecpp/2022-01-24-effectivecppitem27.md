@@ -1,6 +1,6 @@
 ---
 layout: single
-title:  "EffectiveCpp item 27"
+title:  "EffectiveCpp 27|항목 27: 캐스팅은 절약, 또 절약! 잊지 말자"
 categories: EffectiveCpp
 tag: [cpp, c++]
 toc: true
