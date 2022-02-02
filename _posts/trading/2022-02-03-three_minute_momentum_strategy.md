@@ -18,7 +18,7 @@ toc: False
 
 [upbit_quotation.py](https://github.com/helpingstar/hstrader/blob/main/upbit_quotation.py)
 
-업비트 비트코인 1분 차트를 보던 중 3분동안 양봉이 나온다면 (양봉이 3개라면) 다음 1분동안 양봉이 나올 확률이 있지 않을까? 해서 해본 백테스트
+업비트 비트코인 1분 차트를 보던 중 3분동안 양봉이 나온다면 (양봉이 3개라면) 다음 1분동안 양봉이 나올 확률이 있지 않을까? 해서 해본 백테스트.
 
 
 
