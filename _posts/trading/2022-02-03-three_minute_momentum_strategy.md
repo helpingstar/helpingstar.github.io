@@ -1,9 +1,9 @@
 ---
 layout: single
-title:  "3분의 결과를 이용해 다음 매매를 결정하는 3분 매매법"
+title: "3분의 결과를 이용해 다음 매매를 결정하는 3분 매매법"
 categories: Trading
 tag: [python, upbit]
-toc: False
+toc: true
 ---
 
 # 3분 매매법
