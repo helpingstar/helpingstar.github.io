@@ -4,6 +4,7 @@ title:  "EffectiveCpp 27:항목 27: 캐스팅은 절약, 또 절약! 잊지 말�
 categories: EffectiveCpp
 tag: [cpp, c++]
 toc: true
+toc_sticky: true
 ---
 
 타입 에러가 생기지 않도록 보장하는것이 C++ 동작 규칙의 바탕 철학이나 캐스트(cast)가 사용될 경우 찾아내기 어려울 경우가 많다. C++ 캐스팅은 조심해서 써야하는 기능이다.

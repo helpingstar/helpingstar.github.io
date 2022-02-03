@@ -4,6 +4,7 @@ title:  "EffectiveCpp 38:has-a 혹은 is-implemented-in-terms-of 를 모형화�
 categories: EffectiveCpp
 tag: [cpp, c++]
 toc: true
+toc_sticky: true
 ---
 
 

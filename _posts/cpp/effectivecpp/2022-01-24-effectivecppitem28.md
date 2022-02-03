@@ -4,6 +4,7 @@ title:  "EffectiveCpp 28:내부에서 사용하는 객체에 대한 '핸들'을 
 categories: EffectiveCpp
 tag: [cpp, c++]
 toc: true
+toc_sticky: true
 ---
 
 ## **ex1)**

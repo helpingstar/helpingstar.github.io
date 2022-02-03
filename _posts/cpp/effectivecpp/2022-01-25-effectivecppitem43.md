@@ -4,6 +4,7 @@ title:  "EffectiveCpp 43:템플릿으로 만들어진 기본 클래스 안의 �
 categories: EffectiveCpp
 tag: [cpp, c++]
 toc: true
+toc_sticky: true
 ---
 
 

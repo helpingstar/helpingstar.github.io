@@ -4,6 +4,7 @@ title:  "EffectiveCpp 26:변수 정의는 늦출 수 있는 데까지 늦추는 
 categories: EffectiveCpp
 tag: [cpp, c++]
 toc: true
+toc_sticky: true
 ---
 생성자 혹은 소멸자를 끌고 다니는 타입으로 변수를 정의하면 반드시 물게 되는 비용
 
