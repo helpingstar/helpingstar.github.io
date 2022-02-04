@@ -13,7 +13,7 @@ toc_sticky: true
 ## **ex1)**
 
 ```cpp
-// 이 함수는 "encrypted" 변수를 너무 일찍 정의해 버립니다.
+// 이 함수는 "encrypted" 변수를 너무 일찍 정의해 버립니다. 
 std::string encryptPassword(const std:: string& password)
 {
     using namespace std;
