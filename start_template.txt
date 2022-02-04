@@ -1,3 +1,5 @@
+yyyy-mm-dd-title.md
+
 ---
 layout: single
 title: ""
