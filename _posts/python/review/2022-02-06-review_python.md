@@ -9,9 +9,8 @@ toc: true
 toc_sticky: true
 ---
 
-# **2021-11-23**
-## **1. `namedtuple`**
-### **1-1. 기본 설명**
+# **1. `namedtuple`**
+## **1-1. 기본 설명**
 `namedtuple` 인스턴스는 일반 튜플과 마찬가지로 메모리 효율적이다. 인스턴스마다 딕셔너리를 포함하고 있지 않기 때문이다. 각 `namedtuple`은 `namedtuple()` 팩토리 함수를 사용해 생성되는 자신의 클래스로 표현할 수 있다. 새 클래스의 이름과 각 요소에 대한 문자열이 인자로 올 수 있다.
 ```python
 import collections
@@ -42,7 +41,7 @@ Bob is 30 years old
 Jane is 29 years old
 ```
 
-### **1-2. 상속에서의 활용**
+## **1-2. 상속에서의 활용**
 ```python
 from collections import namedtuple
 
@@ -61,8 +60,8 @@ test1
 ```
 
 클래스에 상속될 경우 그 클래스의 ```namedtuple```로 활용되는 듯 하다.
-## **2. `@property`**
-### **2-1. 기본 설명**
+# **2. `@property`**
+## **2-1. 기본 설명**
 일반적으로 인스턴스나 클래스의 속성에 접근하면 저장된 값이 반환된다. 프로퍼티`property`는 접근되는 순간 값이 계산되는 특수한 속성이다.
 
 장식자 `@property`는 바로 다음에 나오는 메서드를 보통 메서드를 호출할 떄 붙여야 하는 괄호 `()` 없이 단순 속성인 것처럼 접근할 수 있게 한다.
@@ -98,7 +97,7 @@ c.perimeter :  25.132741228718345
 ```AttributeError: can't set attribute```
 에러가 발생한다
 
-### **2-2. 속성 설정/삭제**
+## **2-2. 속성 설정/삭제**
 프로퍼티는 속성을 설정하거나 삭제하는 연산을 가로챌 수도 있다. 이를 위해서는 프로퍼티에 설정 `setter` 메서드나 삭제 `delete` 메서드를 추가하면 된다.
 ```python
 class Foo(object):
@@ -129,9 +128,9 @@ del f.name       # 삭제 함수인 name(f)을 호출한다 -> Type Error
 속성 `name`은 `@property` 장식자와 관련 메서드를 사용해서 먼저 읽기 전용 프로퍼티로 정의된다. 이어서 나오는 `@name.setter`와 `@name.deleter` 장식자는 설정 및 삭제 연산을 위한 추가 메서드를 프로퍼티에 연결시킨다.
 
 추가 메서드는 원본 프로퍼티 메서드의 이름과 동일해야 한다. 앞의 예에서 `name`의 실제 값은 `__name` 속성에 저장된다. 이 속성의 이름을 정하는 데에는 특별한 규칙은 없지만 프로퍼티와 구별하기 위해 프로퍼티의 이름과는 달라야 한다.
-## **3. 정적 메서드와 클래스 메서드**
+# **3. 정적 메서드와 클래스 메서드**
 클래스 정의에서 모든 함수는 인스턴스에 대해서 작동하는 것으로 가정한다. 이 때문에 첫 번째 매개변수로서 항상 `self`가 전달된다. 이 밖에도 클래스 정의에 볼 수 있는 흔히 사용되는 두 종류의 메서드가 더 있다.
-### **3-1. 정적 메서드 `static method`**
+## **3-1. 정적 메서드 `static method`**
 정적 메서드 `static method` 는 클래스에 의해 정의되는 네임스페이스에 들어 있는 보통의 함수다 정적 메서드는 인스턴스에 대해서 작동하지 않는다. 정적 메서드를 정의하려면 다음과 같이 `@staticmethod` 장식자를 사용하면 된다.
 ```python
 class Foo(object):
@@ -172,7 +171,7 @@ c = Date.tomorrow()  # 정적 메서드 tomorrow()를 호출한다.
 
 ```
 
-### **3-2. 클래스 메서드 `class method`**
+## **3-2. 클래스 메서드 `class method`**
 클래스 메서드 `class method`는 클래스 자체를 객체로 보고 클래스 객체에 대해 작동하는 메서드를 말한다. 클래스 메서드는 `@classmethod` 장식자를 사용해서 정의한다. 인스턴스 메서드와 다른 점은 첫 번째 인수로서 관례적으로 `cls`라는 이름을 가진 클래스가 전달된다는 점이다. 다음은 한 예이다
 ```python
 class Times(object):
@@ -217,8 +216,7 @@ b = d.now() # Date.now(Date)를 호출한다
 ```
 
 이것이 가능하다는 점은 `d.now()`가 인스턴스 `d`와는 아무런 관련이 없다는 점 떄문에 혼동을 가져올 수 있다. 이 부분은 파이썬의 객체 시스템이 스몰톡이나 루비같은 다른 객체지향 언어와 다른 점 중 하나이다. 다른 객체지향언어에서는 클래스 메서드와 인스턴스 메서드가 엄격하게 분리되어 있다.
-# **2021-11-24**
-## **1. 이동, 비트 연산자**
+# **이동, 비트 연산자**
 | 연산     | 설명                     |
 | -------- | ------------------------ |
 | `x << y` | 왼쪽 이동                |
@@ -227,7 +225,7 @@ b = d.now() # Date.now(Date)를 호출한다
 | `x \| y` | 비트 `or`                |
 | `x ^ y`  | 비트 `xor(exclusive or)` |
 | `~x`     | 비트 `negation`          |
-## **2. `assert` 와 `__debug__`**
+# **`assert` 와 `__debug__`**
 `assert` 문으로 프로그램에 디버깅 코드를 넣을 수 있다. `assert`문의 일반적인 형식은 다음과 같다
 ```python
 assert test [, msg]
@@ -245,8 +243,8 @@ def write_date(file, data):
 `assert` 와 더불어 파이썬에서는 읽기 전용 내장 변수인 `__debug__` 가 제공된다. 이 변수는 인터프리터가 최적 모드(인터프리터에 `-O` 옵션)로 수행되지 않는 한 `True`로 설정된다. 필요에 따라 프로그램에서 이 변수를 확인할 수 있고, 이 변수가 설정된 경우 추가적인 에러 검사 과정을 수행할 수도 있다. 인터프리터에서 `__debug__` 변수가 구현되는 방식은 최적화되어 있어서 추가적인 `if` 문의 제어 흐름 로직은 코드에 실제로 포함되지 않는다. 파이썬이 일반 모드로 실행되는 경우 `if __debug__`문 아래에 있는 문장들은 `if`문 없이 프로그램 코드에 직접 나타난다. 최적화 모드에서는 `if __debug__` 문과 관련된 모든 문장들이 프로그램에서 완전히 제거된다.
 
 `assert` 문과 `__debug__` 를 사용하면 프로그램을 두 가지 모드를 통해 효율적으로 개발할 수 있다. 예를 들어, 디버그 모드에서는 코드가 올바르게 작동하는지를 검증하기 위한 단언 및 버그 검사 코드를 자유롭게 사용할 수 있다. 최적화 모드에서는 이러한 모든 추가적인 검사들이 자동으로 제거되기 때문에 성능에 영향이 없다.
-## **2. 객체 비교와 순서 매기기**
-### **2-1 객체 검사 및 해싱을 위한 특수 메서드**
+# **객체 비교와 순서 매기기**
+## **1. 객체 검사 및 해싱을 위한 특수 메서드**
 | 메서드           | 설명                                         |
 | ---------------- | -------------------------------------------- |
 | `__bool__(self)` | 진리값 검사를 위해 `False` 나 `True` 를 반환 |
@@ -292,7 +290,7 @@ print(hash(o2))  # 1079245023883434373
 d = {o1: 1, o2: 2}
 ```
 
-### **2-2. 비교를 위한 메서드**
+## **2. 비교를 위한 메서드**
 | 메서드                | 결과              |
 | --------------------- | ----------------- |
 | `__it__(self, other)` | `self` < `other`  |
@@ -326,7 +324,7 @@ print(c > 10)   # Error : __gt__() is not defined
 print(c == 10)  # True  / __eq__()
 print(c != 10)  # False / __ne__() or not __eq__()
 ```
-## **3. `isinstance(object, classobj)`**
+# **`isinstance(object, classobj)`**
 `object` 가 `classobj` 또는 `classobj` 의 하위 클래스의 인스턴스이거나 추상 기반 클래스인 `classobj` 에 속할 경우 `True` 를 반환한다. `classobj` 매개변수는 타입이거나 클래스의 튜플일 수도 있다. 예를 들어, `isinstance(s, (list, tuple))` `s` 가 튜플이거나 리스트이면 `True` 를 반환한다.
 ```python
 class A(object): pass
@@ -341,7 +339,7 @@ print(isinstance(a, A))  # True
 print(isinstance(b, A))  # True  / B는 A로부터 파생
 print(isinstance(b, C))  # False / B는 C로부터 파생되지 않았다.
 ```
-## **4. 사전의 메서드와 연산**
+# **사전의 메서드와 연산**
 |항목|설명|
 |-|-|
 |`len(m)`|`m`에 있는 항목 개수를 반환한다|
@@ -361,8 +359,8 @@ print(isinstance(b, C))  # False / B는 C로부터 파생되지 않았다.
 |`m.update(b)`|`b`에 있는 모든 객체를 `m`에 추가한다.|
 |`m.values()`|`m`에 있는 모든 값으로 구성되는 순서열을 반환한다.|
 
-## **5. 패키지**
-### **5-1.**
+# **패키지**
+## **1.**
 모듈을 공통의 이름으로 묶는데 패키지를 사용한다. 패키지를 사용하면 모듈 사이에 이름 충돌 문제를 해결할 수 있다. 패키지를 만들려면 패키지 이름을 가진 디렉터리를 만들고 이 디렉터리에 `__init__.py` 파일을 생성하면 된다. 그런 다음 필요에 따라 소스 파일, 컴파일된 확장 기능, 하위 패키지 등을 추가하면 된다. 다음은 패키지를 구성하는 예를 보여준다.
 
 ```
@@ -447,9 +445,9 @@ from . import Primitive, Graph2d, Graph3d
 from . import lines, fill, text, ...
 ```
 이제 `import Graphics` 문은 모든 하위 모듈을 임포트하고 완전히 한정된 이름을 사용해서 해당 모듈에 접근할 수 있게 되었다. 상대적인 임포트는 앞에서 설명한대로 사용해야 한다. 간단히 `import module` 같은 문장을 사용하면 표준라이브러리 모듈이 로드된다.
-### **5-2.**
+## **2.**
 패키지는 모듈을 모아 놓은 단위이다. 관련된 여러 개의 모듈을 계층적인 몇 개의 디렉터리로 분류해서 저장하고 계층화한다.
-#### **패키지의 구조**
+## **패키지의 구조**
 ```
 Speech/
     __init__.py
@@ -470,7 +468,7 @@ Speech/
         Tagging.py
         ProsodyControl.py
 ```
-#### **`__init__.py` 파일**
+## **`__init__.py` 파일**
 각 디렉터리에는 `__init__.py`파일이 반드시 있어야 한다. 이 파일은 패키지를 가져올 때 자동으로 실행되는 초기화 스크립트이다. 이 파일이 없으면 해당 폴더는 파이썬 패키지로 간주하지 않는다. `__init__.py` 파일은 패키지를 초기화하는 어떠한 파이썬 코드도 포함할 수 있다. 예를 들어 `Speech/__init__.py` 파일은 다음과 같다.
 
 ```python
@@ -522,8 +520,7 @@ from . import DTW
 `import Speech` 문에 의해서 실행되는 코드의 순서는 다음과 같다.
 
 ![package](/assets/images/python/package.png)
-# **2021-11-25**
-## **1. 미래 기능 활성화**
+# **미래 기능 활성화**
 예전 버전의 파이썬과 호환성 문제가 있을 수 있는 새로운 언어 기능은 파이썬의 새로운 릴리스에서 보통 비활성화되어 있다. 이 기능을 활성화하려면
 ```python
 from __future__ import feature
@@ -541,9 +538,9 @@ from __future__ import division
 |`print_function`|`print`문 대신 파이썬 3.0의 `print()` 함수를 사용한다. 파이썬 2.6에서 처음 도입되었고 파이썬 3.0에서 기본으로 활성화된다.|
 
 `__feature__` 에서는 어떤 기능 이름도 제거된 적이 없다. 따라서 나중 파이썬 버전에서 어떤 기능이 기본으로 활성화된다 하더라도, 이 기능을 사용하는 기존 코드는 문제가 발생하지 않는다.
-## **2. `platform.system()`**
+# **`platform.system()`**
 시스템/OS 이름을 반환합니다, 가령 `'Linux'`, `'Darwin'`, `'Java'`, `'Windows'` 값을 판별할 수 없으면 빈 문자열이 반환됩니다.
-## **3. `subprocess`**
+# **`subprocess`**
 `subprocess` 모듈은 새로운 프로세스 생성, 입출력 스트림 제어, 반환 코드 처리 작업을 일반화한 함수와 객체들을 제공한다. 이 모듈은 `os`, `popen2`, `commands` 같은 다양한 다른 모듈에 있는 기능을 한 곳에 모아놓았다
 ```python
 Popen(args, **params)
@@ -560,8 +557,7 @@ p.communicate([input])
 
 `input`로 주어진 데이터를 자식 프로세스의 표준 입력으로 전달하여 자식 프로세스와 통신한다. 일단 데이터를 전달하고 나면 표준 출력과 표준 에러에서 결과를 수집하면서 프로세스가 종료되기를 기다린다. 문자열인 `stdout`, `stderr`를 담은 튜플 `(stdout, stderr)`를 반환한다. 자식 프로세스로 보내는 데이터가 없으면 `input`을 `None`으로 설정한다(기본 값)
 
-# **2022-02-06**
-## **`warnings`**
+# **`warnings`**
 
 ```python
 import warnings
@@ -580,11 +576,11 @@ warnings.filterwarnings('ignore')
 
 를 삽입한다. 다른 인자는 `default`를 따르므로 경고 필터 명세에 `ignore`을 맨 앞에 삽입하고 그것은 모든 것과 일치하는 것이므로 "모든 경고를 인쇄하지 않는다" 로 해석하면 될 것이다.
 
-## **`divmod(a, b)`**
+# **`divmod(a, b)`**
 
 return `(a // b, a % b)`
 
-## **python format**
+# **python format**
 ```python
 f'{h:0>2.0f}'
 ```
@@ -594,8 +590,8 @@ f'{h:0>2.0f}'
 **예시 해석**
 
 `h`라는 변수(`float`)를 **오른쪽 정렬**하여 빈 곳은 `0`으로 채우고 전체 `2`자리로 맞추고 소수점 이하는 `0`자리수만 출력한다.
-## **`urllib.request`**
-### **`urljoin`**
+# **`urllib.request`**
+## **`urljoin`**
 ```python
 urllib.parse.urljoin(base, url, allow_fragments=True)
 ```
@@ -607,19 +603,19 @@ urllib.parse.urljoin(base, url, allow_fragments=True)
 'http://www.cwi.nl/%7Eguido/FAQ.html'
 ```
 
-### **`urlretrieve`**
+## **`urlretrieve`**
 ```python
 urllib.request.urlretrieve(url, filename=None, reporthook=None, data=None)
 ```
 URL로 표시된 네트워크 객체를 로컬 파일에 복사한다.
 
-## **`Path`**
-### **`Path.exists`**
+# **`Path`**
+## **`Path.exists`**
 ```python
 Path.exists()
 ```
 `path`가 기존의(현재 존재하는) 경로를 가리키고 있으면 `True`반환
-### **`Path.mkdir`**
+## **`Path.mkdir`**
 ```python
 Path.mkdir(mode=511, parents=False, exist_ok=False)
 ```
@@ -630,9 +626,9 @@ Path.mkdir(mode=511, parents=False, exist_ok=False)
 >>> q
 PosixPath('/etc/init.d/reboot')
 ```
-### **`Path, opeartor /`**
+## **`Path, opeartor /`**
 `/` 연산을 오버로딩하여 탐색한 결과를 `Path` 클래스로 리턴한다.
-### **`PurePath.stem`**
+## **`PurePath.stem`**
 `path`의 마지막 요소를 suffix를 제거하고 반환한다.
 ```python
 >>> PurePosixPath('my/library.tar.gz').stem
@@ -642,6 +638,8 @@ PosixPath('/etc/init.d/reboot')
 >>> PurePosixPath('my/library').stem
 'library'
 ```
+
+
 # **참고**
 *데이비드 M. 비즐리, 『파이썬 완벽 가이드』, 송인철, 송현제 옮김, 인사이트(2012)*
 
