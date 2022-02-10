@@ -638,6 +638,38 @@ PosixPath('/etc/init.d/reboot')
 >>> PurePosixPath('my/library').stem
 'library'
 ```
+# **`with as`**
+`with` 문을 이용하면 다음과 같이 더 편하게 작업할 수 있다. `with` 문 안에 있는 동안 객체 `f`를 이용하여 파일에 관련된 작업을 할 수 있고, `with` 문에서 빠져나오면서 자동으로 닫히기까지 한다.
+```python
+with open('t1.txt', 'w') as f:
+    f.write('위대한 세종대왕')
+```
+# **`gzip`**
+`gzip` 모듈은 `GNU gzip` 프로그램과 호환되는 파일을 읽거나 쓰는 데 사용할 수 있는 `GzipFile` 클래스를 제공한다. `GzipFile` 객체는 파일이 자동으로 압축되고 압축해제된다는 점을 제외하고는 보통의 파일처럼 작동한다
+
+## **`GzipFile`**
+```python
+gzip.GzipFile(filename=None, mode=None, compresslevel=9, fileobj=None, mtime=None)
+```
+`GzipFile`을 연다. `filename`은 파일 이름이고, `mode`는 `r`, `rb`, `a`, `ab`, `w`, `wb` 중 하나이다, `compresslevel`은 1에서 9사이의 정수 값을 가지며 압축 레벨을 제어한다. 1은 가장 빠르지만 낮은 압축률을 제공하고 9(기본 값)는 가장 느리지만 높은 압축률을 제공한다. `fileobj`는 기존 파일 객체를 나타낸다. 주어질 경우 `filename`이라는 이름을 가지는 파일 대신에 주어진 객체를 사용한다. 
+
+## **`open`**
+```python
+gzip.open(filename, mode='rb', compresslevel=9, encoding=None, errors=None, newline=None)
+```
+`GzipFile(filename, mode, compresslevel)`과 동일하다. 기본 모드는 `rb`이며 기본 `compresslevel`은 9이다.
+
+바이너리나 텍스트 모드로 gzip으로 압축된 파일을 열고, 파일 객체를 반환합니다.
+
+# **`shutil`**
+`shutil` 모듈은 복사, 삭제, 이름 변경 등 고수준 파일 연산을 수행하는 데 사용한다. 이 모듈에 있는 함수들은 실제 파일과 디렉터리에 대해서만 작동한다. 이름 있는 파이프(named pipe), 블록 장치(block device) 같은 파일 시스템에서 특수한 종류의 파일에 대해서는 사용할 수 없다. 또한 이 함수들은 파일의 고급 메타데이터(예를 들어, 자원 포크(resource fork), 생성자 코드(creator code) 등)를 올바르게 처리하지 못할 때도 있다.
+
+## **`copyfileobj`**
+```python
+shutil.copyfileobj(f1, f2[, length])
+```
+열린 파일 객체 `f1`의 모든 데이터를 파일 객체 `f2`로 복사한다. `length`는 사용할 가장 큰 버퍼 크기를 명시한다. 음수 값은 데이터 전체를 한 번의 연산으로 복사하려고 시도한다.(즉, 모든 데이터를 하나의 덩어리로 읽은 다음 쓴다.)
+
 
 
 # **참고**
