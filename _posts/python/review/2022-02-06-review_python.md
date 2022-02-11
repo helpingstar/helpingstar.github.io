@@ -30,7 +30,8 @@ for p in [bob, jane]:
 
 여기서 `Person`을 같게 하는데 헷갈리지 않기 위해 그렇게 한다고 한다
 
-> __출력__
+**출력**
+
 ```
 Representation: Person(name='Bob', age=30)
 
@@ -54,7 +55,8 @@ c = Point('test1', 'test2')
 print(c.row)
 ```
 
-> **출력**
+**출력**
+
 ```
 test1
 ```
@@ -217,14 +219,16 @@ b = d.now() # Date.now(Date)를 호출한다
 
 이것이 가능하다는 점은 `d.now()`가 인스턴스 `d`와는 아무런 관련이 없다는 점 떄문에 혼동을 가져올 수 있다. 이 부분은 파이썬의 객체 시스템이 스몰톡이나 루비같은 다른 객체지향 언어와 다른 점 중 하나이다. 다른 객체지향언어에서는 클래스 메서드와 인스턴스 메서드가 엄격하게 분리되어 있다.
 # **이동, 비트 연산자**
-| 연산     | 설명                     |
-| -------- | ------------------------ |
-| `x << y` | 왼쪽 이동                |
-| `x >> y` | 오른쪽 이동              |
-| `x & y`  | 비트 `and`               |
-| `x \| y` | 비트 `or`                |
-| `x ^ y`  | 비트 `xor(exclusive or)` |
-| `~x`     | 비트 `negation`          |
+
+|연산|설명|
+|-|-|
+|`x << y`|왼쪽 이동|
+|`x >> y`|오른쪽 이동|
+|`x & y`|비트 `and`|
+|`x \| y`|비트 `or`|
+|`x ^ y`|비트 `xor(exclusive or) |
+|`~x`|비트 `negation`|
+
 # **`assert` 와 `__debug__`**
 `assert` 문으로 프로그램에 디버깅 코드를 넣을 수 있다. `assert`문의 일반적인 형식은 다음과 같다
 ```python
@@ -232,7 +236,7 @@ assert test [, msg]
 ```
 여기서 `test`는 `True`와 `False`로 평가되는 표현식이다. 만약 `test`가 `False`로 평가되면 `assert`문에 지정한 메시지인 `msg`와 함께 `AssertionError`에러가 발생한다. 다음은 한 예이다
 ```python
-def write_date(file, data):
+def write_data(file, data):
     assert file, "write_data: file not defined!"
     ...
 ```
@@ -245,10 +249,12 @@ def write_date(file, data):
 `assert` 문과 `__debug__` 를 사용하면 프로그램을 두 가지 모드를 통해 효율적으로 개발할 수 있다. 예를 들어, 디버그 모드에서는 코드가 올바르게 작동하는지를 검증하기 위한 단언 및 버그 검사 코드를 자유롭게 사용할 수 있다. 최적화 모드에서는 이러한 모든 추가적인 검사들이 자동으로 제거되기 때문에 성능에 영향이 없다.
 # **객체 비교와 순서 매기기**
 ## **1. 객체 검사 및 해싱을 위한 특수 메서드**
-| 메서드           | 설명                                         |
-| ---------------- | -------------------------------------------- |
-| `__bool__(self)` | 진리값 검사를 위해 `False` 나 `True` 를 반환 |
-| `__hash__(self)` | 정수 해시 색인을 계산                        |
+
+|메서드|설명|
+|-|-|
+|`__bool__(self)`|진리값 검사를 위해 `False` 나 `True` 를 반환|
+|`__hash__(self)`| 정수 해시 색인을 계산|
+
 
 `__bool__()` 메서드는 진리값 검사를 수행하는 데 사용되며 `True` 또는 `False`를 반환해야 한다. 이 메서드가 정의되지 않을 경우에는 진리값을 결정하기 위해서 `__len()__` 메서드가 대신 사용된다.
 
@@ -291,14 +297,14 @@ d = {o1: 1, o2: 2}
 ```
 
 ## **2. 비교를 위한 메서드**
-| 메서드                | 결과              |
-| --------------------- | ----------------- |
-| `__it__(self, other)` | `self` < `other`  |
-| `__le__(self, other)` | `self` <= `other` |
-| `__gt__(self, other)` | `self` > `other`  |
-| `__ge__(self, other)` | `self` >= `other` |
-| `__eq__(self, other)` | `self` == `other` |
-| `__ne__(self, other)` | `self` != `other` |
+|메서드|결과|
+|-|-|
+|`__it__(self, other)`|`self` < `other`|
+|`__le__(self, other)`|`self` <= `other`|
+|`__gt__(self, other)`|`self` > `other`|
+|`__ge__(self, other)`|`self` >= `other`|
+|`__eq__(self, other)`|`self` == `other`|
+|`__ne__(self, other)`|`self` != `other`|
 
 객체는 하나 이상의 관계 연산자 `<`, `>`, `<=`, `>=`, `==`, `!=` 를 구현할수 있다. 각 메서드는 두 개의 인수를 받으며, 불리언 값, 리스트, 또는 다른 아무 파이썬 타입 등 어떤 종류의 객체이든 반환할 수 있다. 예를 들어, 수치 관련 패키지의 경우 두 행렬의 원소별 비교를 수행할 때 그 결과로서 행렬을 반환할 수 있다. 비교가 수행될 수 없는 경우에는 예외가 발생되기도 한다.
 
@@ -340,6 +346,7 @@ print(isinstance(b, A))  # True  / B는 A로부터 파생
 print(isinstance(b, C))  # False / B는 C로부터 파생되지 않았다.
 ```
 # **사전의 메서드와 연산**
+
 |항목|설명|
 |-|-|
 |`len(m)`|`m`에 있는 항목 개수를 반환한다|
@@ -422,9 +429,9 @@ from . import lines
 ```python
 # plot2d.py
 
-from ..Primitives import lines
+from ..Primitive import lines
 ```
-여기서 `..`은 디렉터리 밖으로 한 수준 벗어나게 하고 `Primitives`는 다른 패키지 디렉터리로 들어가게 한다.
+여기서 `..`은 디렉터리 밖으로 한 수준 벗어나게 하고 `Primitive`는 다른 패키지 디렉터리로 들어가게 한다.
 `import`문 중 `from module import symbol` 형태로만 상대적인 임포트를 지정할 수 있다. 따라서 `import ..Primitive.lines` 나 `import .lines`는 문법 오류이다. 또한 `symbol`은 유효한 식별자여야 한다. 따라서, `from .. import Primitives.lines`도 적법하지 않다. 마지막으로, 상대적인 임포트는 패키지 안에서만 사용해야 한다. 단순히 다른 디렉터리에 있는 모듈을 가리키는 데 상대적인 임포트를 사용하면 안 된다.
 
 패키지 이름을 임포트한다고 해서 그 안에 있는 모든 하위 모듈이 임포트되는 것은 아니다. 예를 들어, 다음 코드는 제대로 작동하지 않는다. 
@@ -537,7 +544,7 @@ from __future__ import division
 |-|-|
 |`print_function`|`print`문 대신 파이썬 3.0의 `print()` 함수를 사용한다. 파이썬 2.6에서 처음 도입되었고 파이썬 3.0에서 기본으로 활성화된다.|
 
-`__feature__` 에서는 어떤 기능 이름도 제거된 적이 없다. 따라서 나중 파이썬 버전에서 어떤 기능이 기본으로 활성화된다 하더라도, 이 기능을 사용하는 기존 코드는 문제가 발생하지 않는다.
+`__future__` 에서는 어떤 기능 이름도 제거된 적이 없다. 따라서 나중 파이썬 버전에서 어떤 기능이 기본으로 활성화된다 하더라도, 이 기능을 사용하는 기존 코드는 문제가 발생하지 않는다.
 # **`platform.system()`**
 시스템/OS 이름을 반환합니다, 가령 `'Linux'`, `'Darwin'`, `'Java'`, `'Windows'` 값을 판별할 수 없으면 빈 문자열이 반환됩니다.
 # **`subprocess`**
@@ -585,7 +592,7 @@ return `(a // b, a % b)`
 f'{h:0>2.0f}'
 ```
 
-`f'{[variant]:[Padding number][align][전체 자리수].[소수점 이하 자리수]f}'`
+`f'{[variant]:[Padding number][align][전체 자리수].[소수점 이하 자리수][type]}'`
 
 **예시 해석**
 
@@ -615,19 +622,23 @@ URL로 표시된 네트워크 객체를 로컬 파일에 복사한다.
 Path.exists()
 ```
 `path`가 기존의(현재 존재하는) 경로를 가리키고 있으면 `True`반환
+
 ## **`Path.mkdir`**
 ```python
 Path.mkdir(mode=511, parents=False, exist_ok=False)
 ```
 주어진 경로에 대해 새로운 경로를 생성한다.
+
+## **`Path, opeartor /`**
+`/` 연산을 오버로딩하여 탐색한 결과를 `Path` 클래스로 리턴한다.
+
 ```python
 >>> p = Path('/etc')
 >>> q = p / 'init.d' / 'reboot'
 >>> q
 PosixPath('/etc/init.d/reboot')
 ```
-## **`Path, opeartor /`**
-`/` 연산을 오버로딩하여 탐색한 결과를 `Path` 클래스로 리턴한다.
+
 ## **`PurePath.stem`**
 `path`의 마지막 요소를 suffix를 제거하고 반환한다.
 ```python
