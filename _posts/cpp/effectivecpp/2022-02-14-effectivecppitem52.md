@@ -1,6 +1,6 @@
 ---
 layout: single
-title: "위치지정 new를 작성한다면 위치지정 delete도 같이 준비하자"
+title: "EffectiveCpp 52:위치지정 new를 작성한다면 위치지정 delete도 같이 준비하자"
 date: 2022-02-14 16:07:48
 lastmod : 2022-02-14 16:07:51
 categories: EffectiveCpp

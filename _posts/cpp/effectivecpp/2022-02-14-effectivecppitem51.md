@@ -1,6 +1,6 @@
 ---
 layout: single
-title: "new 및 delete를 작성할 때 따라야 할 기존의 관례를 잘 알아 두자"
+title: "EffectiveCpp 51:new 및 delete를 작성할 때 따라야 할 기존의 관례를 잘 알아 두자"
 date: 2022-02-14 13:59:47
 lastmod : 2022-02-14 15:14:40
 categories: EffectiveCpp
