@@ -274,6 +274,10 @@ Query OK, 0 rows affected (0.05 sec)
 
 
 # 내장 `MYSQL` 함수
+
+## `now()`
+현재 날짜와 시간을 리턴하는 내장 `MySQL` 함수
+
 ```sql
 mysql> SELECT now();
 +---------------------+
@@ -283,7 +287,6 @@ mysql> SELECT now();
 +---------------------+
 1 row in set (0.00 sec)
 ```
-`now()` : 현재 날짜와 시간을 리턴하는 내장 `MySQL` 함수
 
 
 # `ERROR`
@@ -345,6 +348,7 @@ Rows matched: 1  Changed: 1  Warnings: 0
 ```
 
 ### `string` to `datetime` format
+
 |format|explanation|
 |-|-|
 |%a| The short weekday name, such as Sun, Mon, ...|

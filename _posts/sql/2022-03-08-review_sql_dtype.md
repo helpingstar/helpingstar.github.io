@@ -7,6 +7,7 @@ categories: sql
 tag: [sql]
 toc: true
 toc_sticky: true
+use_math: true
 ---
 # 문자 데이터
 ## 고정 길이 문자열
@@ -31,6 +32,7 @@ varchar(20) /* variable-length */
 ## 캐릭터셋
 각 문자마다 여러 바이트의 저장공간이 필요한데, 이러한 문자 집합, 즉 캐릭터셋을 **멀티바이트캐릭터셋**이라고 한다.
 `MySQL은 싱글 바이트 및 멀티 바이트의 다양한 캐릭터셋을 모두 사용하여 데이터를 저장할 수 있다. 
+
 ```SQL
 mysql> SHOW CHARACTER SET;
 +----------+------------------------- +---------------------+--------+
@@ -47,6 +49,7 @@ mysql> SHOW CHARACTER SET;
 ...
 41 rows in set (0.00 sec)
 ```
+
 `show` 명령어를 사용하면 서버에서 지원되는 캐릭터셋을 볼 수 있다.
 
 네 번째 열 `maxlen`의 값이 `1`보다 크면 캐릭터셋이 멀티 바이트 캐릭터셋이라는 의미이다.
@@ -80,8 +83,10 @@ create database european_sales character set latin1;
 * MYSQL은 이제 `varchar` 열에 최대 65,535바이트를 허용하므로 `tinytext`나 `text` 자료형을 사용할 필요가 없다.
   
 ### ex)
-`varchar` : 고객과의 상담 내역을 저장하기 위해 자유 형식의 데이터 입력용 열
-`mediumtext`, `longtext` : 문서를 저장
+* `varchar` : 고객과의 상담 내역을 저장하기 위해 자유 형식의 데이터 입력용 열
+
+
+* `mediumtext`, `longtext` : 문서를 저장
 
 # 숫자 데이터
 * 고객 주문의 배송 여부를 나타내는 열
@@ -136,6 +141,7 @@ create database european_sales character set latin1;
 ex) `datetime(2)` : 시간 값이 100분의 1초를 포함한다.
 
 **날짜 형식의 구성 요소**
+
 |Component|Definition|Range|
 |-|-|-|
 |`YYYY`|Year, including century|1000 to 9999|
