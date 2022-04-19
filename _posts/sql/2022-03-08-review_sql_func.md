@@ -2,7 +2,7 @@
 layout: single
 title: "SQL 명령어 복습"
 date: 2022-03-08 13:41:50
-lastmod : 2022-03-08 13:41:48
+lastmod : 2022-04-19 18:16:28
 categories: sql
 tag: [sql]
 toc: true
@@ -53,10 +53,7 @@ mysql> CREATE TABLE person
     -> eye_color ENUM('BR','BL','GR'),
     -> birth_date DATE,
     -> street VARCHAR(30),
-    -> city VARCHAR(20),
-    -> state VARCHAR(20),
-    -> country VARCHAR(20),
-    -> postal_code VARCHAR(20),
+    ...
     -> CONSTRAINT pk_person PRIMARY KEY (person_id)
     -> );
 Query OK, 0 rows affected (0.08 sec)
@@ -66,12 +63,13 @@ SQL문을 생성하여 데이터베이스에 테이블을 만든다.
 ## `Constraint`
 
 ## Primary Key Constraint
+
 ```sql
 CREATE TABLE [Table Name]
 (
-    field_name field_type,
+    field_name field_type,  
     ...
-    CONSTRAINT [constraint_name] PRIMARY KEY field_name
+    [CONSTRAINT constraint_name] PRIMARY KEY field_name
 )
 ```
 ```sql
@@ -146,6 +144,35 @@ mysql> desc person;
 * `Extra` : 열에 적용될 수 있는 기타 정보
 
 # `ALTER TABLE`
+## `ADD`
+
+```sql
+ALTER TABLE talbe_name ADD field_name field_type
+```
+
+`ALTER TABLE` 문과 함께 `ADD` 문을 사용하면, 테이블에 필드를 추가할 수 있다.
+
+```sql
+ALTER TABLE Reservation
+ADD Phone INT;
+```
+
+`Reservation` 테이블에 타입이 `INT`인 `Phone` 필드를 추가한다.
+
+## `DROP`
+
+```sql
+ALTER TABLE table_name DROP field_name
+```
+
+`ALTER TABLE` 문과 함께 `DROP` 문을 사용하면, 테이블의 필드를 삭제할 수 있다.
+
+```sql
+ALTER TABLE Reservation
+DROP RoomNum;
+```
+
+`Reservation` 테이블에서 `RoomNum` 필드를 삭제하는 예제
 
 ## `MODIFY`
 ```sql
@@ -200,6 +227,8 @@ Query OK, 1 row affected (0.01 sec)
 
 ## `SELECT`
 `select` 문의 첫 번째 절이지만 데이터베이스 서버가 판단하는 마지막 절 중 하나이다. 최종 결과셋에 포함할 항목을 결정하려면 최종 결과셋에 포함될 수 있는 모든 열을 먼저 알아야 하기 때문이다.
+
+대소문자를 구분하지 않는다.
 
 **설명 1**
 
@@ -272,6 +301,7 @@ mysql> SELECT language_id, name
 
 `select` 절에 포함할 수 있는 항목
 * 숫자 또는 문자열과 같은 **리터럴**
+  * 해당 **리터럴**로 채워진 한 열이 생성된다.
 * `transaction.amount * -1`과 같은 **표현식**
 * `ROUND(transaction.amount, 2)`와 같은 **내장 함수** 호출
 * **사용자 정의 함수** 호출
@@ -599,6 +629,50 @@ mysql> SELECT title, rating, rental_duration
 68 rows in set (0.00 sec)
 ```
 
+### `String Operations`
+
+* percent(`%`) : The `%` character matches any substring
+  * `'Intro%'` : matches any string beginning with "Intro"
+  * `'%Comp%'` : matches any string containing "Comp" as a substring.
+* underscore(`_`) : The `_` character matches any character.
+  * `'___'` : matches any string of **exactly** three characters
+  * `'___%'` : matches any string of **at least** three characters
+
+*[Find the `names` of all `instructors` whose `name` includes the substring "dar"]*
+```sql
+SELECT name
+FROM instructor
+WHERE name LIKE '%dar%';
+```
+
+*[Match the string "100%"]*
+```sql
+...
+LIKE '100\%' ESCAPE '\'
+```
+
+### `BETWEEN`
+*[ Find the `name` of all `instructors` with `salary` `between` $90,000 and $100,000 (that is, >=$90,000 and <=$100,000) ]*
+
+```sql
+...
+WHERE salary between 90000 and 100000
+```
+
+### `exists`
+인자의 하위 질의가 비어 있지 않을 때 `true`를 반환한다. 
+```sql
+A exists B
+```
+A의 요소가 B에 있으면 출력
+
+### `unique`
+```sql
+A unique B
+```
+`B`가 중복을 포함하고 있지 않다면 `true`를 반환한다.
+
+
 ## `GROUP BY`,  `HAVING`
 * `GROUP BY` : 데이터를 열 값 별로 그룹화 한다.
 * `HAVING` : `where` 절에서 원시 데이터를 필터링한다.
@@ -645,16 +719,7 @@ mysql> SELECT c.first_name, c.last_name,
 | JEFFERY    | PINSON    | 22:53:33    |
 | ELMER      | NOE       | 22:55:13    |
 | MINNIE     | ROMERO    | 23:00:34    |
-| MIRIAM     | MCKINNEY  | 23:07:08    |
-| DANIEL     | CABRAL    | 23:09:38    |
-| TERRANCE   | ROUSH     | 23:12:46    |
-| JOYCE      | EDWARDS   | 23:16:26    |
-| GWENDOLYN  | MAY       | 23:16:27    |
-| CATHERINE  | CAMPBELL  | 23:17:03    |
-| MATTHEW    | MAHAN     | 23:25:58    |
-| HERMAN     | DEVORE    | 23:35:09    |
-| AMBER      | DIXON     | 23:42:56    |
-| TERRENCE   | GUNDERSON | 23:47:35    |
+...
 | SONIA      | GREGORY   | 23:50:11    |
 | CHARLES    | KOWALSKI  | 23:54:34    |
 | JEANETTE   | GREENE    | 23:54:46    |
@@ -678,9 +743,7 @@ mysql> SELECT c.first_name, c.last_name,
 | DANIEL     | CABRAL    | 23:09:38    |
 | CATHERINE  | CAMPBELL  | 23:17:03    |
 | HERMAN     | DEVORE    | 23:35:09    |
-| AMBER      | DIXON     | 23:42:56    |
 ...
-| ELMER      | NOE       | 22:55:13    |
 | JEFFERY    | PINSON    | 22:53:33    |
 | MINNIE     | ROMERO    | 23:00:34    |
 | TERRANCE   | ROUSH     | 23:12:46    |
@@ -703,9 +766,7 @@ mysql> SELECT c.first_name, c.last_name,
 | DANIEL     | CABRAL    | 23:09:38    |
 | CATHERINE  | CAMPBELL  | 23:17:03    |
 | HERMAN     | DEVORE    | 23:35:09    |
-| AMBER      | DIXON     | 23:42:56    |
 ...
-| ELMER      | NOE       | 22:55:13    |
 | JEFFERY    | PINSON    | 22:53:33    |
 | MINNIE     | ROMERO    | 23:00:34    |
 | TERRANCE   | ROUSH     | 23:12:46    |
@@ -742,7 +803,7 @@ mysql> SELECT c.first_name, c.last_name,
 ```
 내림차순 정렬은 보통 '상위 5개 계좌의 잔고 표시'와 같은 쿼리 순위를 지정할 때 사용된다.
 
-### 순서를 통한 정렬
+### **순서를 통한 정렬**
 `select` 절의 열로 정렬할 때는 이름 대신 `select` 절의 열 나열 순서를 기준으로 열을 참조할 수 있다. 이는 `asc`/`desc` 예제와 마찬가지로 표현식을 정렬할 때 특히 유용하다.
 
 *[`select` 절의 세 번째 요소(열)로 내림차순 정렬을 지정한다.]*
@@ -795,18 +856,35 @@ Rows matched: 1  Changed: 1  Warnings: 0
 * `Changed: 1` : 표의 단일 행이 수정됨
 * `where` 절을 모두 생략하면 `update` 문이 테이블의 모든 행을 수정한다.
   
+f
+
 # `DELETE`
 ```sql
 DELETE FROM [table_name]
 WHERE [field_name]=[data_value]
 ```
 
+*[`person_id`가 2인 튜플을 삭제하라]*
 ```sql
 mysql> DELETE FROM person
     -> WHERE person_id = 2;
 Query OK, 1 row affected (0.01 sec)
 ```
 `update` 문과 마찬가지로 `where`조건에 따라 둘 이상의 행을 삭제할 수 있으며, `where` 절을 생략하면 모든 행이 삭제된다.
+
+*[`instructor` 릴레이션에서 모든 튜플을 삭제한다.]*
+```sql
+DELETE FROM instructor
+```
+`instructor` 릴레이션 자체는 존재하지만, 비어 있다.
+
+*[대학교의 평균보다 낮은 급여를 가진 모든 교수의 레코드를 삭제한다.]*
+```sql
+DELETE FROM instructor
+WHERE salary < (SELECT avg(salary) from instructor)
+```
+`delete` 문은 먼저 `instructor` 릴레이션의 각각의 튜플에 대해 대학교의 평균값보다 작은 급여를 가진 교수인지 테스트한다. 그 후 검사에서 실패하는 모든 튜플, 즉 평균 급여 이하의 교수를 모두 삭제한다. 모든 테스트는 삭제를 수행하기 전에 수행하는 것이 중요하다. 만일 어떤 튜플이 다른 튜플을 테스트하기 전에 삭제되었다면 평균 급여를 바뀔 것이고 `delete`의 최종 결과는 튜플이 처리되는 순서에 따라 결정될 것이다.
+
 # `use`
 ```sql
 mysql> use sakila;
