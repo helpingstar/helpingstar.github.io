@@ -2,7 +2,7 @@
 layout: single
 title: "SQL 복습"
 date: 2022-04-19 18:22:01
-lastmod : 2022-04-19 18:22:04
+lastmod : 2022-05-13 12:14:46
 categories: sql
 tag: [sql]
 toc: true
@@ -164,3 +164,45 @@ SELECT ..., CASE
 ```sql
 SELECT *, date_format(Column_name1, '%Y-%m-%d')
 ```
+
+# 16
+
+https://www.hackerrank.com/challenges/earnings-of-employees/problem
+
+```sql
+SELECT salary * months AS earnings, COUNT(*)
+FROM Employee
+GROUP BY earnings
+ORDER BY earnings DESC
+LIMIT 1;
+```
+
+# 17
+https://www.hackerrank.com/challenges/the-blunder/problem?isFullScreen=true
+
+*[특정 문자를 변경해서 표시]*
+```
+SELECT REPLACE(field_name, TARGET, NEW)
+FROM table_name;
+```
+*[특정 문자를 변경해서 업데이트]*
+```
+UPDATE 테이블명 SET 
+필드명 = REPLACE(필드명, TARGET, NEW);
+WHERE 조건문
+```
+*[ex]*
+```sql
+/*  -- 테이블 submachtbl 에서 */
+UPDATE `submachtbl` SET
+/* machID 필드에서 'mc1'를 'mc2'로 변경한다. */
+machID = REPLACE(machID, 'mc1', 'mc2')
+/* 단, machID는 'mc1'이고 machName은 'newMc'에 한해서 */
+WHERE machID='mc1' AND machName='newMc';
+```
+
+```sql
+SELECT CEIL(AVG(salary) - AVG(replace(salary,0,'')))
+FROM employees
+```
+
