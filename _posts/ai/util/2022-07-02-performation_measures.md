@@ -4,9 +4,10 @@ title: "머신러닝/딥러닝 성능 지표"
 date: 2022-07-02 00:21:19
 lastmod : 2022-07-02 00:21:23
 categories: EffectiveCpp
-tag: [cpp, c++, new, delete]
+tag: [confusion matrix]
 toc: true
 toc_sticky: true
+use_math: true
 ---
 
 # **오차 행렬**
@@ -25,8 +26,10 @@ toc_sticky: true
 $FPR=\frac{FP}{FP+TN}=1-TNR=1-\frac{TN}{FP+TN}$
 
 # **`f1-score`**
+
 $F_{1}=\frac{2}{\frac{1}{precision}+\frac{1}{recall}}=2\times\frac{preicision\times recall}{preicison+recall}=\frac{TP}{TP+\frac{FN+FP}{2}}$
 
+정밀도(precision)와 재현율(recall)의 조화평균
 
 
 
