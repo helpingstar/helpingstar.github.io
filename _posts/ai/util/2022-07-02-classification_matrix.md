@@ -3,8 +3,8 @@ layout: single
 title: "머신러닝/딥러닝 분류 성능지표"
 date: 2022-07-02 00:21:19
 lastmod : 2022-07-02 00:21:23
-categories: EffectiveCpp
-tag: [confusion matrix]
+categories: ML/DL/RL
+tag: [confusion matrix, f1 score, f beta score, pr-curve, roc-curve, auc]
 toc: true
 toc_sticky: true
 use_math: true
@@ -12,7 +12,7 @@ use_math: true
 
 # **오차 행렬**
 
-![confusion_matrix](../../../assets/images/ai/confusion_matrix.jpg)
+![confusion_matrix](../../../assets/images/ai/confusion_matrix.jpg){: width="80%" height="100%"}
 
  - **정밀도**(precision) = $\frac{TP}{TP+FP}$
    - True로 분류된 것 중에 실제로 True인 비율
@@ -25,7 +25,8 @@ use_math: true
 
 $FPR=\frac{FP}{FP+TN}=1-TNR=1-\frac{TN}{FP+TN}$
 
-예시
+ex)
+
 ![multi_confusion_matrix](../../../assets/images/ai/multi_ConfusionMatrix.png)
 
 # **`f1 score`**
@@ -58,9 +59,9 @@ $\beta$의 값으로써 두 가지가 가장 많이 사용된다
 # **PR Curve**
 다른 임계값에 대한 정밀도와 재현율간의 트레이드 오프를 보여준다.
 
-![pr_curve_x](../../../assets/images/ai/pr_curve_x.png)
+![pr_curve_x](../../../assets/images/ai/pr_curve_x.png){: width="50%" height="50%"}
 
-![pr_curve](../../../assets/images/ai/pr_curve.png)
+![pr_curve](../../../assets/images/ai/pr_curve.png){: width="50%" height="50%"}
 
 위 사진의 경우 재현율 80% 근처에서 정밀도가 급격하게 줄어드는데 이 하강점 지점을 정밀도/재현율 트레이드오프로 선택하는 것이 좋다.
 
@@ -75,14 +76,14 @@ $\beta$의 값으로써 두 가지가 가장 많이 사용된다
 이진 분류에서 널리 사용한다. 거짓 양성 비율(FPR)에 대한 진짜 양성 비율(TPR, Recall)의 비율, True로 분류된 것들 중에서 실제 값이 어떤것이었느냐에 대한 트레이드오프를 나타낸다.
 
 
-![roc_curve](../../../assets/images/ai/roc_curve.png)
+![roc_curve](../../../assets/images/ai/roc_curve.png){: width="50%" height="50%"}
 
 재현율(TPR)이 높을수록 거짓 양성(FPR)이 늘어난다. 점선은 완전 랜덤 분류기이며, 이와 멀수록(왼쪽 모서리에 가까울수록) 성능이 좋다는 뜻이다
 
 ## **AUC**
 곡선 아래의 면적(area under the curve) 완전한 분류기는 1에 가까울 수록 성능이 좋다는 뜻이며 완전 랜덤 분류기는 0.5이다.
 
-![roc_curve](../../../assets/images/ai/roc_curve_google.svg)
+![roc_curve](../../../assets/images/ai/roc_curve_google.svg){: width="50%" height="50%"}
 
 ## **PR curve vs ROC curve**
 PR curve는 양성 클래스가 드물거나 거짓 음성보다 거짓 양성이 더 중요할 때 그렇지 않으면 ROC curve를 사용한다. 
