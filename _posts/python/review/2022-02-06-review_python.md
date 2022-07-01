@@ -680,7 +680,30 @@ gzip.open(filename, mode='rb', compresslevel=9, encoding=None, errors=None, newl
 shutil.copyfileobj(f1, f2[, length])
 ```
 열린 파일 객체 `f1`의 모든 데이터를 파일 객체 `f2`로 복사한다. `length`는 사용할 가장 큰 버퍼 크기를 명시한다. 음수 값은 데이터 전체를 한 번의 연산으로 복사하려고 시도한다.(즉, 모든 데이터를 하나의 덩어리로 읽은 다음 쓴다.)
+# **`OS`**
+## **`walk`**
+```python
+os.walk(top, topdown=True, onerror=None, followlinks=False)
+```
 
+`os` 모듈의 `walk()` 함수는 디렉터리의 하위 트리 구조를 재귀적으로 검색해 가면서 디렉터리 목록과 파일 목록을 전달해 준다.
+
+인수 `top`에서 시작하여 하위 디렉터리를 검색해 가면서 디렉터리 목록과 파일을 반복적으로 전달한다. 반환 형식은 튜플 `(dirpath, dirnames, filenames)` 이다. 디렉터리를 검색하는 순서는 인수 `topdown`이 결정한다. 인수 `onerror`는 `OSError` 에러가 발생하면 호출되는 함수이고, 인수 `followlinks`가 `True`이면 심볼릭 링크 파일로 지정된 디렉터리도 검색한다.
+
+```python
+>>> import os
+>>> for curdir, dirs, files in os.walk('.'):
+        print('curdir=', curdir)
+        print('dirs=', dirs[:5])
+        print('files=', files[:5])
+        print('-'*60)
+```
+
+```python
+curdir = .
+dirs = ['DLLs', 'Doc', 'include', 'Lib', 'libs']
+files = ['books.db', 'LICENSE.txt', 'NEWS.txt', 'pets.db', 'python.exe']
+```
 
 
 # **참고**
