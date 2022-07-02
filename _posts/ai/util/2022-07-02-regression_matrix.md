@@ -1,6 +1,6 @@
 ---
 layout: single
-title: "머신러닝/딥러닝 회귀 성능지표"
+title: "머신러닝 회귀 성능지표 machine leanring regression metrix"
 date: 2022-07-02 03:40:23
 lastmod : 2022-07-02 03:40:19
 categories: ML

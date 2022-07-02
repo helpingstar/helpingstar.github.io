@@ -1,6 +1,6 @@
 ---
 layout: single
-title: "머신러닝/딥러닝 분류 성능지표"
+title: "머신러닝 분류 성능지표 machine learning classification metrix"
 date: 2022-07-02 00:21:19
 lastmod : 2022-07-02 00:21:23
 categories: ML
@@ -88,11 +88,11 @@ $\beta$의 값으로써 두 가지가 가장 많이 사용된다
 ## **PR curve vs ROC curve**
 PR curve는 양성 클래스가 드물거나 거짓 음성보다 거짓 양성이 더 중요할 때 그렇지 않으면 ROC curve를 사용한다. 
 
-예를들어 False가 훨씬 많다고 가정하자 그러면 FPR은 실제 음성인 것 중에 True로 예측된 것들인데 이것은 분모가 매우 크고 분자가 작으므로 낮게 나오고 이로 인하여 Recall은 적당히 타협해도 많은 True를 True로 분류할 수 있기 때문에 성능이 좋게 나오게 된다. 하지만 이경우 PR curve에서는 적당히 타협하느라 True로 분류해버린 False들이 들키게 되어 이럴 경우 PR이 좋은 것이다.
+예를들어 `False`가 훨씬 많다고 가정하자 그러면 FPR은 실제 음성인 것 중에 `True`로 예측된 것들인데 이것은 분모가 매우 크고 분자가 작으므로 낮게 나오고 이로 인하여 Recall은 적당히 타협해도 많은 `True`를 `True`로 분류할 수 있기 때문에 성능이 좋게 나오게 된다. 하지만 이경우 PR curve에서는 적당히 타협하느라 `True`로 분류해버린 `False`들이 들키게 되어 이럴 경우 PR이 좋은 것이다.
 
 FFFFFFFFFFFFFFFFFFF~FFFFFFFFFF(1)FFFFFTF(2)FFFFTFTTTFTTTTT
 
-쉽게 설명하면 ~부분이 정말 많다고 하자, 그렇다면 (1)을 threshold로 하던 (2)로 하던 F의 비중이 매우 많기 때문에 FPR이 낮게 나올 것이다. 그리고 많은 T의 대다수를 T로 분류할 수 있게 될 것이다. 그래서 성능이 높아보이는 착각을 일으킬 것인데 PR curve는 Preicison에서 True로 분류된 것중에서 실제 True를 검사하는데 여기서 (1)과 (2)사이에 있는 F들이 성능지표에 포함되기 때문에 False가 훨씬 많은 경우 PR curve가 좋다.
+쉽게 설명하면 ~부분이 정말 많다고 하자, 그렇다면 (1)을 threshold로 하던 (2)로 하던 F의 비중이 매우 많기 때문에 FPR이 낮게 나올 것이다. 그리고 많은 T의 대다수를 T로 분류할 수 있게 될 것이다. 그래서 성능이 높아보이는 착각을 일으킬 것인데 PR curve는 Preicison에서 `True`로 분류된 것중에서 실제 `True`를 검사하는데 여기서 (1)과 (2)사이에 있는 F들이 성능지표에 포함되기 때문에 False가 훨씬 많은 경우 PR curve가 좋다.
 
 > 출처
  - Aurelien, Geron, 『핸즈온 머신러닝』, 박해선, 한빛미디어(2020)
