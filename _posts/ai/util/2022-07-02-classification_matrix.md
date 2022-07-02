@@ -12,7 +12,7 @@ use_math: true
 
 # **오차 행렬**
 
-![confusion_matrix](../../../assets/images/ai/confusion_matrix.jpg){: width="50%" height="50%"}
+![confusion_matrix](../../../assets/images/ai/confusion_matrix.jpg){: width="75%" height="75%"}
 
  - **정밀도**(precision) = $\frac{TP}{TP+FP}$
    - True로 분류된 것 중에 실제로 True인 비율
@@ -67,7 +67,7 @@ $\beta$의 값으로써 두 가지가 가장 많이 사용된다
 
 정밀도 곡선이 재현율 곡선에 비해 왜 더 울퉁불퉁할까. 그것은 임곗값을 올리더라도 정밀도가 가끔 낮아질 때가 있기 때문이다. 일반적으로는 더 높아져야 한다. 그 이유는 아래 사진을 보면 알 수 있다.
 
-![pr_curve](../../../assets/images/ai/pr_trade_off.png)
+![pr_trade_off](../../../assets/images/ai/pr_trade_off.png)
 가운데 임곗값에서 오른쪽으로 숫자 하나만큼 이동하면 정밀도는 80%에서 75%로 줄어든다. 반면 재현율은 임곗값이 올라감에 따라 줄어들 수 밖에 없어 부드러운 곡선이다.
 
 다시 말하자면 Recall이 낮으면 True인 것에 대해서 True라고 판정하지 못한것이 많다는 뜻이고 Precision은 True라고 예측한 것중에 True인 것들인데 그에따라 범위를 좁히면서 적은것들(난이도 쉬운 것들)에 대해 잘 맞추기에 수치가 높은 것이다. 그러면 True라고 예측한 것들의 분모가 줄어드는데 거기서 하나라도 False인 것이 나온다면 변동이 크기 때문에 Preicison이 커지는 부분에서 Precision 그래프가 튀는 것이다.
