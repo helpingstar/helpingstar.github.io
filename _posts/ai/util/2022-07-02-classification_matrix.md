@@ -12,7 +12,7 @@ use_math: true
 
 # **오차 행렬**
 
-![confusion_matrix](../../../assets/images/ai/confusion_matrix.jpg){: width="75%" height="75%"}
+![confusion_matrix](../../../assets/images/ai/confusion_matrix.jpg){: width="75%" height="75%" class="align-center"}
 
  - **정밀도**(precision) = $\frac{TP}{TP+FP}$
    - True로 분류된 것 중에 실제로 True인 비율
@@ -27,11 +27,11 @@ $FPR=\frac{FP}{FP+TN}=1-TNR=1-\frac{TN}{FP+TN}$
 
 ex)
 
-![multi_confusion_matrix](../../../assets/images/ai/multi_ConfusionMatrix.png){: width="50%" height="50%"}
+![multi_confusion_matrix](../../../assets/images/ai/multi_ConfusionMatrix.png){: width="50%" height="50%" class="align-center"}
 
 # **`f1 score`**
 
-![FPR_TNR](../../../assets/images/ai/FPR_TNR.svg)
+![FPR_TNR](../../../assets/images/ai/FPR_TNR.svg){:class="align-center"}
 
 정밀도(precision)와 재현율(recall)의 조화평균
 
@@ -44,7 +44,7 @@ ex)
 # **`f beta score`**
 $F$ 점수의 일반화된 조화 평균 식
 
-![FPR_TNR](../../../assets/images/ai/f_beta_1.svg)
+![FPR_TNR](../../../assets/images/ai/f_beta_1.svg){:class="align-center"}
 
 $\beta$가 1보다 크면 재현율이 강조되고 1보다 작으면 정밀도가 강조된다
 
@@ -76,14 +76,14 @@ $\beta$의 값으로써 두 가지가 가장 많이 사용된다
 이진 분류에서 널리 사용한다. 거짓 양성 비율(FPR)에 대한 진짜 양성 비율(TPR, Recall)의 비율, True로 분류된 것들 중에서 실제 값이 어떤것이었느냐에 대한 트레이드오프를 나타낸다.
 
 
-![roc_curve](../../../assets/images/ai/roc_curve.png){: width="50%" height="50%"}
+![roc_curve](../../../assets/images/ai/roc_curve.png){: width="50%" height="50%"}{:class="align-center"}
 
 재현율(TPR)이 높을수록 거짓 양성(FPR)이 늘어난다. 점선은 완전 랜덤 분류기이며, 이와 멀수록(왼쪽 모서리에 가까울수록) 성능이 좋다는 뜻이다
 
 ## **AUC**
 곡선 아래의 면적(area under the curve) 완전한 분류기는 1에 가까울 수록 성능이 좋다는 뜻이며 완전 랜덤 분류기는 0.5이다.
 
-![roc_curve](../../../assets/images/ai/roc_curve_google.svg){: width="50%" height="50%"}
+![roc_curve](../../../assets/images/ai/roc_curve_google.svg){: width="50%" height="50%"}{:class="align-center"}
 
 ## **PR curve vs ROC curve**
 PR curve는 양성 클래스가 드물거나 거짓 음성보다 거짓 양성이 더 중요할 때 그렇지 않으면 ROC curve를 사용한다. 
