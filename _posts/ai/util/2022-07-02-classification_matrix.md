@@ -27,7 +27,7 @@ $FPR=\frac{FP}{FP+TN}=1-TNR=1-\frac{TN}{FP+TN}$
 
 ex)
 
-![multi_confusion_matrix](../../../assets/images/ai/multi_ConfusionMatrix.png){: width="50%" height="50%" class="align-center"}
+![multi_confusion_matrix](../../../assets/images/ai/multi_ConfusionMatrix.png){: width="80%" height="80%" class="align-center"}
 
 # **`f1 score`**
 
@@ -59,9 +59,9 @@ $\beta$의 값으로써 두 가지가 가장 많이 사용된다
 # **PR Curve**
 다른 임계값에 대한 정밀도와 재현율간의 트레이드 오프를 보여준다.
 
-![pr_curve_x](../../../assets/images/ai/pr_curve_x.png){: width="50%" height="50%"}
+![pr_curve_x](../../../assets/images/ai/pr_curve_x.png){: width="80%" height="80%" class="align-center"}
 
-![pr_curve](../../../assets/images/ai/pr_curve.png){: width="50%" height="50%"}
+![pr_curve](../../../assets/images/ai/pr_curve.png){: width="80%" height="80%" class="align-center"}
 
 위 사진의 경우 재현율 80% 근처에서 정밀도가 급격하게 줄어드는데 이 하강점 지점을 정밀도/재현율 트레이드오프로 선택하는 것이 좋다.
 

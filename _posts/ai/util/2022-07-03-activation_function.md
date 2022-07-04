@@ -17,6 +17,7 @@ $\sigma (t)=\frac{1}{1+exp(-t)}$
 ![sigmoid_function](../../../assets/images/ai/sigmoid_function.png){: width="75%" height="75%" class="align-center"}
 
  - 출력 범위가 0~1 사이로 한정되어 있어 양극단에서 기울기가 급격히 감소하므로 오차 그레이디언트를 잘 역전파하지 못한다.
+
 # 초기화 전략
 
 `Xavier initialization`, `Glorot initialization`
@@ -173,7 +174,7 @@ def calculate_gain(nonlinearity, param=None):
 $ReLU(z)=max(0, z)$
 ![ReLU](../../../assets/images/ai/ReLU.jpg){: width="75%" height="75%" class="align-center"}
 
- - 연속적이지만 $z=0$에서 미분 가능하지 않다. 기울기가 갑자기 변해서 경사 하강법이 엉뚱한 곳으로 튈 수 있다)
+ - 연속적이지만 $z=0$에서 미분 가능하지 않다. 기울기가 갑자기 변해서 경사 하강법이 엉뚱한 곳으로 튈 수 있다.
  - $ReLU(z) > 0$일 때 오차 그레이디언트를 그대로 역전파시킨다. 원점에서는 일반적으로 0을 사용한다. 따라서 $ReLU(z) \leq 0$ 일 때는 오차 그레이디언트를 역전파하지 않는다.
  - 생물학적 뉴런이 (S자 모양의) `sigmoid`를 활성화 한 구현한 것 처럼 보여 연구자들은 `sigmoid`를 한동안 집착했으나 일반적으로 `ReLU`가 인공신경망에서 더 잘 작동하다는 것이 밝혀졌다.
  - 계산 속도가 빠르다
@@ -185,19 +186,19 @@ $ReLU(z)=max(0, z)$
 
 ## `LeakyReLU`
 $LeakyReLU_{\alpha}(z)=max(\alpha z, z)$
-![leaky_relu](../../../assets/images/ai/leaky_relu.jpg){: width="75%" height="75%" class="align-center"}
+![leaky_relu](../../../assets/images/ai/leaky_relu.jpg){: width="50%" height="50%" class="align-center"}
 
  - 하이퍼 파라미터 $\alpha$가 이 함수가 새는(leaky)정도를 결정한다.
  - 새는 정도 : $z<0$일 때 이 함수의 기울기, 일반적으로 $\alpha=0.01$
- - 이 작은 기울기가 `LeakyReLU`를 절대 죽지 않게 한다(뉴런 다시 깨어날 가능성을 얻음).
+ - 이 작은 기울기가 `LeakyReLU`를 절대 죽지 않게 한다(뉴런이 다시 깨어날 가능성을 얻음).
  - `LeakyReLU`가 `ReLU`보다 항상 성능이 높다는 연구결과가 있다.<sup>[4](#footnote_4)</sup>
 
 ## `RReLU`
 Randomized Leaky ReLU
 
-![rrelu_graph](../../../assets/images/ai/rrelu_graph.jpg){: width="75%" height="75%" class="align-center"}
+![rrelu_graph](../../../assets/images/ai/rrelu_graph.jpg){: width="50%" height="50%" class="align-center"}
 
-![rrelu_info](../../../assets/images/ai/rrelu_info.jpg){: width="75%" height="75%" class="align-center"}
+![rrelu_info](../../../assets/images/ai/rrelu_info.jpg){: width="50%" height="50%" class="align-center"}
 
 위의 논문<sup>[4](#footnote_4)</sup>에서 $\alpha$를 무작위로 선택하고 테스트시에는 평균을 사용하는 방법도 사용했는데 이 방법도 꽤 잘 작동했으며 규제(regularization)의 역할을 하는 것처럼 보였다.
 
@@ -206,7 +207,7 @@ Randomized Leaky ReLU
 ## `PReLU`
 Parametric Leaky ReLU
 
-![prelu_info](../../../assets/images/ai/prelu_info.jpg){: width="75%" height="75%" class="align-center"}
+![prelu_info](../../../assets/images/ai/prelu_info.jpg){: width="50%" height="50%" class="align-center"}
 
 $\alpha$가 훈련되면서 학습된다. 대규모 이미지에서는 `ReLU`보다 성능이 크게 앞섰지만, 소규모 데이터셋에서는 훈련세트에 과대적합될 위험이 있다.
 
@@ -218,11 +219,11 @@ $\alpha$가 훈련되면서 학습된다. 대규모 이미지에서는 `ReLU`보
 $
 ELU_{a}(z)=
 \begin{cases}
-    \alpha(exp(z)-1),& \text{if } z<0\\
+    \alpha(exp(z)-1),& \text{if } z<0 \\
     0,              & \text{if } z\geq 0
 \end{cases}
 $
-![elu_graph](../../../assets/images/ai/elu_graph.jpg){: width="75%" height="75%" class="align-center"}
+![elu_graph](../../../assets/images/ai/elu_graph.jpg){: width="50%" height="50%" class="align-center"}
 
  - $z<0$일 때 음숫값이 들어오므로 활성화 함수의 평균 출력이 0에 더 가까워진다. 이는 그레이디언트 소실 문제를 완화해준다.
  - 하이퍼 파라미터 $\alpha$는 $z$가 큰 음숫값일 때 `ELU`가 수렴할 값을 정의한다. (보통 1)

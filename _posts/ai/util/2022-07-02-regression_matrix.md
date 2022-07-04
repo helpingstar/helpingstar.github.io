@@ -39,12 +39,12 @@ RMSE와 MAE 모두 예측값의 벡터와 타깃값의 벡터 사이의 거리�
 결정계수(coefficient of determination):
 모델 성능을 잘 해석하기 위해 만든 $MSE$의 표준화된 버전, 타깃의 분산에서 모델이 잡아낸 비율
 
-![r_square](../../../assets/images/ai/r_square.jpg){: width="50%" height="50%"}
+![r_square](../../../assets/images/ai/r_square.jpg){: width="80%" height="80%" class="align-center"}
 
 
 ex)
 
-![r_square_example](../../../assets/images/ai/r_square_example.jpg){: width="50%" height="50%"}
+![r_square_example](../../../assets/images/ai/r_square_example.jpg){: width="80%" height="80%" class="align-center"}
 
 
 $R^{2}$이 높다 = 분산의 설명력이 높다.
