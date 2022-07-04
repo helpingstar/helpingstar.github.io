@@ -16,6 +16,7 @@ $\sigma (t)=\frac{1}{1+exp(-t)}$
 
 ![sigmoid_function](../../../assets/images/ai/sigmoid_function.png){: width="75%" height="75%" class="align-center"}
 
+ - 출력 범위가 0~1 사이로 한정되어 있어 양극단에서 기울기가 급격히 감소하므로 오차 그레이디언트를 잘 역전파하지 못한다.
 # 초기화 전략
 
 `Xavier initialization`, `Glorot initialization`
@@ -110,13 +111,13 @@ def kaiming_uniform_(tensor: Tensor, a=0, mode='fan_in', nonlinearity='leaky_rel
         return tensor.uniform_(-bound, bound)
 ```
 
- - `_calculate_correct_fan`은 `mode` 변수의 값에 따라 `fan_in` 또는 `fan_out`을 반환한다. 그런데 여기서는 인자를 주지 않았으므로 기본값인 `fan_in`을 반환하게된다
+ - `fan` : `_calculate_correct_fan`은 `mode` 변수의 값에 따라 `fan_in` 또는 `fan_out`을 반환한다. 그런데 여기서는 인자를 주지 않았으므로 기본값인 `fan_in`을 반환하게된다
  - [gain](#calculate_gain) : 여기서는 `calcuate_gain` 함수를 호출하는데 (더 자세한 내용은 아래 서술한다 일단 함수에 집중해보자) `nonlinearity=leaky_relu`, `a=math.sqrt(5)`이므로 `negative_slope=math.sqrt(5)`에 해당하여 $\sqrt{2/(1+negative\_slope^{2})}=1/\sqrt{3}$를 반환하여 `gain`$=1/\sqrt{3}$이 된다.
- - `std` = $gain / \sqrt{fan}$ : `Linear`, `_ConvNd`의 경우 `mode` 파라미터에 인자를 주지 않았으므로 $fan=fan_{in}$이다.
- - `bound` = $\sqrt{3(std)}$
- - `return` : $\plusmn bound$ 에 대한 균등 분포가 반환된다.
+ - `std` : $\sigma=gain / \sqrt{fan}$
+ - `bound` = $\sqrt{3}\sigma$
+ - `return` : $\pm bound$ 에 대한 균등 분포가 반환된다.
 
-위에서 서술했던 `He initialization`(=`kaiming init`)인 $r=\sqrt{3\sigma^{2}}$에 대해 $\plusmn r$을 범위로 하는 균등분포를 쓰는 것이 확인되었다.
+위에서 서술했던 `He initialization`(=`kaiming init`)인 $r=\sqrt{3\sigma^{2}}$에 대해 $\pm r$을 범위로 하는 균등분포를 쓰는 것이 확인되었다.
 
 ## `calculate_gain`
 
@@ -125,6 +126,7 @@ def kaiming_uniform_(tensor: Tensor, a=0, mode='fan_in', nonlinearity='leaky_rel
 `gain`은 초기화 함수에 대한 scaling factor라고 한다.<sup>[3](#footnote_3)</sup> `non-linearity`에 적용하는 표준편차를 scale하기 위해 사용된다. `non-linearity`가 활성화의 표준편차에 영향을 주기 때문에 기울기 소실같은 문제가 발생할 수 있다. `non-linearity`에 대한 `gain`은 활성화에 대한 "좋은" 통계를 제공해야 한다.
 
 적절한 `gain` 값으로는 다음과 같다.
+
 | non-linearity    | gain                             |
 |-----------------|----------------------------------|
 | `Linear/Identity` | $1$                            |
@@ -165,12 +167,102 @@ def calculate_gain(nonlinearity, param=None):
 ```
 보다시피 위에서 설명했던 `gain`값을 얻는 과정을 나타내고 있으며 `SELU`의 경우 `gain`값이 경험적으로 얻어졌음을 나타내고 있다.
 
+# `ReLU`
+글로럿과 벤지오의 2010년 논문에서 얻은 통찰 중 하나는 활성화 함수를 잘못 선택하면 자칫 그레이디언트의 소실이나 폭주로 이어질 수 있다는 것이었다. 그래서 전에는 `sigmoid`함수가 최선일 것이라고 생각했으나 `ReLU` 같은 다른 활성화 함수가 심층 신경망에서 훨씬 더 잘 작동한다는 사실이 밝혀졌다.
+
+$ReLU(z)=max(0, z)$
+![ReLU](../../../assets/images/ai/ReLU.jpg){: width="75%" height="75%" class="align-center"}
+
+ - 연속적이지만 $z=0$에서 미분 가능하지 않다. 기울기가 갑자기 변해서 경사 하강법이 엉뚱한 곳으로 튈 수 있다)
+ - $ReLU(z) > 0$일 때 오차 그레이디언트를 그대로 역전파시킨다. 원점에서는 일반적으로 0을 사용한다. 따라서 $ReLU(z) \leq 0$ 일 때는 오차 그레이디언트를 역전파하지 않는다.
+ - 생물학적 뉴런이 (S자 모양의) `sigmoid`를 활성화 한 구현한 것 처럼 보여 연구자들은 `sigmoid`를 한동안 집착했으나 일반적으로 `ReLU`가 인공신경망에서 더 잘 작동하다는 것이 밝혀졌다.
+ - 계산 속도가 빠르다
+ - 출력에 최댓값이 없어 경사하강법에 있는 일부 문제를 완화해준다.
+
+**죽은 ReLU, dying ReLU**
+
+훈련하는 동안 일부 뉴런이 0 이외의 값을 출력하지 않는다. 특히 큰 학습률을 사용하면 신경망의 뉴런 절반이 죽어있기도 한다. 뉴런이 가중치가 바뀌어 훈련 세트에 있는 모든 샘플에 대해 입력의 가중치 합이 음수가 되면 `ReLU` 함수의 그레이디언트가 0이 되므로 경사 하강법이 더이상 작동하지 않는다.
+
+## `LeakyReLU`
+$LeakyReLU_{\alpha}(z)=max(\alpha z, z)$
+![leaky_relu](../../../assets/images/ai/leaky_relu.jpg){: width="75%" height="75%" class="align-center"}
+
+ - 하이퍼 파라미터 $\alpha$가 이 함수가 새는(leaky)정도를 결정한다.
+ - 새는 정도 : $z<0$일 때 이 함수의 기울기, 일반적으로 $\alpha=0.01$
+ - 이 작은 기울기가 `LeakyReLU`를 절대 죽지 않게 한다(뉴런 다시 깨어날 가능성을 얻음).
+ - `LeakyReLU`가 `ReLU`보다 항상 성능이 높다는 연구결과가 있다.<sup>[4](#footnote_4)</sup>
+
+## `RReLU`
+Randomized Leaky ReLU
+
+![rrelu_graph](../../../assets/images/ai/rrelu_graph.jpg){: width="75%" height="75%" class="align-center"}
+
+![rrelu_info](../../../assets/images/ai/rrelu_info.jpg){: width="75%" height="75%" class="align-center"}
+
+위의 논문<sup>[4](#footnote_4)</sup>에서 $\alpha$를 무작위로 선택하고 테스트시에는 평균을 사용하는 방법도 사용했는데 이 방법도 꽤 잘 작동했으며 규제(regularization)의 역할을 하는 것처럼 보였다.
+
+
+
+## `PReLU`
+Parametric Leaky ReLU
+
+![prelu_info](../../../assets/images/ai/prelu_info.jpg){: width="75%" height="75%" class="align-center"}
+
+$\alpha$가 훈련되면서 학습된다. 대규모 이미지에서는 `ReLU`보다 성능이 크게 앞섰지만, 소규모 데이터셋에서는 훈련세트에 과대적합될 위험이 있다.
+
+# `ELU`
+툐르크-아르네 클레베르트 등의 2015년 논문<sup>[5](#footnote_5)</sup>은 `ELU`(exponential linear unit)이라는 새로운 활성화 함수를 제안했다.
+
+이 함수는 저자들의 실험에서 다른 모든 `ReLU` 변종의 성능을 앞질렀다. 훈련 시간이 줄고 신경망의 테스트 성능도 더 높았다.
+
+$
+ELU_{a}(z)=
+\begin{cases}
+    \alpha(exp(z)-1),& \text{if } z<0\\
+    0,              & \text{if } z\geq 0
+\end{cases}
+$
+![elu_graph](../../../assets/images/ai/elu_graph.jpg){: width="75%" height="75%" class="align-center"}
+
+ - $z<0$일 때 음숫값이 들어오므로 활성화 함수의 평균 출력이 0에 더 가까워진다. 이는 그레이디언트 소실 문제를 완화해준다.
+ - 하이퍼 파라미터 $\alpha$는 $z$가 큰 음숫값일 때 `ELU`가 수렴할 값을 정의한다. (보통 1)
+ - $z<0$이어도 그레이디언트가 0이 아니므로 죽은 뉴런을 만들지 않는다.
+ - $\alpha=1$이면 이 함수는 $z=0$에서 급격히 변동하지 않으므로 $z=0$을 포함해 모든 구간에서 매끄러워 경사 하강법의 속도를 높여준다.
+
+단점 
+ - 계산이 느리다, 훈련시에는 수렴 속도가 빨라서 느린 계산이 상쇄되지만 테스트시에는 `ReLU`를 사용한 네트워크보다 느릴 것이다.
+
+## `SELU`
+권터 클람바우어 등의 2017년 논문<sup>[6](#footnote_6)</sup> `SELU`(Scaled ELU) 함수를 소개한다. 이는 스케일이 조정된 `ELU` 
+함수의 변종이다. 저자들은 완전 연결 층만 쌓아서 신경망을 만들고 모든 은닉층이 `SELU` 활성화 함수를 사용한다면 네트워크가 자기 정규화(self-normalize)된다는 것을 보였다. 훈련하는 동안 각 층의 출력이 평균 0과 표준편차 1을 유지하는 경향이 있다. 이는 그레이디언트 소실과 폭주 문제를 막아준다. 그 결과로 `SELU` 활성화 함수는 특히 아주 깊은 네트워크에서 다른 활성화 함수보다 뛰어난 성능을 종종 낸다.
+
+자기 정규화가 일어나기 위한 몇 가지 조건
+
+ - 입력 특성이 반드시 표준화(평균 0, 표준편차 1) 되어야 한다.
+ - 모든 은닉층의 기준치는 르쿤 정규분포 초기화로 초기화되어야 한다. 
+ - 네트워크는 일렬로 쌓은 층으로 구성되어야 한다. `RNN`이나 `Skip connection` 같은 구조에 `SELU`를 사용하면 자기 정규화되는 것이 보장되지 않는다. 성능 또한 마찬가지로 보장되지 않는다.(`CNN`의 경우에는 성능향상이 가능하다는 의견도 존재한다.)
+
+# 결론
+심층 신경망의 은닉층에는 일반적으로
+
+- `SELU` > `ELU` > `LeakyReLU` + a > `ReLU` > `tanh` > `sigmoid` 순이다.
+- 네트워크가 자기정규화되지 못하는 구조라면 `ELU`가 `SELU`보다 나을 수 있다. (`SELU`가 $z=0$에서 연속적이지 않기 때문에, 라고 책에 써있긴한데 여기서 `SELU`는 `ELU`에서 $\alpha \neq 1$로 보는 것 같다.)
+- 실행 속도가 중요하다면 `LeakyReLU`를 선택할 수 있다.
+-  신경망이 과대적합되었다면 `RReLU`
+-  훈련세트가 아주 크다면 `PReLU`를 포함시키면 좋다.
+-  `ReLU`가 (지금까지) 가장 널리 사용되는 활성화 함수이므로 많은 라이브러리와 하드웨어 가속기들은 `ReLU`에 특화되어 최적화되어 있다. 따라서 속도가 중요하다면 `ReLU`가 가장 좋을 것이다. (2019년 기준으로 2022년 지금은 다를 수 있다.)
 
 <a name="footnote_1">1</a>: [Glorot, Xavier, and Yoshua Bengio. "Understanding the difficulty of training deep feedforward neural networks."](https://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf)
 
-<a name="footnote_2">2</a>: [Kaiming He, "Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification"](https://arxiv.org/pdf/1502.01852.pdf)
+<a name="footnote_2">2</a>: [Kaiming He, "Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification"](https://arxiv.org/pdf/1502.01852)
 
 <a name="footnote_3">3</a>: https://discuss.pytorch.org/t/what-is-gain-value-in-nn-init-calculate-gain-nonlinearity-param-none-and-how-to-use-these-gain-number-and-why/28131
+
+<a name="footnote_4">4</a>: [Bing Xu, "Empirical Evaluation of Rectified Activations in Convolutional Network"](https://arxiv.org/abs/1505.00853)
+
+<a name="footnote_5">5</a>: [Djork-Arné Clevert, "Fast and Accurate Deep Network Learning by Exponential Linear Units (ELUs)"](https://arxiv.org/abs/1511.07289)
+
+<a name="footnote_6">6</a>: [Günter Klambauer, "Self-Normalizing Neural Networks"](https://arxiv.org/abs/1706.02515)
 
 > 출처
  - Aurelien, Geron, 『핸즈온 머신러닝』, 박해선, 한빛미디어(2020)
