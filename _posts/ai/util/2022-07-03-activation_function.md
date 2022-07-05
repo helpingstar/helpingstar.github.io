@@ -196,9 +196,9 @@ $LeakyReLU_{\alpha}(z)=max(\alpha z, z)$
 ## `RReLU`
 Randomized Leaky ReLU
 
-![rrelu_graph](../../../assets/images/ai/rrelu_graph.jpg){: width="50%" height="50%" class="align-center"}
+![rrelu_graph](../../../assets/images/ai/rrelu_graph.jpg){: width="80%" height="80%" class="align-center"}
 
-![rrelu_info](../../../assets/images/ai/rrelu_info.jpg){: width="50%" height="50%" class="align-center"}
+![rrelu_info](../../../assets/images/ai/rrelu_info.jpg){: width="80%" height="80%" class="align-center"}
 
 위의 논문<sup>[4](#footnote_4)</sup>에서 $\alpha$를 무작위로 선택하고 테스트시에는 평균을 사용하는 방법도 사용했는데 이 방법도 꽤 잘 작동했으며 규제(regularization)의 역할을 하는 것처럼 보였다.
 
@@ -207,7 +207,7 @@ Randomized Leaky ReLU
 ## `PReLU`
 Parametric Leaky ReLU
 
-![prelu_info](../../../assets/images/ai/prelu_info.jpg){: width="50%" height="50%" class="align-center"}
+![prelu_info](../../../assets/images/ai/prelu_info.jpg){: width="80%" height="80%" class="align-center"}
 
 $\alpha$가 훈련되면서 학습된다. 대규모 이미지에서는 `ReLU`보다 성능이 크게 앞섰지만, 소규모 데이터셋에서는 훈련세트에 과대적합될 위험이 있다.
 
