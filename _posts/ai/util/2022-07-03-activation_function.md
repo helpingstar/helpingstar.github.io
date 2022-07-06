@@ -2,9 +2,9 @@
 layout: single
 title: "딥러닝 활성화 함수"
 date: 2022-07-03 01:28:01
-lastmod : 2022-07-04 15:16:25
-categories: ML
-tag: [RMSE, MAE]
+lastmod : 2022-07-06 23:56:34
+categories: DL
+tag: [sigmoid, tanh, xavier, glorot, kaiming, weight initialization, relu, prelu, rrelu, leaky relu, elu, selu]
 toc: true
 toc_sticky: true
 use_math: true
@@ -17,6 +17,15 @@ $\sigma (t)=\frac{1}{1+exp(-t)}$
 ![sigmoid_function](../../../assets/images/ai/sigmoid_function.png){: width="75%" height="75%" class="align-center"}
 
  - 출력 범위가 0~1 사이로 한정되어 있어 양극단에서 기울기가 급격히 감소하므로 오차 그레이디언트를 잘 역전파하지 못한다.
+
+# **하이퍼볼릭 탄젠트, tanh**
+
+$tanh(z)=2\sigma(2z)-1$
+
+![tanH_graph](../../../assets/images/ai/tanh_graph.jpg){: width="75%" height="75%" class="align-center"}
+
+`sigmoid` 함수처럼 S자 모양이고 연속적이며 미분 가능하다. 하지만 출력 범위가 -1에서 1사이이다. 이 범위는 훈련 초기에 각 층의 출력을 원점 근처로 모으는 경향이 있다. 이는 종종 빠르게 수렴되도록 도와준다. 
+
 
 # 초기화 전략
 
@@ -113,7 +122,7 @@ def kaiming_uniform_(tensor: Tensor, a=0, mode='fan_in', nonlinearity='leaky_rel
 ```
 
  - `fan` : `_calculate_correct_fan`은 `mode` 변수의 값에 따라 `fan_in` 또는 `fan_out`을 반환한다. 그런데 여기서는 인자를 주지 않았으므로 기본값인 `fan_in`을 반환하게된다
- - [gain](#calculate_gain) : 여기서는 `calcuate_gain` 함수를 호출하는데 (더 자세한 내용은 아래 서술한다 일단 함수에 집중해보자) `nonlinearity=leaky_relu`, `a=math.sqrt(5)`이므로 `negative_slope=math.sqrt(5)`에 해당하여 $\sqrt{2/(1+negative\_slope^{2})}=1/\sqrt{3}$를 반환하여 `gain`$=1/\sqrt{3}$이 된다.
+ - [gain](#calculate_gain) : 여기서는 `calcuate_gain` 함수를 호출하는데 (더 자세한 내용은 아래 서술한다 일단 함수에 집중해보자) `nonlinearity=leaky_relu`, `a=math.sqrt(5)`이므로 `negative_slope=math.sqrt(5)`에 해당하여 $\sqrt{2/(1+negative \_ slope^{2})}=1/\sqrt{3}$를 반환하여 `gain`$=1/\sqrt{3}$이 된다.
  - `std` : $\sigma=gain / \sqrt{fan}$
  - `bound` = $\sqrt{3}\sigma$
  - `return` : $\pm bound$ 에 대한 균등 분포가 반환된다.
@@ -135,7 +144,7 @@ def kaiming_uniform_(tensor: Tensor, a=0, mode='fan_in', nonlinearity='leaky_rel
 | `Sigmoid`         | $1$                             |
 | `Tanh`            | $5/3$                            |
 | `ReLU`            | $\sqrt{2}$                       |
-| `Leaky Relu`      | $\sqrt{2/1+negative\_slope^{2}}$ |
+| `Leaky Relu`      | $\sqrt{2/1+negative \_ slope^{2}}$ |
 | `SELU`            | $3/4$                            |
 
 [`calculate_gain`](https://github.com/pytorch/pytorch/blob/caa6ef15a294c96fad3bf67a10a8b4fa605080bb/torch/nn/init.py#L67) 함수는 다음과 같이 정의되어있다.
@@ -180,6 +189,8 @@ $ReLU(z)=max(0, z)$
  - 계산 속도가 빠르다
  - 출력에 최댓값이 없어 경사하강법에 있는 일부 문제를 완화해준다.
 
+`ReLU`도 신경망이 복잡한 함수를 학습하기에 좋은 비선형 함수이다. 입력값이 양수면 입력에 대한 `ReLU`의 도함수는 항상 1이다. 이것이 그레디언트 소실 문제를 해결해주므로 심층 신경망에 적합하다.
+
 **죽은 ReLU, dying ReLU**
 
 훈련하는 동안 일부 뉴런이 0 이외의 값을 출력하지 않는다. 특히 큰 학습률을 사용하면 신경망의 뉴런 절반이 죽어있기도 한다. 뉴런이 가중치가 바뀌어 훈련 세트에 있는 모든 샘플에 대해 입력의 가중치 합이 음수가 되면 `ReLU` 함수의 그레이디언트가 0이 되므로 경사 하강법이 더이상 작동하지 않는다.
@@ -216,13 +227,8 @@ $\alpha$가 훈련되면서 학습된다. 대규모 이미지에서는 `ReLU`보
 
 이 함수는 저자들의 실험에서 다른 모든 `ReLU` 변종의 성능을 앞질렀다. 훈련 시간이 줄고 신경망의 테스트 성능도 더 높았다.
 
-$
-ELU_{a}(z)=
-\begin{cases}
-    \alpha(exp(z)-1),& \text{if } z<0 \\
-    0,              & \text{if } z\geq 0
-\end{cases}
-$
+![elu_function](../../../assets/images/ai/elu_function.jpg){: width="75%" height="75%" class="align-center"}
+
 ![elu_graph](../../../assets/images/ai/elu_graph.jpg){: width="50%" height="50%" class="align-center"}
 
  - $z<0$일 때 음숫값이 들어오므로 활성화 함수의 평균 출력이 0에 더 가까워진다. 이는 그레이디언트 소실 문제를 완화해준다.
@@ -267,3 +273,4 @@ $
 
 > 출처
  - Aurelien, Geron, 『핸즈온 머신러닝』, 박해선, 한빛미디어(2020)
+ - Francois Chollet 『케라스 창시자에게 배우는 딥러닝』, 박해선, 길벗(2018)
