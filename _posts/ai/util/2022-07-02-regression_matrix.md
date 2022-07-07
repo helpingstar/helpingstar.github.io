@@ -24,7 +24,7 @@ use_math: true
 ![rmse](../../../assets/images/ai/rmse.jpg){: width="50%" height="50%"}
 
 
-유클리디안 노름에 해당한다. $l_{2}$ 노름이라고도 부르며 $\left\| \cdot \right\|_{2}$ 또는 $\left\| \cdot \right\|$ 로 표시한다.
+유클리디안 노름에 해당한다. $l_{2}$ 노름이라고도 부르며 $|| \cdot ||_{2}$ 또는 $|| \cdot ||$ 로 표시한다.
 
 ## **평균절대오차(MAE) = 평균 절대 편차**
 
@@ -55,7 +55,7 @@ $R^{2}$이 높다 = 분산의 설명력이 높다.
 
 [$R^{2}$이 높아지는 이유](https://jangpiano-science.tistory.com/110)
 
-$R_{adj}^{2} = 1-\frac{(1-R^{2})(n-1)}{n-p-1}=1-(\frac{n-1}{n-k-1}\times\frac{SSE}{SST})$
+$R_{adj}^{2} = 1-\frac{(1-R^{2})(n-1)}{n-p-1}=1-(\frac{n-1}{n-p-1}\times\frac{SSE}{SST})$
 
  - $n$ : 표본의 수
  - $p$ : 설명 변수의 개수
