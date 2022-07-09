@@ -30,7 +30,7 @@ $CG_{p}=\sum_{i=1}^{p}rel_{i}$
 
 **ex)**
 
-![cg_example](../../../assets/images/ai/cg_example.jpg){: width="75%" height="75%" class="align-center"}
+![cg_example](../../../assets/images/ai/cg_example.jpg){: width="50%" height="50%" class="align-center"}
 
 $CG_{6}=11$
 
@@ -60,7 +60,7 @@ $DCG_{6}=6.86113$
 
 $nDCG=\frac{DCG_{p}}{IDCG_{p}}$
 
-$IDCG_{p}=\sum_{i=1}^{|REL_{p}|}\frac{rel_{i}}{\log_{2}(i+1)}$
+$IDCG_{p}=\sum_{i=1}^{\left| REL_{p}\right|}\frac{rel_{i}}{\log_{2}(i+1)}$
 
  - $REL_{p}$ : $p$ 위치까지 의 관련성 순서
 
