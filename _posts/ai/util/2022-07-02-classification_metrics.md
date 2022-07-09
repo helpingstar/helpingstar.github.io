@@ -15,13 +15,13 @@ use_math: true
 ![confusion_matrix](../../../assets/images/ai/confusion_matrix.jpg){: width="75%" height="75%" class="align-center"}
 
  - **정밀도**(precision) = $\frac{TP}{TP+FP}$
-   - True로 분류된 것 중에 실제로 True인 비율
+   - `True`로 분류된 것 중에 실제로 `True`인 비율
  - 진짜 양성 비율(TPR) = **재현율**(recall) = $\frac{TP}{TP+FN}$
-   - 실제 True중에 True로 분류된 비율
+   - 실제 `True`중에 `True`로 분류된 비율
  - 거짓 양성 비율(FPR) = $\frac{FP}{FP+TN}$
-   - 실제 False중에 True로 분류된 비율
+   - 실제 `False`중에 `True`로 분류된 비율
  - 진짜 음성 비율(TNR) = 특이도(specificity) = $\frac{TN}{FP+TN}$
-   - 실제 False중에 False로 분류된 비율
+   - 실제 `False`중에 `False`로 분류된 비율
 
 $FPR=\frac{FP}{FP+TN}=1-TNR=1-\frac{TN}{FP+TN}$
 

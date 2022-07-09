@@ -9,6 +9,14 @@ toc: true
 toc_sticky: true
 use_math: true
 ---
+# 활성화 함수의 필요성
+활성화 함수는 비선형성(non-linearity)라고도 부른다. 활성화 함수가 없다면 `Dense`층은 선형적인 연산인 점곱과 덧셈 2개로 구성된다
+
+`output=dot(W, input)+b`
+
+그러므로 이 층은 입력에 대한 선형 변환만을 학습할 수 있다. 이 층의 가설공간은 입력데이터를 `units`차원의 공간으로 바꾸는 가능한 모든 선형 변환의 집합이다. 이런 가설 공간은 매우 제약이 많으며, 선형 층을 깊게 쌓아도 여전히 하나의 선형 연산이기 때문에 층을 여러 개로 구성하는 장점이 없다. 즉 층을 추가해도 가설 공간이 확장되지 않는다.
+
+가설 공간을 풍부하게 만들어 층을 깊게 만드는 장점을 살리기 위해서는 비선형성 또는 활성화 함수를 추가해야 한다.
 
 # **시그모이드 함수, sigmoid**
 
@@ -56,10 +64,10 @@ $tanh(z)=2\sigma(2z)-1$
 일부 논문<sup>[2](#footnote_2)</sup>들이 다른 활성화 함수에 대해 비슷한 전략을 제안했다.
 
 | Initialization | Activation functions          | $\sigma^{2}$(Normal) |
-|----------------|-------------------------------|----------------------|
-| Glorot         | None, tanh, logistic, softmax | $1/fan_{avg}$        |
-| He(kaiming)             | ReLU and variants             | $2/fan_{in}$         |
-| LeCun          | SELU                          | $1/fan_{in}$         |
+|----------------|-------------------------------|-----------------|
+| Glorot         | None, tanh, logistic, softmax | $1/fan_{avg}$   |
+| He(kaiming)    | ReLU and variants             | $2/fan_{in}$    |
+| LeCun          | SELU                          | $1/fan_{in}$    |
 
 위 표에서 보이듯이 $fan_{avg}$ 또는 $fan_{in}$을 쓰는 것만 다르다. 균등 분포의 경우 단순히 $r=\sqrt{3\sigma^{2}}$로 계산한다. `ReLU` 활성화 함수 및 그의 변종들에 대한 초기화 전략을 논문 저자의 이름을 따서 `He(kaiming) initialization` 이라고 부른다. 뒤에 나오지만 `SELU`는 르쿤 초기화를 사용한다.
 
@@ -129,6 +137,20 @@ def kaiming_uniform_(tensor: Tensor, a=0, mode='fan_in', nonlinearity='leaky_rel
 
 위에서 서술했던 `He initialization`(=`kaiming init`)인 $r=\sqrt{3\sigma^{2}}$에 대해 $\pm r$을 범위로 하는 균등분포를 쓰는 것이 확인되었다.
 
+## 파이토치에서의 확인
+`input=30` 인 `nn.Linear`이 있다고 하자. 그럼 위의 연산을 따라가 보면
+
+- `fan` = 30
+- `gain` = $1/\sqrt{3}$
+- `std` = $\frac{1}{\sqrt{3}}\times\frac{1}{\sqrt{30}}=\frac{1}{\sqrt{90}}$
+- `bound` = $\sqrt{3} \times \frac{1}{\sqrt{90}}=\frac{1}{\sqrt{30}}=0.182574$
+
+이므로 `weight`는 `uniform(-182574, +182574)`가 되야 한다. 확인해보자
+
+![weight_init_colab](../../../assets/images/ai/weight_init_colab.jpg){: width="75%" height="75%"}
+
+이로써 파이토치에서의 가중치 초기화가 확인되었다.
+
 ## `calculate_gain`
 
 아래 서술되는 `non-linearity`는 `non-linear function`를 의미하는데 편의를 위해 사실상 딥러닝에서의 활성화 함수라고 생각하면 될 것이다.
@@ -194,6 +216,63 @@ $ReLU(z)=max(0, z)$
 **죽은 ReLU, dying ReLU**
 
 훈련하는 동안 일부 뉴런이 0 이외의 값을 출력하지 않는다. 특히 큰 학습률을 사용하면 신경망의 뉴런 절반이 죽어있기도 한다. 뉴런이 가중치가 바뀌어 훈련 세트에 있는 모든 샘플에 대해 입력의 가중치 합이 음수가 되면 `ReLU` 함수의 그레이디언트가 0이 되므로 경사 하강법이 더이상 작동하지 않는다.
+
+큰 학습률이 dying ReLU를 초래하는 이유
+
+`learning_rate`가 클 경우 가중치 갱신시에 이동량이 커지므로 음수부분으로 빠지게 될 가능성이 크기 때문이다. 
+
+$w_{i,j}^{(next)}=w_{i,j}+\eta (y_{j}-\hat{y}_{j})x_{i}$
+
+
+## 어떻게 ReLU는 곡선 함수를 만들까
+[Maxim Lopin의 Medium 블로그](https://medium.com/@maximlopin/why-is-relu-non-linear-aa46d2bad518)를 참고하였다
+
+$ReLU(x)=0, \; for \; x \leq 0$
+$ReLU(z)=max(0, z)$
+
+![relu_ex1](../../../assets/images/ai/relu_ex1.jpg){: width="75%" height="75%" class="align-center"}
+
+위 식을 $x$방향으로 $c(=5)$만큼 평행이동 해보자
+
+$ReLU(x-c)=0, \; for \; x \leq c$
+
+![relu_ex2](../../../assets/images/ai/relu_ex2.jpg){: width="75%" height="75%" class="align-center"}
+
+이제 이 함수를 더하면 다음과 같은 모양이 나온다
+
+$ReLU(x)+ReLU(x-c)$ 
+
+![relu_ex3](../../../assets/images/ai/relu_ex3.jpg){: width="75%" height="75%" class="align-center"}
+
+이 식을 일반화하면 다음과 같다
+
+$f(x)+ReLU(x-c)=f(x), \; for \; x \leq c$
+
+즉 $ReLU(x-c)$에서 $x \leq c$는 0이기 때문에 영향을 줄 수 없다.
+
+여기서 단순히 더하는 것이 아니라 가중치를 주면 어떨까 다음식을 보자
+
+$ReLU(x) + (-3)ReLU(x-c)$
+
+![relu_ex4](../../../assets/images/ai/relu_ex4.jpg){: width="75%" height="75%" class="align-center"}
+
+이와같은 방식으로 항을 늘려 보면 다음과 같은 모양도 만들 수 있게 된다
+
+![relu_ex5](../../../assets/images/ai/relu_ex5.jpg){: width="75%" height="75%" class="align-center"}
+
+순전파 공식을 다시 떠올려보자 
+
+$a = f(w_{0}+\sum_{i=1}^{m}x_{i}w_{i})$
+
+ - $a$ : Output
+ - $f$ : non-linear activation function
+ - $w_{0}$ : bias
+ - $w_{i}$ : weight
+ - $x_{i}$ : input
+ - $x_{i}w_{i}$ : Linear combination of inputs
+
+여기서 위에서 했던 예시와 연관지어서 $f$가 `ReLU`라 생각해보자, 그러면 가중치 $w_{0}$는 그래프의 평행이동 역할을 하는 것을 알게 될 것이고 output인 $a$는 다시 다른 신경망의 `weight`와 곱해지게 된다. 그럼 곱해지는 이 `weight`들은 $(t)ReLU()$에서 $t$의 역할을 하게 된다.(마지막 예시에서 곱해진 -2, 4, 3, -1, -4, -0.1) 이렇게 layer 의 unit 개수만큼 비선형성을 만들 수 있는데 이렇게 `ReLU` 가 신경망을 통과하면서 비선형함수와 비슷하게 되는 것이다.
+
 
 ## `LeakyReLU`
 $LeakyReLU_{\alpha}(z)=max(\alpha z, z)$
@@ -274,3 +353,4 @@ $\alpha$가 훈련되면서 학습된다. 대규모 이미지에서는 `ReLU`보
 > 출처
  - Aurelien, Geron, 『핸즈온 머신러닝』, 박해선, 한빛미디어(2020)
  - Francois Chollet 『케라스 창시자에게 배우는 딥러닝』, 박해선, 길벗(2018)
+ - https://medium.com/@maximlopin/why-is-relu-non-linear-aa46d2bad518
