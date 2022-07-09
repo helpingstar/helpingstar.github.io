@@ -60,7 +60,7 @@ $DCG_{6}=6.86113$
 
 $nDCG=\frac{DCG_{p}}{IDCG_{p}}$
 
-$IDCG_{p}=\sum_{i=1}^{\left| REL_{p}\right|}\frac{rel_{i}}{\log_{2}(i+1)}$
+$IDCG_{p}=\sum_{i=1}^{\left|| REL_{p} \right||}\frac{rel_{i}}{\log_{2}(i+1)}$
 
  - $REL_{p}$ : $p$ 위치까지 의 관련성 순서
 
