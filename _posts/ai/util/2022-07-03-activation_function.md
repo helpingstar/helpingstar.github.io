@@ -30,7 +30,7 @@ $\sigma (t)=\frac{1}{1+exp(-t)}$
 
 $tanh(z)=2\sigma(2z)-1$
 
-![tanH_graph](../../../assets/images/ai/tanh_graph.jpg){: width="75%" height="75%" class="align-center"}
+![tanH_graph](../../../assets/images/ai/tanh_graph.jpg){: width="60%" height="60%" class="align-center"}
 
 `sigmoid` 함수처럼 S자 모양이고 연속적이며 미분 가능하다. 하지만 출력 범위가 -1에서 1사이이다. 이 범위는 훈련 초기에 각 층의 출력을 원점 근처로 모으는 경향이 있다. 이는 종종 빠르게 수렴되도록 도와준다. 
 
@@ -69,7 +69,7 @@ $tanh(z)=2\sigma(2z)-1$
 | He(kaiming)    | ReLU and variants             | $2/fan_{in}$    |
 | LeCun          | SELU                          | $1/fan_{in}$    |
 
-위 표에서 보이듯이 $fan_{avg}$ 또는 $fan_{in}$을 쓰는 것만 다르다. 균등 분포의 경우 단순히 $r=\sqrt{3\sigma^{2}}$로 계산한다. `ReLU` 활성화 함수 및 그의 변종들에 대한 초기화 전략을 논문 저자의 이름을 따서 `He(kaiming) initialization` 이라고 부른다. 뒤에 나오지만 `SELU`는 르쿤 초기화를 사용한다.
+위 표에서 보이듯이 $fan_{avg}$ 또는 $fan_{in}$을 쓰는 것만 다르다. 균등 분포의 경우 단순히 $r=\sqrt{3}\sigma$로 계산한다. `ReLU` 활성화 함수 및 그의 변종들에 대한 초기화 전략을 논문 저자의 이름을 따서 `He(kaiming) initialization` 이라고 부른다. 뒤에 나오지만 `SELU`는 르쿤 초기화를 사용한다.
 
 ## 파이토치의 경우
 [`Linear`](https://github.com/pytorch/pytorch/blob/caa6ef15a294c96fad3bf67a10a8b4fa605080bb/torch/nn/modules/linear.py#L103-L111)와 [`conv2d`](https://github.com/pytorch/pytorch/blob/caa6ef15a294c96fad3bf67a10a8b4fa605080bb/torch/nn/modules/conv.py#L146-L155)의 경우 해당 소스코드를 보면 확인할 수 있다.
@@ -166,7 +166,7 @@ def kaiming_uniform_(tensor: Tensor, a=0, mode='fan_in', nonlinearity='leaky_rel
 | `Sigmoid`         | $1$                             |
 | `Tanh`            | $5/3$                            |
 | `ReLU`            | $\sqrt{2}$                       |
-| `Leaky Relu`      | $\sqrt{2/1+negative \_ slope^{2}}$ |
+| `Leaky Relu`      | $\sqrt{2/(1+slope_{negative}^{2})}$ |
 | `SELU`            | $3/4$                            |
 
 [`calculate_gain`](https://github.com/pytorch/pytorch/blob/caa6ef15a294c96fad3bf67a10a8b4fa605080bb/torch/nn/init.py#L67) 함수는 다음과 같이 정의되어있다.
@@ -228,6 +228,7 @@ $w_{i,j}^{(next)}=w_{i,j}+\eta (y_{j}-\hat{y}_{j})x_{i}$
 [Maxim Lopin의 Medium 블로그](https://medium.com/@maximlopin/why-is-relu-non-linear-aa46d2bad518)를 참고하였다
 
 $ReLU(x)=0, \; for \; x \leq 0$
+
 $ReLU(z)=max(0, z)$
 
 ![relu_ex1](../../../assets/images/ai/relu_ex1.jpg){: width="75%" height="75%" class="align-center"}
@@ -306,7 +307,7 @@ $\alpha$가 훈련되면서 학습된다. 대규모 이미지에서는 `ReLU`보
 
 이 함수는 저자들의 실험에서 다른 모든 `ReLU` 변종의 성능을 앞질렀다. 훈련 시간이 줄고 신경망의 테스트 성능도 더 높았다.
 
-![elu_function](../../../assets/images/ai/elu_function.jpg){: width="75%" height="75%" class="align-center"}
+![elu_function](../../../assets/images/ai/elu_function.jpg){: width="60%" height="60%" class="align-center"}
 
 ![elu_graph](../../../assets/images/ai/elu_graph.jpg){: width="50%" height="50%" class="align-center"}
 
