@@ -303,7 +303,7 @@ Parametric Leaky ReLU
 $\alpha$가 훈련되면서 학습된다. 대규모 이미지에서는 `ReLU`보다 성능이 크게 앞섰지만, 소규모 데이터셋에서는 훈련세트에 과대적합될 위험이 있다.
 
 # `ELU`
-툐르크-아르네 클레베르트 등의 2015년 논문<sup>[5](#footnote_5)</sup>은 `ELU`(exponential linear unit)이라는 새로운 활성화 함수를 제안했다.
+툐르크-아르네  클레베르트 등의 2015년 논문<sup>[5](#footnote_5)</sup>은 `ELU`(exponential linear unit)이라는 새로운 활성화 함수를 제안했다.
 
 이 함수는 저자들의 실험에서 다른 모든 `ReLU` 변종의 성능을 앞질렀다. 훈련 시간이 줄고 신경망의 테스트 성능도 더 높았다.
 
