@@ -14,7 +14,7 @@ use_math: true
 
 크로스 엔트로피 비용 함수는 다음과 같다
 
-![cross_entropy_loss_func](../../../assets/images/ai/cross_entropy_loss_func.jpg){: width="75%" height="75%" class="align-center"}
+![cross_entropy_loss_func](../../../assets/images/ai/cross_entropy_loss_func.jpg){: width="50%" height="50%" class="align-center"}
 
  - $m$ : 샘플의 개수
  - $K$ : 클래스(카테고리)의 개수
