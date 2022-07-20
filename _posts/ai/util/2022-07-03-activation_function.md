@@ -1,6 +1,6 @@
 ---
 layout: single
-title: "딥러닝 활성화 함수"
+title: "딥러닝 활성화 함수, Activation Function"
 date: 2022-07-03 01:28:01
 lastmod : 2022-07-06 23:56:34
 categories: DL
