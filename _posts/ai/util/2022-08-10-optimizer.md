@@ -16,14 +16,14 @@ use_math: true
 
 # 모멘텀 최적화, Momentum
 
-모멘텀 최적화는 이전 그레이디언트를 고려한다. 매 반복에서 현재 그레이디언트를 (학습률 $\eta$를 곱한 후) **모멘텀 벡터** $\bold{m}$에 더하고 이 값을 빼는 방식으로 가중치를 갱신한다.
+모멘텀 최적화는 이전 그레이디언트를 고려한다. 매 반복에서 현재 그레이디언트를 (학습률 $\eta$를 곱한 후) **모멘텀 벡터** $m$에 더하고 이 값을 빼는 방식으로 가중치를 갱신한다.
 
 다시 말해 그레이디언트를 속도가 아니라 가속도로 사용한다. 
 
 *[Momentum Algorithm]*
 
-1. $\bold{m} \leftarrow \beta\bold{m}-\eta \nabla_{\theta}J(\theta)$
-2. $\theta \leftarrow \theta+\bold{m}$
+1. $m \leftarrow \beta m-\eta \nabla_{\theta}J(\theta)$
+2. $\theta \leftarrow \theta+m$
 
 * $\beta$ : 모멘텀(마찰저항), 모멘텀이 너무 커지는 것을 막기 위한 파라미터이다. 0(높은 마찰저항), 1(마찰저항 없음) 사이로 설정되어야 한다. 일반적으로 0.9
 
@@ -31,13 +31,8 @@ use_math: true
 
 종단속도는 등속도 운동이므로
 
-$\bold{m} = \beta\bold{m}-\eta \nabla_{\theta}J(\theta)$
+$$\begin{align*} m = \beta m-\eta \nabla_{\theta}J(\theta) \\ m(1-\beta) = -\eta\nabla_{\theta}J(\theta) \\ m = -\frac{1}{1-\beta}\eta\nabla_{\theta}J(\theta) \end{align*}$$
 
-$\bold{m}(1-\beta) = -\eta\nabla_{\theta}J(\theta)$
-
-$\bold{m} = -\frac{1}{1-\beta}\eta\nabla_{\theta}J(\theta)$
-
-
-$$\begin{align} \bold{m} = \beta\bold{m}-\eta \nabla_{\theta}J(\theta) \\ \bold{m}(1-\beta) = -\eta\nabla_{\theta}J(\theta) \end{align} \\ \bold{m} = -\frac{1}{1-\beta}\eta\nabla_{\theta}J(\theta)$$
+예를 들어 $\beta=0.9$ 면 종단 속도는 그레이디언트와 학습률을 곱하고 다시 10을 곱한 것과 같으므로 
 
 $\nabla_{\theta}J(\theta)$
