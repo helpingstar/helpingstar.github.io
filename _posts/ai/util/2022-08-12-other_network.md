@@ -1,9 +1,9 @@
 ---
 layout: single
-title: "볼츠만 머신, BOltzmann machine"
+title: "볼츠만 머신, Boltzmann machine"
 date: 2022-08-12 10:32:30
 lastmod : 2022-08-12 10:32:27
-categories: optimization
+categories: DL
 tag: [Boltzmann machine]
 toc: true
 toc_sticky: true
