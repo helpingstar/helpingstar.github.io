@@ -77,11 +77,11 @@ $Q(S_t,A_t) \leftarrow Q(S_t,A_t)+\alpha_t[R_{t+1}+\gamma \max_{a}Q(S_{t+1},a)-Q
 [Q Actor-Critic pseudo code]
 1. 정책 액션-밸류 네트워크의 파라미터 $\theta$와 $w$를 초기화
 2. 상태 $s$를 초기화
-3. 액션 $a \sim \pi_{\theta}(a|s)$를 샘플링
+3. 액션 $a \sim \pi_{\theta}(a \mid s)$를 샘플링
 4. 스텝마다 다음 과정을 반복
     * $a$를 실행하여 보상 $r$과 다음 상태 $s'$를 얻음
     * $\theta$ 업데이트 : $\theta \leftarrow \alpha \nabla_\theta \log \pi_{\theta} (s,a)*Q_w(s,a)$
-    * 액션 $a' \sim \pi_{\theta}(a'|s')$
+    * 액션 $a' \sim \pi_{\theta}(a' \mid s')$
     * $w$ 업데이트 : $w \leftarrow w + \beta(r+\gamma Q_w(s',a')-Q_w(s,a)) \nabla_w Q_w (s,a)$
     * $a \leftarrow a', s \leftarrow s'$
 
@@ -90,11 +90,11 @@ $Q(S_t,A_t) \leftarrow Q(S_t,A_t)+\alpha_t[R_{t+1}+\gamma \max_{a}Q(S_{t+1},a)-Q
 [Advantage Actor-Critic pseudo code]
 1. 3쌍의 네트워크 파라미터 $\theta, w, \phi$를 초기화
 2. 상태 $s$를 초기화
-3. 액션 $a \sim \pi_{\theta}(a|s)$를 샘플링
+3. 액션 $a \sim \pi_{\theta}(a \mid s)$를 샘플링
 4. 스텝마다 다음 과정을 반복
     * $a$를 실행하여 보상 $r$과 다음 상태 $s'$를 얻음
     * $\theta$ 업데이트 : $\theta \leftarrow \theta + \alpha_1 \nabla_{\theta}\log \pi_{\theta}(s,a)*\{Q_w(s,a)-V_{\phi}(s)\}$
-    * 액션 $a' \sim \pi_{\theta}(a'|s')$를 샘플링
+    * 액션 $a' \sim \pi_{\theta}(a' \mid s')$를 샘플링
     * $w$ 업데이트 : $w \leftarrow w+\alpha_2(r+\gamma Q_w(s', a')-Q_w(s,a))\nabla_w Q_w(s,a)$
     * $\phi$ 업데이트 : $\phi \leftarrow \phi + \alpha_3(r+\gamma V_{\phi}(s')-V_{\phi}(s))\nabla_{\phi}V_{\phi}(s)$
     * $a \leftarrow a', s \leftarrow s'$
@@ -103,7 +103,7 @@ $Q(S_t,A_t) \leftarrow Q(S_t,A_t)+\alpha_t[R_{t+1}+\gamma \max_{a}Q(S_{t+1},a)-Q
 
 [TD Actor-Critic pseudo code]
 1. 정책, 밸류, 네트워크의 파라미터 $\theta$와 $\phi$를 초기화
-2. 액션 $a \sim \pi_{\theta}(a|s)$
+2. 액션 $a \sim \pi_{\theta}(a \mid s)$
 3. 스텝마다 다음 과정을 반복
     * $a$를 실행하여 보상 $r$과 다음 상태 $s'$를 얻음
     * $\delta$를 계산 : $\delta \leftarrow r+\gamma V_\phi(s')-V_{\phi}(s)$
@@ -112,9 +112,11 @@ $Q(S_t,A_t) \leftarrow Q(S_t,A_t)+\alpha_t[R_{t+1}+\gamma \max_{a}Q(S_{t+1},a)-Q
     * $a \leftarrow a', s \leftarrow s'$
 
 
-*  : TD Error, 
+* $\delta$ : TD Error, 
 
+**구현**
 
+[바닥부터 배우는 강화 학습 chapter 9](https://github.com/seungeunrho/RLfrombasics/blob/master/ch9_ActorCritic.py)
 
 
 
