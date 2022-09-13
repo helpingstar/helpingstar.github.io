@@ -16,7 +16,8 @@ https://github.com/ShangtongZhang/reinforcement-learning-an-introduction/blob/ma
 
 # **`figure 2.1`**
 
-![figure_2_1](../../assets/images/RL/sutton_figure_code/figure_2_1.png){: width="80%" height="80%" class="align-center"}
+
+![fcode_figure_2_1](../../assets/images/rl/fcode_figure_2_1.png){: width="80%" height="80%" class="align-center"}
 
 ```python
 def figure_2_1():
@@ -33,7 +34,7 @@ def figure_2_1():
 
 `dataset=np.random.randn(200, 10) + np.random.randn(10)` : (200, 10) 크기의 표준 정규분포에 각 행마다 10개의 요소가 있을텐데 뒤의 (1, 10) 크기의 표준 정규분포를 각각 더한다, 뒤의 `+np.random.randn(10)`은 평행이동 역할을 한다. 해당 코드를 빼면 아래와 같은 모양이 나온다.
 
-![figure_2_1_1](../../assets/images/RL/sutton_figure_code/figure_2_1_1.png){: width="50%" height="50%" class="align-center"}
+![fcode_figure_2_1_1](../../assets/images/rl/fcode_figure_2_1_1.png){: width="80%" height="80%" class="align-center"}
 
 본 그림과 비교해보면 평균이 0에 더 가까운 것을 볼 수 있다.
 
@@ -124,7 +125,7 @@ class Bandit:
 
 # **`figure 2.2`**
 
-![figure_2_2](../../assets/images/RL/sutton_figure_code/figure_2_2.png){: width="80%" height="80%" class="align-center"}
+![fcode_figure_2_2](../../assets/images/rl/fcode_figure_2_2.png){: width="80%" height="80%" class="align-center"}
 
 ```python
 def figure_2_2(runs=2000, time=1000):
