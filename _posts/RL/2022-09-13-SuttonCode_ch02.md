@@ -123,6 +123,81 @@ class Bandit:
         return reward
 ```
 
+`(15)` : `self.indices` : arm의 개수 배열, `k=10`이면 `[0, 1, 2, ..., 9]`
+
+`(27)` : 실제 $Q$ 값을 정의한다.
+
+`(32)` : 실제 $Q$ 값 (`q_true`) 값을 토대로 `best_action`을 정한다.
+
+`(37~38)` : `epsilon`의 확률로 `self.indices`중 하나를 무작위 선택 (=arm 중 하나를 무작위로 선택)
+
+`(51)` : `self.q_estimation`중 제일 큰 값을 선택하여 `q_best`에 저장
+
+`(52)` : `np.where`은 각 차원별로 같은 index를 `tuple`로 반환하는데, 여기는 1행이므로 첫번째 차원만 선택하면 된다. 그러면 `q_best`값과 같은 값을 가진 인덱스 중 하나를 `np.random`으로 무작위로 하나 선택한다. (=`q_best`에 저장된 값과 같은 값을 가지는 arm 중 하나를 무작위로 선택한다.)
+
+`(52)*`
+
+```python
+>>> test = np.array([[1, 2, 3, 3, 3, 6, 7], [2, 3, 4, 4, 4, 6, 7]])
+>>> np.where(test == 3)
+(array([0, 0, 0, 1], dtype=int64), array([2, 3, 4, 1], dtype=int64))
+>>> type(np.where(test == 3))
+<class 'tuple'>
+```
+
+`(57)` : 해당 `action`의 `q_true`에서 noise가 섞인 `reward`를 설정한다.
+
+`(60)` : $R_{avg} \leftarrow R_{avg} + \frac{1}{N}(R_n - R_{avg})$, 실제 `reward`의 평균을 점근적으로 계산한다.
+
+`(75)` : $Q(A) \leftarrow Q(A) + \alpha(R_n - Q(A))$ 여기서 *(default)* : `step_size=0.1`
+
+`(76)` : 해당 `step`이후 얻은 `reward`를 반환한다.
+
+
+# `simulate`
+
+```python
+def simulate(runs, time, bandits):
+    rewards = np.zeros((len(bandits), runs, time))
+    best_action_counts = np.zeros(rewards.shape)
+    for i, bandit in enumerate(bandits):
+        for r in trange(runs):
+            bandit.reset()
+            for t in range(time):
+                action = bandit.act()
+                reward = bandit.step(action)
+                rewards[i, r, t] = reward
+                if action == bandit.best_action:
+                    best_action_counts[i, r, t] = 1
+    mean_best_action_counts = best_action_counts.mean(axis=1)
+    mean_rewards = rewards.mean(axis=1)
+    return mean_best_action_counts, mean_rewards
+```
+
+`(2~3)` : (`figure 2.2`) : (3, 2000, 1000) `np.zeros` 생성
+
+`(4)` : 각 `Bandit`마다
+
+`(5~7)` : `r` : 2000번마다 bandit을 `reset`, `t` : 1000번
+
+`(8)` : `bandit`의 현재 환경에서 `action` 선택(`act()`)
+
+`(9)` : `(8)`에서 선택된 `action`을 `step`한다
+
+`(10)` : `rewards` (3, 2000, 1000) 에 저장한다. rewards[bandit의 종류, run, time]
+
+`(11~12)` : `action`이 `best_action`일 경우 `best_action_counts`에 1을 저장한다, `i` 의 `bandit`에서 `r`번째 `runs`에서 `t`번째 `time`에서 best action을 했다는 뜻
+
+`(13~14)` :
+
+**`numpy.mean` : Compute the arithmetic mean along the specified axis.**
+
+해당 `axis`의 방향으로 `mean`을 구한다. 이 예제의 경우 (3, 2000, 1000)인데 `axis=1`의 방향으로 구하므로 해당 차원은 없어지게 된다. 결과적으로 (3, 1000)의 차원을 가지게 된다. 쉽게 풀어서 설명하면 3개의 `bandit`을 `runs=2000`번 돌려서 각 `run`은 `time=1000`번 진행하게 된다. 근데 나는 `bandit`과 `time`별로 결과를 평균하여 알고 싶으므로 `run`을 기준으로 `mean`연산을 하는 것이다.
+
+![fcode_npsum](../../assets/images/rl/fcode_npsum.png){: width="50%" height="50%"}
+
+`np.sum`과 연산원리는 같다. 그림을 보면 이해가 도움이 될 것이다.
+
 # **`figure 2.2`**
 
 ![fcode_figure_2_2](../../assets/images/rl/fcode_figure_2_2.png){: width="80%" height="80%" class="align-center"}
@@ -155,4 +230,8 @@ def figure_2_2(runs=2000, time=1000):
 
 `(3)` : `sample_averages=True`인 `Bandit` 클래스를 `epsilon` 별로 생성한다.
 
-`(4)` : 
+`(4)` : `simulate`의 결과를 받는다, `shape=(3, 1000)`
+
+`(8~13)` : `bandit` 별로 산출된 `step`값이 plot된다, 각 `step`값은 `runs=2000`개의 평균이다.
+
+`(15~20)` : `bandit` 별로 산출된 best_action을 할 확률이며 나머지 내용은(8~13)`과 같다.
