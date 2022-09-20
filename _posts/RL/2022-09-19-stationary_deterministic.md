@@ -29,9 +29,9 @@ deterministic policy는 환경의 집합 $S$와 action의 집합 $A$에서 $S \r
 
 `stochastic policy`는 $S$가 `state`의 집합이고 $A$가 `action`의 집합일 때 $\pi_s(A \mid S)$로 나타내며, 조건부 확률 분포의 한 계열로 표현될 수 있다.,
 
-*A stochastic policy is a family and not just one conditional probability distribution because, for a fixed state $s \in S$, $\pi_s(A \mid S=s)$ is a possibly distinct conditional probability distribution. In other words, $\pi_s(A \mid S=s)=\pi_s(A \mid S=s_1),...,\pi_s(A \mid S=s_{\vert S \vert})$, where $\pi_s(A \mid S=s)$ is a conditional probability distribution over actions given that the state is $s \in S$ and $|S|$ is the size of the set of states of the environment.*
+*A stochastic policy is a family and not just one conditional probability distribution because, for a fixed state $s \in S$, $\pi_s(A \mid S=s)$ is a possibly distinct conditional probability distribution. In other words, $\pi_s(A \mid S=s)=\pi_s(A \mid S=s_1),...,\pi_s(A \mid S=s_{\vert S \vert})$, where $\pi_s(A \mid S=s)$ is a conditional probability distribution over actions given that the state is $s \in S$ and $\mid S \mid$ is the size of the set of states of the environment.*
 
-`stochastic policy`는 하나의 조건부 확률분포가 아닌 집합이다. 왜냐하면 고정된 상태 $s \in S$에서 $\pi_s(A \mid S=s)$는 아마도 별개의 조건부 확률 분포이기 때문이다. 다른 말로 $\pi_s(A \mid S=s)=\{\pi_s(A \mid S=s_1),...,\pi_s(A \mid S=s_{\vert S \vert})\}$에서 $\pi_s(A \mid S=s)$는 `state`가 $s \in S$이고 집합의 크기가 $|S|$인 경우 `action`에 대한 조건부 확률 분포이다.
+`stochastic policy`는 하나의 조건부 확률분포가 아닌 집합이다. 왜냐하면 고정된 상태 $s \in S$에서 $\pi_s(A \mid S=s)$는 아마도 별개의 조건부 확률 분포이기 때문이다. 다른 말로 $\pi_s(A \mid S=s)=\{\pi_s(A \mid S=s_1),...,\pi_s(A \mid S=s_{\vert S \vert})\}$에서 $\pi_s(A \mid S=s)$는 `state`가 $s \in S$이고 집합의 크기가 $\mid S \mid$인 경우 `action`에 대한 조건부 확률 분포이다.
 
 *Often, in the reinforcement learning context, a stochastic policy is misleadingly (at least in my opinion) denoted by $π_s(a∣s)$, where $a∈A$ and $s∈S$ are respectively a specific action and state, so $π_s(a∣s)$ is just a number and not a conditional probability distribution.*
 
