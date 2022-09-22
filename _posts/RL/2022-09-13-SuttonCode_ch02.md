@@ -1,8 +1,8 @@
 ---
 layout: single
-title: "단단한 강화학습 코드 정리"
+title: "단단한 강화학습 코드 정리, chap2"
 date: 2022-09-13 14:17:10
-lastmod : 2022-09-13 14:17:10
+lastmod : 2022-09-22 20:44:46
 categories: RL
 tag: [Sutton, 단단한 강화학습]
 toc: true
@@ -123,13 +123,38 @@ class Bandit:
         return reward
 ```
 
-`(15)` : `self.indices` : arm의 개수 배열, `k=10`이면 `[0, 1, 2, ..., 9]`
+`(14)` : `self.sample_averages` : `True`일 경우  $Q(A) \leftarrow Q(A) + \frac{1}{N(A)}[R-Q(A)]$로 갱신
+
+`(15)` : `self.indices` : `arm`의 개수 배열, `k=10`이면 `[0, 1, 2, ..., 9]`
+
+`(17)` : `self.UCB_param` : UCB 공식 $Q_t(a)+c\sqrt{\frac{\ln t}{N_t(a)}}$ 에서 $c$를 의미한다.
 
 `(27)` : 실제 $Q$ 값을 정의한다.
 
 `(32)` : 실제 $Q$ 값 (`q_true`) 값을 토대로 `best_action`을 정한다.
 
 `(37~38)` : `epsilon`의 확률로 `self.indices`중 하나를 무작위 선택 (=arm 중 하나를 무작위로 선택)
+
+`(40~44)` :
+
+$$A_t \doteq \underset{a}{\argmax} \left [ Q_t(a) + c \sqrt{\frac{\ln t}{N_t(a)}} \right ] \tag{2.10}$$
+연산을 수행한다.
+
+여기서는 연산의 편의를 위해 분자에 1, 분모에 작은 수를 더하여
+
+$$A_t \doteq \underset{a}{\argmax} \left [ Q_t(a) + c \sqrt{\frac{\ln t + 1}{N_t(a) + \epsilon}} \right ]$$
+
+로 계산하게 된다.
+
+동일 값이 있을 경우 동일 값 중에서 랜덤으로 선택하기 위하여 `q_best`를 통해 최댓값을 구한 후 `np.where`을 통해 해당 인덱스를 추출한다. 그리고 `np.random.choice`를 통해 해당 인덱스 중 동일확률로 하나를 추출하여 리턴한다.
+
+여기서 헷갈리면 안되는게 UCB는 $Q$를 통한 보조 수단일 뿐이지 Q의 갱신에는 직접적으로 관련이 없다.
+
+`(46~49)` : Gradient Bandit Algorithms를 위한 코드이다 `exp_est`는 각 $Q$를 $e$의 지수승으로 만든다. 그리고 각각을 `np.sum(exp_est)`으로 나누어서 `action_prob`을 구하고(행동 선택 확률) 그 확률을 기반으로 `arm`중에 하나를 선택한다.
+
+`np.random.choice`의 `p`를 인자로 주면 해당 값들의 상대적인 확률로 리스트에서 뽑는다.
+
+$$\text{Pr}\{A_t=a\}\doteq \frac{e^{H_t(a)}}{\sum_{b=1}^{k}e^{H_t(b)}} \doteq \pi_t(a) \tag{2.11}$$
 
 `(51)` : `self.q_estimation`중 제일 큰 값을 선택하여 `q_best`에 저장
 
@@ -144,10 +169,44 @@ class Bandit:
 >>> type(np.where(test == 3))
 <class 'tuple'>
 ```
+(0,2), (0,3), (0,4), (1,1)이 해당된다는 뜻이다.
 
 `(57)` : 해당 `action`의 `q_true`에서 noise가 섞인 `reward`를 설정한다.
 
 `(60)` : $R_{avg} \leftarrow R_{avg} + \frac{1}{N}(R_n - R_{avg})$, 실제 `reward`의 평균을 점근적으로 계산한다.
+
+`(65~72)` :
+
+$$
+H_{t+1}(A_t) \doteq H_t(A_t) + \alpha(R_t-\bar{R}_t)(1-\pi_t(A_t)), \quad \text{and} \\
+H_{t+1}(a) \doteq H_t(A_t) - \alpha(R_t-\bar{R}_t)\pi_t(a), \quad \text{for all} \; a \neq A_t
+\tag{2.12}
+$$
+
+의 식을 구현한 것이다.
+
+코드를 이해하기 위해서는 두번째 줄의 마이너스를 $\pi_t(a)$쪽으로 옮겨서
+
+$$
+H_{t+1}(A_t) \doteq H_t(A_t) + \alpha(R_t-\bar{R}_t)(1-\pi_t(A_t)), \quad \text{and} \\
+H_{t+1}(a) \doteq H_t(A_t) + \alpha(R_t-\bar{R}_t)(0-\pi_t(a)), \quad \text{for all} \; a \neq A_t
+$$
+
+로 생각하면 이해가 될 것이다. `one_hot` 배열을 통해 `action` 에만 1을 할당한다. `gradient_baseline`이 `True`이면 `baseline`($\bar{R}_t$)에 지금까지 `reward`의 평균인 `average_reward`를 대입한다. 그 뒤에 한 줄로 (`one_hot`이 실제 `action`을 구분하고 나머지는 똑같다) 실제 `action`과 나머지 연산을 수행한다.
+
+해당식은 $(R_t-\bar{R_t})$ 부분과 $(\text{one\_hot}-\pi_t)$를 부호에 따라 분리하면 생각하기 편하다
+
+* 실제 행동 $(\text{one\_hot}-\pi_t) > 0$
+  * 평균보다 `reward` 높다 $(R_t-\bar{R_t}) > 0$
+    * $\text{update} > 0$ : 평균보다 높은 것을 하길 잘했으니 $Q$를 높인다.
+  * 평균보다 `reward` 낮다 $(R_t-\bar{R_t}) < 0$
+    * $\text{update} < 0$ : 평균보다 낮은 것을 하면 안됐으니 $Q$를 낮춘다.
+* 안한 행동 $(\text{one\_hot}-\pi_t) < 0$
+  * 평균보다 `reward` 높다 $(R_t-\bar{R_t}) > 0$
+    * $\text{update} < 0$ : 평균보다 높은 것을 해야했다 $Q$를 낮춘다.
+  * 평균보다 `reward` 낮다 $(R_t-\bar{R_t}) < 0$
+    * $\text{update} > 0$ : 평균보다 낮은 것을 안하길 잘했으니 $Q$를 높인다.
+
 
 `(75)` : $Q(A) \leftarrow Q(A) + \alpha(R_n - Q(A))$ 여기서 *(default)* : `step_size=0.1`
 
@@ -235,3 +294,119 @@ def figure_2_2(runs=2000, time=1000):
 `(8~13)` : `bandit` 별로 산출된 `step`값이 plot된다, 각 `step`값은 `runs=2000`개의 평균이다.
 
 `(15~20)` : `bandit` 별로 산출된 best_action을 할 확률이며 나머지 내용은(8~13)`과 같다.
+
+# **`figure 2.3`**
+
+![fcode_figure_2_3](../../assets/images/rl/fcode_figure_2_3.png){: width="80%" height="80%" class="align-center"}
+
+```python
+def figure_2_3(runs=2000, time=1000):
+    bandits = []
+    bandits.append(Bandit(epsilon=0, initial=5, step_size=0.1))
+    bandits.append(Bandit(epsilon=0.1, initial=0, step_size=0.1))
+    best_action_counts, _ = simulate(runs, time, bandits)
+
+    plt.plot(best_action_counts[0], label='$\epsilon = 0, q = 5$')
+    plt.plot(best_action_counts[1], label='$\epsilon = 0.1, q = 0$')
+    plt.xlabel('Steps')
+    plt.ylabel('% optimal action')
+    plt.legend()
+
+    plt.savefig('../images/figure_2_3.png')
+    plt.close()
+```
+
+`(3)` : `epsilon=0`이고 (greedy), 초기값인 `initial=5`로 하는 Bandit클래스를 생성하고 `bandits`에 `append`한다
+
+`(4)` : `epsilon=0.1`이고 ($\epsilon$-greedy) 초기값을 `initial=0`으로 하는 Bandit클래스를 생성하고 `bandits` 리스트에 `append`한다
+
+# **`figure 2.4`**
+![fcode_figure_2_4](../../assets/images/rl/fcode_figure_2_4.png){: width="80%" height="80%" class="align-center"}
+
+```python
+def figure_2_4(runs=2000, time=1000):
+    bandits = []
+    bandits.append(Bandit(epsilon=0, UCB_param=2, sample_averages=True))
+    bandits.append(Bandit(epsilon=0.1, sample_averages=True))
+    _, average_rewards = simulate(runs, time, bandits)
+
+    plt.plot(average_rewards[0], label='UCB $c = 2$')
+    plt.plot(average_rewards[1], label='epsilon greedy $\epsilon = 0.1$')
+    plt.xlabel('Steps')
+    plt.ylabel('Average reward')
+    plt.legend()
+
+    plt.savefig('../images/figure_2_4.png')
+    plt.close()
+```
+# **`figure 2.5`**
+
+![fcode_figure_2_5](../../assets/images/rl/fcode_figure_2_5.png){: width="80%" height="80%" class="align-center"}
+
+```python
+def figure_2_5(runs=2000, time=1000):
+    bandits = []
+    bandits.append(Bandit(gradient=True, step_size=0.1, gradient_baseline=True, true_reward=4))
+    bandits.append(Bandit(gradient=True, step_size=0.1, gradient_baseline=False, true_reward=4))
+    bandits.append(Bandit(gradient=True, step_size=0.4, gradient_baseline=True, true_reward=4))
+    bandits.append(Bandit(gradient=True, step_size=0.4, gradient_baseline=False, true_reward=4))
+    best_action_counts, _ = simulate(runs, time, bandits)
+    labels = [r'$\alpha = 0.1$, with baseline',
+              r'$\alpha = 0.1$, without baseline',
+              r'$\alpha = 0.4$, with baseline',
+              r'$\alpha = 0.4$, without baseline']
+
+    for i in range(len(bandits)):
+        plt.plot(best_action_counts[i], label=labels[i])
+    plt.xlabel('Steps')
+    plt.ylabel('% Optimal action')
+    plt.legend()
+
+    plt.savefig('../images/figure_2_5.png')
+    plt.close()
+```
+# **`figure 2.6`**
+
+![fcode_figure_2_6](../../assets/images/rl/fcode_figure_2_6.png){: width="80%" height="80%" class="align-center"}
+
+```python
+def figure_2_6(runs=2000, time=1000):
+    labels = ['epsilon-greedy', 'gradient bandit',
+              'UCB', 'optimistic initialization']
+    generators = [lambda epsilon: Bandit(epsilon=epsilon, sample_averages=True),
+                  lambda alpha: Bandit(gradient=True, step_size=alpha, gradient_baseline=True),
+                  lambda coef: Bandit(epsilon=0, UCB_param=coef, sample_averages=True),
+                  lambda initial: Bandit(epsilon=0, initial=initial, step_size=0.1)]
+    parameters = [np.arange(-7, -1, dtype=np.float),
+                  np.arange(-5, 2, dtype=np.float),
+                  np.arange(-4, 3, dtype=np.float),
+                  np.arange(-2, 3, dtype=np.float)]
+
+    bandits = []
+    for generator, parameter in zip(generators, parameters):
+        for param in parameter:
+            bandits.append(generator(pow(2, param)))
+
+    _, average_rewards = simulate(runs, time, bandits)
+    rewards = np.mean(average_rewards, axis=1)
+
+    i = 0
+    for label, parameter in zip(labels, parameters):
+        l = len(parameter)
+        plt.plot(parameter, rewards[i:i+l], label=label)
+        i += l
+    plt.xlabel('Parameter($2^x$)')
+    plt.ylabel('Average reward')
+    plt.legend()
+
+    plt.savefig('../images/figure_2_6.png')
+    plt.close()
+```
+
+`(4~7)` : 인자를 받아 해당 인자를 `Bandit`클래스의 하이퍼파라미터에 대입하여 해당 `Bandit`클래스를 리턴하는 람다 함수이다
+
+`(8~11)` : 각각의 `np.arange`는 $[a,b)$의 범위를 가지며 이후 2의 지수로 들어가게 된다
+
+`(14~16)` : 각 index에 대응하는(n번째는 n번째끼리) `generator`과 `parameters`를 얻고 `parameters`를 풀어헤치면 `param`이 나오는데 그 `param`을 대응하는 `generator`에 2의 지수승을 하여 넣어서 해당 `Bandit` 클래스를 얻고 그것을 `bandits` 리스트에 넣는다.
+
+그림에서 UCB를 예로 들면 UCB는 $[-4,3)$ `parameters`를 가지고 그것은 2의 지수승이 되면서 $[1/16, 8)$ 의 범위를 갖는데 이것은 그래프와 맞다.
