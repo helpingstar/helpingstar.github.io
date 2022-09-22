@@ -136,13 +136,12 @@ class Bandit:
 `(37~38)` : `epsilon`의 확률로 `self.indices`중 하나를 무작위 선택 (=arm 중 하나를 무작위로 선택)
 
 `(40~44)` :
-
-$$A_t \doteq \underset{a}{\argmax} \left [ Q_t(a) + c \sqrt{\frac{\ln t}{N_t(a)}} \right ] \tag{2.10}$$
+$$A_t \doteq \underset{a}{\text{argmax}} \left [ Q_t(a) + c \sqrt{\frac{\ln t}{N_t(a)}} \right ] \tag{2.10}$$
 연산을 수행한다.
 
 여기서는 연산의 편의를 위해 분자에 1, 분모에 작은 수를 더하여
 
-$$A_t \doteq \underset{a}{\argmax} \left [ Q_t(a) + c \sqrt{\frac{\ln t + 1}{N_t(a) + \epsilon}} \right ]$$
+$$A_t \doteq \underset{a}{\text{argmax}} \left [ Q_t(a) + c \sqrt{\frac{\ln t + 1}{N_t(a) + \epsilon}} \right ]$$
 
 로 계산하게 된다.
 
