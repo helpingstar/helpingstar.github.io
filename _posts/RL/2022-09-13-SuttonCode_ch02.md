@@ -123,19 +123,13 @@ class Bandit:
         return reward
 ```
 
-`(14)` : `self.sample_averages` : `True`일 경우  $Q(A) \leftarrow Q(A) + \frac{1}{N(A)}[R-Q(A)]$로 갱신
-
-`(15)` : `self.indices` : `arm`의 개수 배열, `k=10`이면 `[0, 1, 2, ..., 9]`
-
-`(17)` : `self.UCB_param` : UCB 공식 $Q_t(a)+c\sqrt{\frac{\ln t}{N_t(a)}}$ 에서 $c$를 의미한다.
-
-`(27)` : 실제 $Q$ 값을 정의한다.
-
-`(32)` : 실제 $Q$ 값 (`q_true`) 값을 토대로 `best_action`을 정한다.
-
-`(37~38)` : `epsilon`의 확률로 `self.indices`중 하나를 무작위 선택 (=arm 중 하나를 무작위로 선택)
-
-`(40~44)` :
+* `(14)` : `self.sample_averages` : `True`일 경우  $Q(A) \leftarrow Q(A) + \frac{1}{N(A)}[R-Q(A)]$로 갱신
+* `(15)` : `self.indices` : `arm`의 개수 배열, `k=10`이면 `[0, 1, 2, ..., 9]`
+* `(17)` : `self.UCB_param` : UCB 공식 $Q_t(a)+c\sqrt{\frac{\ln t}{N_t(a)}}$ 에서 $c$를 의미한다.
+* `(27)` : 실제 $Q$ 값을 정의한다.
+* `(32)` : 실제 $Q$ 값 (`q_true`) 값을 토대로 `best_action`을 정한다.
+* `(37~38)` : `epsilon`의 확률로 `self.indices`중 하나를 무작위 선택 (=arm 중 하나를 무작위로 선택)
+* `(40~44)` :
 $$A_t \doteq \underset{a}{\text{argmax}} \left [ Q_t(a) + c \sqrt{\frac{\ln t}{N_t(a)}} \right ] \tag{2.10}$$
 연산을 수행한다.
 
@@ -149,17 +143,16 @@ $$A_t \doteq \underset{a}{\text{argmax}} \left [ Q_t(a) + c \sqrt{\frac{\ln t + 
 
 여기서 헷갈리면 안되는게 UCB는 $Q$를 통한 보조 수단일 뿐이지 Q의 갱신에는 직접적으로 관련이 없다.
 
-`(46~49)` : Gradient Bandit Algorithms를 위한 코드이다 `exp_est`는 각 $Q$를 $e$의 지수승으로 만든다. 그리고 각각을 `np.sum(exp_est)`으로 나누어서 `action_prob`을 구하고(행동 선택 확률) 그 확률을 기반으로 `arm`중에 하나를 선택한다.
+* `(46~49)` : Gradient Bandit Algorithms를 위한 코드이다 `exp_est`는 각 $Q$를 $e$의 지수승으로 만든다. 그리고 각각을 `np.sum(exp_est)`으로 나누어서 `action_prob`을 구하고(행동 선택 확률) 그 확률을 기반으로 `arm`중에 하나를 선택한다.
 
 `np.random.choice`의 `p`를 인자로 주면 해당 값들의 상대적인 확률로 리스트에서 뽑는다.
 
 $$\text{Pr}\{A_t=a\}\doteq \frac{e^{H_t(a)}}{\sum_{b=1}^{k}e^{H_t(b)}} \doteq \pi_t(a) \tag{2.11}$$
 
-`(51)` : `self.q_estimation`중 제일 큰 값을 선택하여 `q_best`에 저장
+* `(51)` : `self.q_estimation`중 제일 큰 값을 선택하여 `q_best`에 저장
+* `(52)` : `np.where`은 각 차원별로 같은 index를 `tuple`로 반환하는데, 여기는 1행이므로 첫번째 차원만 선택하면 된다. 그러면 `q_best`값과 같은 값을 가진 인덱스 중 하나를 `np.random`으로 무작위로 하나 선택한다. (=`q_best`에 저장된 값과 같은 값을 가지는 arm 중 하나를 무작위로 선택한다.)
 
-`(52)` : `np.where`은 각 차원별로 같은 index를 `tuple`로 반환하는데, 여기는 1행이므로 첫번째 차원만 선택하면 된다. 그러면 `q_best`값과 같은 값을 가진 인덱스 중 하나를 `np.random`으로 무작위로 하나 선택한다. (=`q_best`에 저장된 값과 같은 값을 가지는 arm 중 하나를 무작위로 선택한다.)
-
-`(52)*`
+* `(52)*`
 
 ```python
 >>> test = np.array([[1, 2, 3, 3, 3, 6, 7], [2, 3, 4, 4, 4, 6, 7]])
@@ -170,11 +163,9 @@ $$\text{Pr}\{A_t=a\}\doteq \frac{e^{H_t(a)}}{\sum_{b=1}^{k}e^{H_t(b)}} \doteq \p
 ```
 (0,2), (0,3), (0,4), (1,1)이 해당된다는 뜻이다.
 
-`(57)` : 해당 `action`의 `q_true`에서 noise가 섞인 `reward`를 설정한다.
-
-`(60)` : $R_{avg} \leftarrow R_{avg} + \frac{1}{N}(R_n - R_{avg})$, 실제 `reward`의 평균을 점근적으로 계산한다.
-
-`(65~72)` :
+* `(57)` : 해당 `action`의 `q_true`에서 noise가 섞인 `reward`를 설정한다.
+* `(60)` : $R_{avg} \leftarrow R_{avg} + \frac{1}{N}(R_n - R_{avg})$, 실제 `reward`의 평균을 점근적으로 계산한다.
+* `(65~72)` :
 
 $$
 H_{t+1}(A_t) \doteq H_t(A_t) + \alpha(R_t-\bar{R}_t)(1-\pi_t(A_t)), \quad \text{and} \\
@@ -207,9 +198,8 @@ $$
     * $\text{update} > 0$ : 평균보다 낮은 것을 안하길 잘했으니 $Q$를 높인다.
 
 
-`(75)` : $Q(A) \leftarrow Q(A) + \alpha(R_n - Q(A))$ 여기서 *(default)* : `step_size=0.1`
-
-`(76)` : 해당 `step`이후 얻은 `reward`를 반환한다.
+* `(75)` : $Q(A) \leftarrow Q(A) + \alpha(R_n - Q(A))$ 여기서 *(default)* : `step_size=0.1`
+* `(76)` : 해당 `step`이후 얻은 `reward`를 반환한다.
 
 
 # `simulate`
@@ -232,21 +222,14 @@ def simulate(runs, time, bandits):
     return mean_best_action_counts, mean_rewards
 ```
 
-`(2~3)` : (`figure 2.2`) : (3, 2000, 1000) `np.zeros` 생성
-
-`(4)` : 각 `Bandit`마다
-
-`(5~7)` : `r` : 2000번마다 bandit을 `reset`, `t` : 1000번
-
-`(8)` : `bandit`의 현재 환경에서 `action` 선택(`act()`)
-
-`(9)` : `(8)`에서 선택된 `action`을 `step`한다
-
-`(10)` : `rewards` (3, 2000, 1000) 에 저장한다. rewards[bandit의 종류, run, time]
-
-`(11~12)` : `action`이 `best_action`일 경우 `best_action_counts`에 1을 저장한다, `i` 의 `bandit`에서 `r`번째 `runs`에서 `t`번째 `time`에서 best action을 했다는 뜻
-
-`(13~14)` :
+* `(2~3)` : (`figure 2.2`) : (3, 2000, 1000) `np.zeros` 생성
+* `(4)` : 각 `Bandit`마다
+* `(5~7)` : `r` : 2000번마다 bandit을 `reset`, `t` : 1000번
+* `(8)` : `bandit`의 현재 환경에서 `action` 선택(`act()`)
+* `(9)` : `(8)`에서 선택된 `action`을 `step`한다
+* `(10)` : `rewards` (3, 2000, 1000) 에 저장한다. rewards[bandit의 종류, run, time]
+* `(11~12)` : `action`이 `best_action`일 경우 `best_action_counts`에 1을 저장한다, `i` 의 `bandit`에서 `r`번째 `runs`에서 `t`번째 `time`에서 best action을 했다는 뜻
+* `(13~14)` :
 
 **`numpy.mean` : Compute the arithmetic mean along the specified axis.**
 
@@ -286,13 +269,10 @@ def figure_2_2(runs=2000, time=1000):
     plt.close()
 ```
 
-`(3)` : `sample_averages=True`인 `Bandit` 클래스를 `epsilon` 별로 생성한다.
-
-`(4)` : `simulate`의 결과를 받는다, `shape=(3, 1000)`
-
-`(8~13)` : `bandit` 별로 산출된 `step`값이 plot된다, 각 `step`값은 `runs=2000`개의 평균이다.
-
-`(15~20)` : `bandit` 별로 산출된 best_action을 할 확률이며 나머지 내용은(8~13)`과 같다.
+* `(3)` : `sample_averages=True`인 `Bandit` 클래스를 `epsilon` 별로 생성한다.
+* `(4)` : `simulate`의 결과를 받는다, `shape=(3, 1000)`
+* `(8~13)` : `bandit` 별로 산출된 `step`값이 plot된다, 각 `step`값은 `runs=2000`개의 평균이다.
+* `(15~20)` : `bandit` 별로 산출된 best_action을 할 확률이며 나머지 내용은(8~13)`과 같다.
 
 # **`figure 2.3`**
 
@@ -315,9 +295,8 @@ def figure_2_3(runs=2000, time=1000):
     plt.close()
 ```
 
-`(3)` : `epsilon=0`이고 (greedy), 초기값인 `initial=5`로 하는 Bandit클래스를 생성하고 `bandits`에 `append`한다
-
-`(4)` : `epsilon=0.1`이고 ($\epsilon$-greedy) 초기값을 `initial=0`으로 하는 Bandit클래스를 생성하고 `bandits` 리스트에 `append`한다
+* `(3)` : `epsilon=0`이고 (greedy), 초기값인 `initial=5`로 하는 Bandit클래스를 생성하고 `bandits`에 `append`한다
+* `(4)` : `epsilon=0.1`이고 ($\epsilon$-greedy) 초기값을 `initial=0`으로 하는 Bandit클래스를 생성하고 `bandits` 리스트에 `append`한다
 
 # **`figure 2.4`**
 ![fcode_figure_2_4](../../assets/images/rl/fcode_figure_2_4.png){: width="80%" height="80%" class="align-center"}
@@ -402,10 +381,8 @@ def figure_2_6(runs=2000, time=1000):
     plt.close()
 ```
 
-`(4~7)` : 인자를 받아 해당 인자를 `Bandit`클래스의 하이퍼파라미터에 대입하여 해당 `Bandit`클래스를 리턴하는 람다 함수이다
-
-`(8~11)` : 각각의 `np.arange`는 $[a,b)$의 범위를 가지며 이후 2의 지수로 들어가게 된다
-
-`(14~16)` : 각 index에 대응하는(n번째는 n번째끼리) `generator`과 `parameters`를 얻고 `parameters`를 풀어헤치면 `param`이 나오는데 그 `param`을 대응하는 `generator`에 2의 지수승을 하여 넣어서 해당 `Bandit` 클래스를 얻고 그것을 `bandits` 리스트에 넣는다.
+* `(4~7)` : 인자를 받아 해당 인자를 `Bandit`클래스의 하이퍼파라미터에 대입하여 해당 `Bandit`클래스를 리턴하는 람다 함수이다
+* `(8~11)` : 각각의 `np.arange`는 $[a,b)$의 범위를 가지며 이후 2의 지수로 들어가게 된다
+* `(14~16)` : 각 index에 대응하는(n번째는 n번째끼리) `generator`과 `parameters`를 얻고 `parameters`를 풀어헤치면 `param`이 나오는데 그 `param`을 대응하는 `generator`에 2의 지수승을 하여 넣어서 해당 `Bandit` 클래스를 얻고 그것을 `bandits` 리스트에 넣는다.
 
 그림에서 UCB를 예로 들면 UCB는 $[-4,3)$ `parameters`를 가지고 그것은 2의 지수승이 되면서 $[1/16, 8)$ 의 범위를 갖는데 이것은 그래프와 맞다.

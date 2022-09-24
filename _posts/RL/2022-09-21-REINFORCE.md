@@ -2,7 +2,7 @@
 layout: single
 title: "REINFORCE"
 date: 2022-09-21 09:51:29
-lastmod : 2022-09-21 09:51:33
+lastmod : 2022-09-24 20:47:18
 categories: RL
 tag: [RL, REINFORCE]
 toc: true
@@ -43,7 +43,7 @@ $$ J(\pi_{\theta})=\mathbb{E}_{\tau \sim \pi_{\theta}}[R(\tau)]=\mathbb{E}_{\tau
 
 정책 경사 알고리즘은 다음과 같은 문제를 해결한다
 
-$$ \underset{\theta}{\max}J(\pi_{\theta})=\mathbb{E}_{\tau \sim \pi_{\theta}} \left [ R(\tau) \right ] $$
+$$ \underset{\theta}{\max}J(\pi_{\theta})=\underset{\theta}{\max}\mathbb{E}_{\tau \sim \pi_{\theta}} \left [ R(\tau) \right ] $$
 
 목적을 향상하기 위해 **경사**를 계산하고 그것을 이용해 아래 식과 같이 파라미터를 업데이트 한다
 
@@ -65,6 +65,10 @@ $$ \nabla J (\pi_{\theta})=\nabla_{\theta}\mathbb{E}_{\tau \sim \pi_{\theta}}\le
 
 ![fdrl_equation_2_7](../../assets/images/rl/fdrl_equation_2_7.png){: width="80%" height="80%" class="align-center"}
 
+**errata**
+
+*(chain-rule)* → *(product-rule)*
+
 * $f(x)$ : 함수
 * $p(x \mid \theta)$ : 파라미터로 표현되는 확률분포
 * $\mathbb{E}_{x \sim p(x \mid \theta)}[f(x)]$ : $f(x)$의 기댓값
@@ -73,7 +77,7 @@ $$ \nabla J (\pi_{\theta})=\nabla_{\theta}\mathbb{E}_{\tau \sim \pi_{\theta}}\le
 
 목적에 적용하기 위해 $x=\tau$, $f(x)=R(\tau)$, $p(x \mid \theta) = p(\tau \mid \theta)$ 를 대입하면
 
-$$\nabla_{\theta}\mathbb{E}_{x \sim p(x \mid \theta)} \left [ f(x) \right ] = \mathbb{E}\left [ f(x) \nabla_{\theta} \log p(x \mid \theta) \right ]$$
+$$\nabla_{\theta}\mathbb{E}_{x \sim p(x \mid \theta)} \left [ f(x) \right ] = \mathbb{E} \left [ f(x) \nabla_{\theta} \log p(x \mid \theta) \right ]$$
 
 는
 
@@ -101,9 +105,9 @@ $$\nabla_\theta \log p(\tau \mid \theta) = \nabla_\theta \sum_{t \ge 0}\log\pi_\
 
 $$\nabla_{\theta}J(\pi_{\theta}) = \mathbb{E}_{\tau \sim \pi_{\theta}}[R(\tau) \nabla_{\theta} \log p(\tau \mid \theta)] \tag{2.15}$$
 
-에 대입하고 $R(\tau)$를 합의 기호 안쪽에 표현하면 다음 식을 얻게 된다. ($R(\tau)$가 $R_t(\tau)$로 된 것은 아래 설명)
+에 대입하고 $R(\tau)$를 합의 기호 안쪽에 표현하면 다음 식을 얻게 된다.
 
-$$\nabla_\theta J(\pi_\theta) = \mathbb{E}_{\tau \sim \pi_\theta}\left [\sum_{t=0}^{T} R_t(\tau) \nabla_{\theta} \log \pi_\theta(a_t \mid s_t)\right ] \tag{2.21}$$
+$$\nabla_\theta J(\pi_\theta) = \mathbb{E}_{\tau \sim \pi_\theta}\left [\sum_{t=0}^{T} R(\tau) \nabla_{\theta} \log \pi_\theta(a_t \mid s_t)\right ] \tag{2.21}$$
 
 이 식은 궤적에 따라 발생 가능한 많은 행동으로 인해 큰 분산을 갖는다. 시각 $t$에서 발생한 사건은 오직 미래에만 영향을 미치기 때문에 임의의 시각 $t$에서의 보상만을 고려하면 분산을 줄일 수 있다. 따라서 $R(\tau)$를 다음과 같이 수정하면 `Equation 2.21`을 얻는다.
 
@@ -123,6 +127,13 @@ $$\nabla_\theta \log p(\tau \mid \theta) = \nabla_\theta \sum_{t \ge 0}\log\pi_\
 
 ![fdrl_algorithm_2_1](../../assets/images/rl/fdrl_algorithm_2_1.png){: width="80%" height="80%" class="align-center"}
 
+**errata**
+
+$R_t(\tau)=\sum_{t'=t}^{T}\gamma^{t'-t}{r'}_t$
+
+↓↓↓
+
+$R_t(\tau)=\sum_{t'=t}^{T}\gamma^{t'-t}r_{t'}$
 
 `(7)~(8)` :
 
@@ -154,5 +165,40 @@ $$\nabla_\theta J(\pi_\theta) \approx \sum_{t=0}^{T}(R_t(\tau)-b(s_t))\nabla_\th
 매우 좋은 행동을 만들어내도 이득이 항상 음수이기 때문에 그 행동은 억제된다. 시간이 지나면 상대적으로 더 나쁜 행동이 더 억제되어서 더 좋은 행동의 확률을 간접적으로 증가시키나 이것은 확률이 한 방향으로만 조정되기 때문에 학습 속도가 느리다. 모든 보상이 양수인 환경에서는 그 반대일 것이다.
 
 **행동 확률을 증가시키고 감소시키는 것이 모두 가능할 때 학습은 더 효율적으로 진행된다.** 따라서 양의 이득과 음의 이득이 모두 필요하다.
+
+# 구현
+
+## Foundations of Deep Reinforcement Learning
+[Code](https://github.com/helpingstar/book_learning/blob/main/Foundations_of_Deep_Reinforcement_Learning/code_2_1.py)
+
+```python
+def train(pi, optimizer):
+    # REINFORCE 알고리즘의 내부 경사 상승 루프
+    T = len(pi.rewards)
+    rets = np.empty(T, dtype=np.float32)  # 이득
+    future_ret = 0
+    # 이득을 효율적으로 계산
+    for t in reversed(range(T)):
+        future_ret = pi.rewards[t] + gamma*future_ret
+        rets[t] = future_ret
+    rets = torch.tensor(rets)
+    log_probs = torch.stack(pi.log_probs)
+    loss = - log_probs * rets  # 경사항, 최대화를 위해 음의 부호
+    loss = torch.sum(loss)
+    optimizer.zero_grad()
+    loss.backward()  # 역전파, 경사를 계산
+    optimizer.step()  # 경사 상승, 가중치를 업데이트
+    return loss
+```
+* `(3)` : $\tau$
+* `(4)` : $R_t$
+* `(5)` : $J(\pi_\theta)$
+* `(7~9)` : $R_t=\sum_{t}^{T}\gamma^{t'-t}r_t'$
+* `(11)` : $\log \pi_\theta (a_t \mid s_t)$
+* `(12)` : $R_t(\tau)\log \pi_\theta (a_t \mid s_t)$
+* `(15)` : $\nabla_\theta$
+* `(16)` : $\theta = \theta + \alpha\nabla_\theta J(\pi_\theta)$
+
+
 > 출처
  - Laura Graesser, Wah Loon Keng,『단단한 심층 강화학습』, 김성우, 제이펍(2022)
