@@ -110,7 +110,7 @@ author:
   links:
     - label: "Email"
       icon: "fas fa-fw fa-envelope-square"
-      # url: "iamhelpingstar@gmail.com"
+      url: "iamhelpingstar@gmail.com"
     - label: "Website"
       icon: "fas fa-fw fa-link"
       # url: "https://your-website.com"
@@ -210,7 +210,7 @@ kramdown:
   syntax_highlighter_opts:
       block:
           line_numbers: true
-  
+
 
 
 # Sass/SCSS
@@ -294,6 +294,7 @@ defaults:
       share: false
       related: true
       show_date: true
+      author_profile: false
 
 date_format: "%Y-%m-%d"
 future: true
