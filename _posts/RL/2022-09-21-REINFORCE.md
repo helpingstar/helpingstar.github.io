@@ -169,6 +169,8 @@ $$\nabla_\theta J(\pi_\theta) \approx \sum_{t=0}^{T}(R_t(\tau)-b(s_t))\nabla_\th
 # 구현
 
 ## Foundations of Deep Reinforcement Learning
+
+
 [Code](https://github.com/helpingstar/book_learning/blob/main/Foundations_of_Deep_Reinforcement_Learning/code_2_1.py)
 
 ```python
