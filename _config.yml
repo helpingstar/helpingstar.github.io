@@ -294,7 +294,6 @@ defaults:
       share: false
       related: true
       show_date: true
-      author_profile: false
 
 date_format: "%Y-%m-%d"
 future: true
