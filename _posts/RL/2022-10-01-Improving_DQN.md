@@ -193,13 +193,5 @@ $w_1=2.0,w_2=3.5$일 때 $\eta$값에 따른 확률
 * `(22)` : 경험을 훈련할 때마다 `TD Error`를 계산하고 저장해야 한다.
 * `(29~30)` : `TD Error`를 이용하여 메모리에 있는 해당 예제의 우선순위를 업데이트한다.
 
----
-
-* $Q^{\pi^{\ast}}(s,a)$
-* $Q^{\pi}_{\text{tar}}(s,a)$
-* $Q^{\pi}(s,a)$
-* $\hat{Q^\pi}(s,a)$
-* $Q^{\pi_\theta}(s,a)$
-* $Q^{\pi_\varphi}(s,a)$
-* $Q^{\pi_\varphi}_{\text{tar}}(s,a)$
-* $Q^{\pi_\theta}_{\text{tar}}(s,a)$
+> 출처
+ - Laura Graesser, Wah Loon Keng,『단단한 심층 강화학습』, 김성우, 제이펍(2022)
