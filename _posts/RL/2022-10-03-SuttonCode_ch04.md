@@ -64,6 +64,24 @@ POISSON_UPPER_BOUND = 11
 * **(20)** : `action`은 [-5,5]의 범위를 갖는다, 양수: 1->2, 음수: 2->1
 * **(23)** : `POISSON_UPPER_BOUND = 11` n이 11보다 클 경우 확률은 0이 된다.
 
+```python
+# Probability for poisson distribution
+# @lam: lambda should be less than 10 for this function
+poisson_cache = dict()
+
+def poisson_probability(n, lam):
+    global poisson_cache
+    key = n * 10 + lam
+    if key not in poisson_cache:
+        poisson_cache[key] = poisson.pmf(n, lam)
+    return poisson_cache[key]
+```
+푸아송 분포($\frac{\lambda^n}{n!}e^{-\lambda}$)를 구현하는 코드이다. 해당 $n$, $\lambda$에 대한 pmf를 반환한다.
+* **(3)** : `poisson_probability` 함수 호출마다 확률을 새로 구하는 것을 방지하기 위하여 한번 구했다면 그 값을 저장하는 `dict()`(=`Hash Table`)을 선언한다.
+* **(7)** : $\lambda < 10$이기 때문에 $n$에 10을 곱하면 이는 $\lambda$에 영향을 주지 못하며이는 유일한 `key`로 적용 가능하다.
+* **(8~9)** : `key`가 `poisson_cache`에 없을 경우 `poisson.pmf(n, lam)`($=\frac{\lambda^n}{n!}e^{-\lambda}$)을 계산하여 해당 `key`값에 저장한다.
+* **(10)** : `poisson_cache[key]`를 반환한다.
+
 
 ```python
 def expected_return(state, action, state_value, constant_returned_cars):
@@ -129,6 +147,15 @@ def expected_return(state, action, state_value, constant_returned_cars):
 * **(3~10)**
   * `state` : [첫 번째 지점의 차 개수, 두 번째 지점의 차 개수]
   * `action` : 양수 : 1->2, 음수 : 2->1
+* **(13)** : `returns`를 0으로 초기화한다.
+* **(16)** : `action`의 절댓값(=옮기는 차량 개수) * `MOVE_CAR_COST`(=2)를 `returns`에서 뺀다
+* **(19~20)** : `NUM_OF_CARS_FIRST/SECOND_LOC` : `state`에서 `action`을 반영한 자동차의 개수를 초기화한다, 최대 개수인 `MAX_CARS`(=20)을 넘을 경우 20으로 초기화된다.
+* **(26~27)** : // TODO
+* **(29~30)** : 상수 변수로 선언된 `NUM_OF_CARS_(N)_LOC`를 변형 가능한 `num_of_cars_(n)_loc` 변수로 옮긴다.
+* **(33~34)** : 렌탈 요청 개수를 하나씩 넣어보는데 그 개수는 실제 자동차의 개수보다 작아야 한다.
+* **(37)** : 첫 번째와 두 번째에서 렌탈한 총 개수를 `RENTAL_CREDIT`(=10)과 곱하여 `reward`에 저장한다
+* **(38~39)** : `num_of_cars_(n)_loc`에 렌탈한 자동차 개수를 각각 빼고 저장한다
+
 
 
 ```python
