@@ -2,7 +2,7 @@
 layout: single
 title: "딥러닝 활성화 함수, Activation Function"
 date: 2022-07-03 01:28:01
-lastmod : 2022-07-06 23:56:34
+lastmod : 2022-10-05 15:28:14
 categories: DL
 tag: [sigmoid, tanh, xavier, glorot, kaiming, weight initialization, relu, prelu, rrelu, leaky relu, elu, selu]
 toc: true
@@ -32,7 +32,7 @@ $tanh(z)=2\sigma(2z)-1$
 
 ![tanH_graph](../../../assets/images/ai/tanh_graph.jpg){: width="60%" height="60%" class="align-center"}
 
-`sigmoid` 함수처럼 S자 모양이고 연속적이며 미분 가능하다. 하지만 출력 범위가 -1에서 1사이이다. 이 범위는 훈련 초기에 각 층의 출력을 원점 근처로 모으는 경향이 있다. 이는 종종 빠르게 수렴되도록 도와준다. 
+`sigmoid` 함수처럼 S자 모양이고 연속적이며 미분 가능하다. 하지만 출력 범위가 -1에서 1사이이다. 이 범위는 훈련 초기에 각 층의 출력을 원점 근처로 모으는 경향이 있다. 이는 종종 빠르게 수렴되도록 도와준다.
 
 
 # 초기화 전략
@@ -45,19 +45,19 @@ $tanh(z)=2\sigma(2z)-1$
 
 로지스틱 활성화 함수를 보면 입력이 커지면 0이나 1로 수렴하여 기울기가 0과 가까워져 역전파가 될 때 사실상 신경망으로 전파할 그레이디언트가 거의 없어지게 된다.
 
-글로럿과 벤지오는 논문에서 불안정한 그레이디언트 문제를 크게 완화하는 방법을 제안한다. 
+글로럿과 벤지오는 논문에서 불안정한 그레이디언트 문제를 크게 완화하는 방법을 제안한다.
 
 예측을 할 때는 정방향으로, 그레이디언트를 역전파할 때는 역방향으로 양방향 신호가 적절하게 흘러야 한다. 신호가 죽거나 폭주 또는 소멸하지 않아야 한다
 
-저자들은 적절한 신호가 흐르기 위해서는 각 층의 출력에 대한 분산이 입력의 분산과 같아야 한다고 주장한다. 그리고 역방향에서 층을 통과하기 전과 후의 그레이디언트 분산이 동일해야 한다. 
+저자들은 적절한 신호가 흐르기 위해서는 각 층의 출력에 대한 분산이 입력의 분산과 같아야 한다고 주장한다. 그리고 역방향에서 층을 통과하기 전과 후의 그레이디언트 분산이 동일해야 한다.
 
-사실 층의 입력(fan-in)과 출력(fan-out) 연결 개수가 같지 않다면 이 두 가지를 보장할 수 없다.
+사실 층의 입력(`fan-in`)과 출력(`fan-out`) 연결 개수가 같지 않다면 이 두 가지를 보장할 수 없다.
 
-그에 대해 대안을 제시했는데 아래의 식의 방식대로 무작위로 초기화 하는 것이다. 
+그에 대해 대안을 제시했는데 아래의 식의 방식대로 무작위로 초기화 하는 것이다.
 
 ![sigmoid_function](../../../assets/images/ai/glorot_xavier_init.jpg){: width="75%" height="75%" class="align-center"}
 
-위 식에서 $fan_{avg}$를 $fan_{in}$로 바꾸면 르쿤(LeCun) 초기화라고 부른다(1990) $fan_{in}=fan_{avg}$이면 르쿤 초기화는 글로럿 초기화와 동일하다. 
+위 식에서 $fan_{avg}$를 $fan_{in}$로 바꾸면 르쿤(LeCun) 초기화라고 부른다(1990) $fan_{in}=fan_{avg}$이면 르쿤 초기화는 글로럿 초기화와 동일하다.
 
 글로럿 초기화를 사용하면 훈련 속도를 상당히 높일 수 있다.
 
@@ -73,6 +73,8 @@ $tanh(z)=2\sigma(2z)-1$
 
 ## 파이토치의 경우
 [`Linear`](https://github.com/pytorch/pytorch/blob/caa6ef15a294c96fad3bf67a10a8b4fa605080bb/torch/nn/modules/linear.py#L103-L111)와 [`conv2d`](https://github.com/pytorch/pytorch/blob/caa6ef15a294c96fad3bf67a10a8b4fa605080bb/torch/nn/modules/conv.py#L146-L155)의 경우 해당 소스코드를 보면 확인할 수 있다.
+
+
 
 ```python
 # pytorch/torch/nn/modules/linear.py
@@ -124,10 +126,14 @@ def kaiming_uniform_(tensor: Tensor, a=0, mode='fan_in', nonlinearity='leaky_rel
     gain = calculate_gain(nonlinearity, a)
     std = gain / math.sqrt(fan)
     # Calculate uniform bounds from standard deviation
-    bound = math.sqrt(3.0) * std  
+    bound = math.sqrt(3.0) * std
     with torch.no_grad():
         return tensor.uniform_(-bound, bound)
 ```
+
+**층의 입력**: `fan_in`, **층의 출력** : `fan_out`
+
+`fan_avg` = (`fan_in` + `fan_out`) / 2
 
  - `fan` : `_calculate_correct_fan`은 `mode` 변수의 값에 따라 `fan_in` 또는 `fan_out`을 반환한다. 그런데 여기서는 인자를 주지 않았으므로 기본값인 `fan_in`을 반환하게된다
  - [gain](#calculate_gain) : 여기서는 `calcuate_gain` 함수를 호출하는데 (더 자세한 내용은 아래 서술한다 일단 함수에 집중해보자) `nonlinearity=leaky_relu`, `a=math.sqrt(5)`이므로 `negative_slope=math.sqrt(5)`에 해당하여 $\sqrt{2/(1+slope_{negative}^{2})}=1/\sqrt{3}$를 반환하여 `gain`$=1/\sqrt{3}$이 된다.
@@ -171,7 +177,7 @@ def kaiming_uniform_(tensor: Tensor, a=0, mode='fan_in', nonlinearity='leaky_rel
 
 [`calculate_gain`](https://github.com/pytorch/pytorch/blob/caa6ef15a294c96fad3bf67a10a8b4fa605080bb/torch/nn/init.py#L67) 함수는 다음과 같이 정의되어있다.
 ```python
-# pytorch/torch/nn/init.py 
+# pytorch/torch/nn/init.py
 
 def calculate_gain(nonlinearity, param=None):
     ...
@@ -193,7 +199,7 @@ def calculate_gain(nonlinearity, param=None):
         return math.sqrt(2.0 / (1 + negative_slope ** 2))
     elif nonlinearity == 'selu':
         # Value found empirically (https://github.com/pytorch/pytorch/pull/50664)
-        return 3.0 / 4  
+        return 3.0 / 4
     else:
         raise ValueError("Unsupported nonlinearity {}".format(nonlinearity))
 ```
@@ -219,7 +225,7 @@ $ReLU(z)=max(0, z)$
 
 큰 학습률이 dying ReLU를 초래하는 이유
 
-`learning_rate`가 클 경우 가중치 갱신시에 이동량이 커지므로 음수부분으로 빠지게 될 가능성이 크기 때문이다. 
+`learning_rate`가 클 경우 가중치 갱신시에 이동량이 커지므로 음수부분으로 빠지게 될 가능성이 크기 때문이다.
 
 $w_{i,j}^{(next)}=w_{i,j}+\eta (y_{j}-\hat{y}_{j})x_{i}$
 
@@ -241,7 +247,7 @@ $ReLU(x-c)=0, \; for \; x \leq c$
 
 이제 이 함수를 더하면 다음과 같은 모양이 나온다
 
-$ReLU(x)+ReLU(x-c)$ 
+$ReLU(x)+ReLU(x-c)$
 
 ![relu_ex3](../../../assets/images/ai/relu_ex3.jpg){: width="75%" height="75%" class="align-center"}
 
@@ -261,7 +267,7 @@ $ReLU(x) + (-3)ReLU(x-c)$
 
 ![relu_ex5](../../../assets/images/ai/relu_ex5.jpg){: width="75%" height="75%" class="align-center"}
 
-순전파 공식을 다시 떠올려보자 
+순전파 공식을 다시 떠올려보자
 
 $a = f(w_{0}+\sum_{i=1}^{m}x_{i}w_{i})$
 
@@ -316,17 +322,17 @@ $\alpha$가 훈련되면서 학습된다. 대규모 이미지에서는 `ReLU`보
  - $z<0$이어도 그레이디언트가 0이 아니므로 죽은 뉴런을 만들지 않는다.
  - $\alpha=1$이면 이 함수는 $z=0$에서 급격히 변동하지 않으므로 $z=0$을 포함해 모든 구간에서 매끄러워 경사 하강법의 속도를 높여준다.
 
-단점 
+단점
  - 계산이 느리다, 훈련시에는 수렴 속도가 빨라서 느린 계산이 상쇄되지만 테스트시에는 `ReLU`를 사용한 네트워크보다 느릴 것이다.
 
 ## `SELU`
-권터 클람바우어 등의 2017년 논문<sup>[6](#footnote_6)</sup> `SELU`(Scaled ELU) 함수를 소개한다. 이는 스케일이 조정된 `ELU` 
+권터 클람바우어 등의 2017년 논문<sup>[6](#footnote_6)</sup> `SELU`(Scaled ELU) 함수를 소개한다. 이는 스케일이 조정된 `ELU`
 함수의 변종이다. 저자들은 완전 연결 층만 쌓아서 신경망을 만들고 모든 은닉층이 `SELU` 활성화 함수를 사용한다면 네트워크가 자기 정규화(self-normalize)된다는 것을 보였다. 훈련하는 동안 각 층의 출력이 평균 0과 표준편차 1을 유지하는 경향이 있다. 이는 그레이디언트 소실과 폭주 문제를 막아준다. 그 결과로 `SELU` 활성화 함수는 특히 아주 깊은 네트워크에서 다른 활성화 함수보다 뛰어난 성능을 종종 낸다.
 
 자기 정규화가 일어나기 위한 몇 가지 조건
 
  - 입력 특성이 반드시 표준화(평균 0, 표준편차 1) 되어야 한다.
- - 모든 은닉층의 기준치는 르쿤 정규분포 초기화로 초기화되어야 한다. 
+ - 모든 은닉층의 기준치는 르쿤 정규분포 초기화로 초기화되어야 한다.
  - 네트워크는 일렬로 쌓은 층으로 구성되어야 한다. `RNN`이나 `Skip connection` 같은 구조에 `SELU`를 사용하면 자기 정규화되는 것이 보장되지 않는다. 성능 또한 마찬가지로 보장되지 않는다.(`CNN`의 경우에는 성능향상이 가능하다는 의견도 존재한다.)
 
 # 결론
