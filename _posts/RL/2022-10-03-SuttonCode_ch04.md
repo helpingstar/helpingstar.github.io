@@ -13,6 +13,8 @@ use_math: true
 
 [단단한 강화학습](http://www.kyobobook.co.kr/product/detailViewKor.laf?ejkGb=KOR&mallGb=KOR&barcode=9791190665179&orderClick=LAG&Kc=) 책의 코드를 공부하기 위해 쓰여진 글이다.
 
+// TODO : 포아송분포 공부 후 figure4.2 보충
+
 # **`figure 4.2`**
 
 ![figure_4_2](../../assets/images/rl/figure_4_2.png){: width="80%" height="80%" class="align-center"}
@@ -157,7 +159,6 @@ def expected_return(state, action, state_value, constant_returned_cars):
 * **(38~39)** : `num_of_cars_(n)_loc`에 렌탈한 자동차 개수를 각각 빼고 저장한다
 
 
-
 ```python
 def figure_4_2(constant_returned_cars=True):
     value = np.zeros((MAX_CARS + 1, MAX_CARS + 1))
@@ -222,3 +223,91 @@ def figure_4_2(constant_returned_cars=True):
 * **(18)** : `policy evaluation`을 위한 반복문을 시작한다
 * **(19)** : 기존의 `value`를 `old_value` 변수에 `deepcopy`한다.
 * **(20~21)** : 모든 경우의 수에 대해 반복한다
+
+# **`figure 4.3`**
+
+![figure_4_3](../../assets/images/rl/figure_4_3.png){: width="60%" height="60%" class="align-center"}
+
+**도박사의 문제**
+
+연속된 동전 던지기의 결과를 맞추는 내기를 한다.
+* 앞면 : 내건 액수만큼 돈을 딴다.
+* 뒷면 : 내건 액수만큼 돈을 잃는다.
+* 목표금액 100달러를 따거나 돈을 모두 잃으면 게임은 끝난다.
+
+매번의 동전 던지기에서, 내걸 액수를 정해야 한다. 금액의 단위는 1달러다. 이 문제를 할인되지 않은 에피소딕 유한 MDP로 형식화할 수 있다. 상태는 보유한 자금의 액수 $s \in \{1, 2, ..., 99\}$이고 행동은 내기에 거는 돈의 액수 $a \in \{ 0, 1, ... \min(s, 100-s)\}$이다. 도박사가 자신의 목표에 도달하게끔 하는 행동에 대한 보상은 +1이고 이를 제외한 나머지 행동의 보상은 0이다. 이제 상태 가치 함수로부터 각 상태에서 도박사가 돈을 딸 확률을 계산할 수 있다. 이 예제에서 어떤 정책이란 도박사가 보유한 자금의 액수와 도박사가 내거는 돈의 액수 사이의 관계를 규정하는 것이다. 최적 정책은 도박사가 목표에 도달할 확률을 최대로 만든다.  동전의 앞면이 나올 확률을 $p_h$라고 할 때, $p_h$를 알고 있다면, 문제 전체를 알고 있는 것이며, 예를 들면 가치 반복을 통해 이 문제를 풀 수 있다. `figure 4.3`은 가치 반복의 연속된 일괄 계산 과정에서 가치 함수가 변화하는 것과 $p_h=0.4$인 경우에 대해 가치 반복이 도달한 최종 정책을 보여준다. 이 정책은 최적 정책이지만 유일한 최적 정책은 아니다. 사실, 최적 가치 함수 측면에서 $\argmax$의 최대화 조건을 만족하는 여러 행동이 있고, 각 행동에 상응하는 최적 정책을 모아놓은 집합이 있다.
+
+```python
+# goal
+GOAL = 100
+# all states, including state 0 and state 100
+STATES = np.arange(GOAL + 1)
+# probability of head
+HEAD_PROB = 0.4
+
+def figure_4_3():
+    # state value
+    state_value = np.zeros(GOAL + 1)
+    state_value[GOAL] = 1.0
+
+    sweeps_history = []
+
+    # value iteration
+    while True:
+        old_state_value = state_value.copy()
+        sweeps_history.append(old_state_value)
+
+        for state in STATES[1:GOAL]:
+            # get possilbe actions for current state
+            actions = np.arange(min(state, GOAL - state) + 1)
+            action_returns = []
+            for action in actions:
+                action_returns.append(
+                    HEAD_PROB * state_value[state + action] + (1 - HEAD_PROB) * state_value[state - action])
+            new_value = np.max(action_returns)
+            state_value[state] = new_value
+        delta = abs(state_value - old_state_value).max()
+        if delta < 1e-9:
+            sweeps_history.append(state_value)
+            break
+
+    # compute the optimal policy
+    policy = np.zeros(GOAL + 1)
+    for state in STATES[1:GOAL]:
+        actions = np.arange(min(state, GOAL - state) + 1)
+        action_returns = []
+        for action in actions:
+            action_returns.append(
+                HEAD_PROB * state_value[state + action] + (1 - HEAD_PROB) * state_value[state - action])
+
+        # round to resemble the figure in the book, see
+        # https://github.com/ShangtongZhang/reinforcement-learning-an-introduction/issues/83
+        policy[state] = actions[np.argmax(np.round(action_returns[1:], 5)) + 1]
+
+    plt.figure(figsize=(10, 20))
+
+    plt.subplot(2, 1, 1)
+    for sweep, state_value in enumerate(sweeps_history):
+        plt.plot(state_value, label='sweep {}'.format(sweep))
+    plt.xlabel('Capital')
+    plt.ylabel('Value estimates')
+    plt.legend(loc='best')
+
+    plt.subplot(2, 1, 2)
+    plt.scatter(STATES, policy)
+    plt.xlabel('Capital')
+    plt.ylabel('Final policy (stake)')
+
+    plt.savefig('../images/figure_4_3.png')
+    plt.close()
+```
+
+* **(2)** : 목표 금액인 100을 정의한다
+* **(4)** : 모든 가능한 상태 [0~100] 숫자열을 얻는다.
+* **(6)** : 앞면이 나올 확률인 0.4를 정의한다.
+* **(9~11)** : [0~100]의 범위에서 `GOAL`인 100만 1의 값을 가지는 상태가치 배열 `state_value`를 정의한다.
+* **(13)** : // 각 iteration에서의 `state_value`를 기록하기 위한 배열 `sweeps_history`를 초기화한다
+* **(17)** : `state_value` 배열을 업데이트하기 위해 기존의 값들을 `old_state_value`에 깊은 복사한다
+* **(18)** : 위에서 옮겨둔 `old_state_value`를 `sweeps_history`에 축한다.
+* **(20)** : 종료상태(0, 100)를 제외한 모든 상태에 대해서 반복을 수행한다(=[1~99])
+* **(21)** : `actions`에 모든 가능한 `action` 의 배열을 저장한다.
