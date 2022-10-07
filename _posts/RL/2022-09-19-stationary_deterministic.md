@@ -2,7 +2,7 @@
 layout: single
 title: "강화학습에서 stationary와 deterministic"
 date: 2022-09-19 20:40:02
-lastmod : 2022-09-19 20:39:55
+lastmod : 2022-10-07 18:33:32
 categories: RL
 tag: [RL, stationary, deterministic]
 toc: true
@@ -92,6 +92,7 @@ For example there are 10% chance of taking action **A** from state **S**, There 
 
 # stationary
 
+## policy
 https://ai.stackexchange.com/a/15429/46808
 
 ***A stationary policy**, $\pi_t$, is a policy that does not change over time, that is, $\pi_t=\pi, \forall t \ge 0$, where $\pi$ can either be a function, $\pi : S \rightarrow A$ (a deterministic policy), or a conditional density, $\pi(A \mid S)$ (a stochastic policy).*
@@ -114,6 +115,10 @@ stationary optimal policy가 존재할 것이 보장되는 문제가 있다.
 
  이 사실에 대한 증명은 Markov Decision Processes: Discrete Stochastic Dynamic Programming (1994), by Martin L. Puterman이라는 책에 있다, 웹에서는 자유로이 접근가능하지 않은 것으로 보인다.
 
----
+## problem
 
-`stationary bandit problems`에서는 보상값의 확률 분포가 시간이 지나도 변하지 않는다.
+`stationary bandit problems`은 보상값의 확률 분포가 시간이 지나도 변하지 않는다.
+
+지금까지 살펴본 여러 `Multi Armed Bandit` 문제에서 각 팔의 보상 확률은 시간이 지나도 변하지 않는다. 이런 셩격의 문제를 `stationary problem`이라고 부른다.
+
+만일 보상 확률이 시간에 따라 변한다면 `nonstationary problem`이 된다.
