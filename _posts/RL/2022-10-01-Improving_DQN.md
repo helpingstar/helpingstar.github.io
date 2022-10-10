@@ -1,9 +1,9 @@
 ---
 title: "향상된 DQN"
 date: 2022-10-01 19:13:10
-lastmod : 2022-10-04 14:48:02
+lastmod : 2022-10-10 18:54:13
 categories: RL
-tag: [RL, DQN]
+tag: [RL, DQN, Target Networks, Double DQN, Prioritized Experience Replay, Importance Sampling]
 toc: true
 toc_sticky: true
 use_math: true
@@ -54,6 +54,15 @@ $$\text{Polyak update : } \varphi \leftarrow \beta\varphi + (1-\beta)\theta$$
 * $\varphi$와 $\theta$를 섞어놓은 것이 변하지 않기 때문에 시간 단계의 개수에 영향을 받는 동역학적 지연이 없다.
 
 목표 네트워크의 한 가지 단점은 $Q^{\pi}_\text{tar}(s,a)$가 이전의 목표 네트워크로부터 생성되기 때문에 훈련 속도가 저하될 수 있다는 점이다. $\varphi$와 $\theta$가 너무 비슷한 값을 갖는다면 훈련 과정은 불안정해지겠지만 $\varphi$가 너무 천천히 변화한다면 훈련 과정은 불필요하게 느려질 것이다. $\varphi$의 변화 속도를 조절하는 하이퍼 파라미터(업데이트 빈도수 또는 $\beta$)는 안정성과 훈련속도 사이의 적절한 균형을 찾도록 조절되어야 한다.
+
+## Target Network 훈련 과정
+1. $Q$ 신경망을 초기화한다. 이 $Q$ 신경망의 매개변수들(가중치들)을 $\theta$로 표기한다.
+2. $Q$ 신경망을 매개변수들까지 그대로 복사해서 목표망을 만든다. 목표망의 매개변수들은 $\varphi$로 표기한다. 지금은 $\theta = \varphi$이다.
+3. 탐색/탐험 전략에 따라 $Q$ 신경망의 $Q$ 가치를 이용해서 동작 $a$를 선택한다.
+4. 보상 $r_{t+1}$과 새 상태 $s_{t+1}$을 관측한다.
+5. 동작 $a$에 의해 이번 에피소드가 끝났다면 목표망의 $Q$ 가치를 $r_{t+1}$로 설정하고, 그렇지 않으면 $r_{t+1}+\underset{a_{t+1}}{\max}Q^{\pi_\varphi}(s_{t+1},a_{t+1})$로 설정한다.(여기서 목표망이 실행됨)
+6. 목표망의 $Q$ 가치를 주 $Q$ 신경망(목표망이 아니라)으로 역전파한다.
+7. $F$회 반복마다 $\varphi = \theta$로 설정한다.
 
 # Double DQN
 
@@ -195,5 +204,10 @@ $w_1=2.0,w_2=3.5$일 때 $\eta$값에 따른 확률
 
 학습시에 `PER`를 이용할 때는 학습률을 작게 유지하는 것이 일반적이다. 이것은 `PER`이 오차가 더 큰 전이를 더 자주 선택하여 평균적으로 더 큰 경사를 만들기 때문이다. 더 커진 경사를 보상하기 위해, 스카울 등은 [PER 논문](https://arxiv.org/abs/1511.05952)에서 학습률을 4분의 1로 줄이는 것이 도움이 된다는 사실을 알아냈다.
 
+# 구현 코드 모음
+* [DRL in Action, chap03](https://github.com/DeepReinforcementLearning/DeepReinforcementLearningInAction/blob/master/Chapter%203/Ch3_book.ipynb)
+  * 세 번째 : `DQN` Experience Replay, Target Network
+
 > 출처
  - Laura Graesser, Wah Loon Keng,『단단한 심층 강화학습』, 김성우, 제이펍(2022)
+ - Alex Zai, Brandon Brown,『심층 강화학습 인 액션』, 류광, 제이펍(2020)
