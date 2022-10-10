@@ -64,6 +64,12 @@ $$\text{Polyak update : } \varphi \leftarrow \beta\varphi + (1-\beta)\theta$$
 6. 목표망의 $Q$ 가치를 주 $Q$ 신경망(목표망이 아니라)으로 역전파한다.
 7. $F$회 반복마다 $\varphi = \theta$로 설정한다.
 
+## 실험
+
+![drlinaction_figure_3_16_1](../../assets/images/rl/drlinaction_figure_3_16_1.jpg){: width="80%" height="80%" class="align-center"}
+
+오차가 급등한 지점이 결과마다 끼어 있는데 책에서는 이것이 "아마도 목표망을 주 $Q$ 신경망과 동기화하는 지점들일 것이다"라고 써있어서 망 동기화 간격을 높게 했더니 간격이 늘어난 것을 볼 수 있었다. 그러므로 각 스파이크 부분은 망 동기화하는 지점 혹은 동기화 간격과 같은 주기를 갖는 지점이라고 할 수 있을 것 같다.
+
 # Double DQN
 
 이중 추정(double estimation)을 이용하여 $Q^{\pi}_{\text{tar}}(s,a)$을 계산한다. `Double DQN`으로 알려진 이 알고리즘은 $Q$ 가치를 과대추정하는 문제를 해결한다.
