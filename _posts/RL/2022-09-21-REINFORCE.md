@@ -171,7 +171,7 @@ $$\nabla_\theta J(\pi_\theta) \approx \sum_{t=0}^{T}(R_t(\tau)-b(s_t))\nabla_\th
 ## Foundations of Deep Reinforcement Learning
 
 
-[Code](https://github.com/helpingstar/book_learning/blob/main/Foundations_of_Deep_Reinforcement_Learning/code_2_1.py)
+[Foundations of DRL, chap02](https://github.com/helpingstar/book_learning/blob/main/Foundations_of_Deep_Reinforcement_Learning/code_2_1.py)
 
 ```python
 def train(pi, optimizer):
@@ -201,6 +201,8 @@ def train(pi, optimizer):
 * `(15)` : $\nabla_\theta$
 * `(16)` : $\theta = \theta + \alpha\nabla_\theta J(\pi_\theta)$
 
+## DRL in Action
+* [DRL in Action, chap04](https://github.com/DeepReinforcementLearning/DeepReinforcementLearningInAction/blob/master/Chapter%204/Ch4_book.ipynb)
 
 > 출처
  - Laura Graesser, Wah Loon Keng,『단단한 심층 강화학습』, 김성우, 제이펍(2022)
