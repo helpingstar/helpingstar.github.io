@@ -1,0 +1,25 @@
+---
+title: "강화학습 구현시 팁"
+date: 2022-10-25 17:19:02
+lastmod : 2022-10-25 17:19:05
+categories: RL
+tag: [RL]
+toc: true
+toc_sticky: true
+use_math: true
+---
+
+강화학습 알고리즘/논문 구현시 겪었던 고충들을 늘어놓고 해결할 때마다 업데이트 하기 위한 글이다. 지속적으로 업데이트 할 예정이다.
+
+### 1.
+
+`state`는 대부분 `np.array`인데 이것을 `ReplayBuffer`에 저장하기 위해서 `list`에 저장하면 `torch.tensor`로 옮길 때 옮겨지긴 하지만 `Warning`이 발생한다.
+
+```
+UserWarning:
+Creating a tensor from a list of numpy. ndarrays is extremely slow.
+Please consider converting the list to a single numpy.
+ndarray with numpy.array() before converting to a tensor.
+```
+
+그러면 2차원으로 단순히 하면되는 것 아닌가? 하겠지만 한 `transition`에는 `(s, a, r, s', done)`이 포함되기 때문에 단순히 `state`만 볼 수 없다.
