@@ -68,3 +68,41 @@ def _get_3_blocks(self) -> tuple:
 ```
 근데 나는 `woodoku_env.py`에서 `blocks.py`를 `import` 한후 위와같이 `class` 변수에 그대로 대입하고 그것을 `_get_3_blocks`를 이용하여 그대로 사용했다.
 지금은 수정되었지만 지금은 `copy()`를 하지 않고 그대로 `return`하여 `shallow copy`가 되어버렸고 이후 해당 블록을 모두 0으로 만들어버리는 연산이 있었는데 결국 `self._block_list` 가 훼손되었다. 이후 디버그를 통해 `copy()`연산으로 `deep copy`를 하여 해결할 수 있었다.
+
+# Action
+
+## 1.
+Action에는 못하는 것이 있고, 할수 있는데 안되는 것이 있다 말이 애매하니 예를 들어보겠다
+
+바둑을 예로 들어보자 바둑판은 19X19의 칸으로 구성되어 있다.
+
+![Blank_Go_board](../../assets/images/rl/Blank_Go_board.png){: width="50%" height="50%" class="align-center"}
+
+그럼 아마 환경을 만들때 `action_space`를 `MultiDiscrete([19, 19])` 혹은 `Discrete(361)`로 정의를 하게 될 것이다. 후자는 `[x // 19, x % 19]`로 바꾸면 전자와 같기에 설명을 위해 표기는 전자의 방식을 하겠다. 전자의 경우 index는 0부터 시작하여 `[x, y]`는 x행의 y열에 돌을 두는 행위라고 하자, 이때 여기서는 만약 `x`, `y`가 19 이상의 값을 가진다면 이것은 오류를 발생시켜야 한다. 아마 해당 값이 `action_space`에 속해있지 않기 때문에 `gym`라이브러리에서 에러를 발생시킬 것이다. 예를 들어 `[20, 20]` 처럼 20행, 20열에는 돌을 둘 수 없기 때문이다.
+
+그런데 다음 경우를 보자
+
+![non_Blank_Go_board](../../assets/images/rl/non_Blank_Go_board.png){: width="50%" height="50%" class="align-center"}
+
+여기에 `action`으로 `[1, 3]`을 한다고 생각하자, 해당 `action`은 문제가 없어 보인다. 하지만 생각해야할 점이 있다. 해당 위치에는 이미 돌이 있기 때문에 돌을 놓을 수 없기 때문이다. 근데 앞에서 소개한 돌을 놓을 수 없다는 것과는 의미가 약간 다르다. 앞에서 말한 '안된다'는 것은 아예 정의되지 않은 행위이기 때문이고 뒤에서 말한 '안된다'는 가능한 행위이나 게임 내적 규칙으로 인해 유효하지 않은 행위이기 때문이다.
+
+약간 다르지만 비슷한 상황으로 atari의 breakout에서 맨 오른쪽에서 action을 '오른쪽으로 가기'를 선택하는 것도 있다.
+
+![atari_breakout](../../assets/images/rl/atari_breakout.gif){: width="50%" height="50%" class="align-center"}
+
+[Image source]([atari_breakout](https://towardsdatascience.com/tutorial-double-deep-q-learning-with-dueling-network-architectures-4c1b3fb7f756))
+
+
+이럴때 `step`을 어떻게 해야할까
+
+물론 정답은 없지만 나는 이 상황에서 `assert`를 하는 것은 적절하지 않다는 생각이다.
+
+물론 환경마다 처리방식은 다를 수 있다. 바둑의 경우 해당 행위를 '아무 돌도 두지 않기'로 바꿔서 `step` 할 수도 있고 atari의 breakout의 맨 오른쪽에서 오른쪽으로 가는 행위는 그냥 처리해도 문제는 없다.
+
+이에 대한 내생각은 다음과 같다
+
+1. `action`이 이산적일 경우 유효한 행동에 한해서 최대의 값을 뽑아낼 수는 있겠지만 각 상태에 따라 유효한 행동을 골라내는 작업이 상당히 오래 걸릴 수 있다. 특히나 `action_space`가 연속적일 경우 이는 더 오래 걸릴 수 있다.
+2. 해당 `action`을 오류가 안나지 않는 선에서 적절히 처리해준다면 (바둑의 예시처럼 아무 동작도 안하는 것) 해당 `action`은 결국 장기적으로 `Q value`가 떨어질 것이고 해당 행동을 덜 선택하게 될 것이기 때문이다.
+3. 유효하지 않은 행동은 환경에 따라 상당히 여러가지가 될 수 있는데 모든 경우에 대해 적절히 한 `action`으로 일반화하지 않고 각각 처리해준다면 강화학습의 일반화 측면에서도 맞지 않고 알고리즘의 확장성도 떨어질 수 있다.
+
+해당 생각으로 내가 강화학습 환경을 만든다면 유효하지 않은 행동에 대해서는 아직 최대한 개입을 하지 않는 것으로 하고 있다. 더 공부하게 된다면 생각이 바뀔지도 모르겠으나, 주변 사람에게 물어봐도 나와 같은 생각을 하고 있는 듯 하다.
