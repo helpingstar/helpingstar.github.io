@@ -6,7 +6,6 @@ categories: RL
 tag: [RL]
 toc: true
 toc_sticky: true
-use_math: true
 ---
 
 # STAR-MOOC

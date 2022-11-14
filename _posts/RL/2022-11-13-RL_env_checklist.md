@@ -6,7 +6,6 @@ categories: RL
 tag: [RL, gym]
 toc: true
 toc_sticky: true
-use_math: true
 ---
 
 # space
@@ -19,6 +18,8 @@ use_math: true
     * 2차원 배열을 `[1, m, n]`으로 반환할지, `[m, n]`으로 반환할 지 등
 
 # State
+
+
 
 # Action
 

@@ -74,3 +74,19 @@ memory를 아끼고 싶다면 맨 처음에 빈 배열로 초기화 되고 memor
 무한 반복이다. 환경 그 자체로 집중해야 할 지 아니면 그 외의 것도 고려해야할지 고려한다면 어디까지 고려해야 할 지 더 많은 코드를 보고 정해야 겠다.
 
 // TODO
+
+### 5.
+
+내가 만든 환경인 [gym-woodoku](https://github.com/helpingstar/gym-woodoku)를 `Nature DQN`<sup>[1](#footnote_1)</sup>을 이용하여 수렴시키는 데 실패했다.(2022-11-14) 정말 많은 파라미터도 많이 바꿔봤다
+1. `state`가 0, 1으로만 되어있어서 CNN 모델 통과시 신호가 약해지는 것 아닌가 싶어서 numpy로 된 state에 255를 곱했다.
+2. `reward`가 너무 커서 그런것 아닌가 싶어서(0~10정도로 형성) 0.1을 곱하여 스케일링 했다.
+3. `step` 을 10M번 진행하고 `epsilon-greedy`에서 입실론의 최댓값(1.0)에서 최솟값(0.1) 까지 선형적으로 감소시키는 구간을 0.1(1M)에서 0.3(3M)으로 늘려보았다.
+4. `reward`가 충분히 sparse할 수 있기 때문에 `discount factor`를 0.99에서 0.999로 늘려보았다.
+5. target network 업데이트 주기를 조절하였다
+
+결국 실패했다. 안되는 이유를 곰곰히 생각해봤는데 다음과 같다.
+
+조금이라도 개선이 되지 않는 것으로 보아 알고리즘 파라미터의 문제는 아닌 것 같았다. 가장 유력한 실패원인은 너무 큰 `action_space` 때문인 것 같다. 예를 들어 아직 optimal action을 찾지 못한 state가 있다면 optimal action을 찾기 위해 exploration을 해야 한다. 그런데 243(9\*9\*3)개중에 optimal action이 다른 것으로 걸려 있다면 나는 나머지 242개를 탐색해야 하는데 epsilon이 0.1이라고 하면 나머지 `action` 모두를 탐색하기 위해 엄청난 `step`이 필요할 것이다. 또한 근사되긴 하지만 `observation` 또한 경우의 수가 $2^{9*9 + 3*5*5}$이다. 각각의 `observation`에 243개의 `action`을 모두 탐색하려면 이는 엄청난 시간이 필요할 것 같다. `PPO` 등 Policy Based Learning으로 도전해야겠다.
+
+
+<a name="footnote_1">1</a>: Mnih, V., Kavukcuoglu, K., Silver, D. et al. Human-level control through deep reinforcement learning. Nature 518, 529–533 (2015).
