@@ -151,7 +151,7 @@ def kaiming_uniform_(tensor: Tensor, a=0, mode='fan_in', nonlinearity='leaky_rel
 - `std` = $\frac{1}{\sqrt{3}}\times\frac{1}{\sqrt{30}}=\frac{1}{\sqrt{90}}$
 - `bound` = $\sqrt{3} \times \frac{1}{\sqrt{90}}=\frac{1}{\sqrt{30}}=0.182574$
 
-이므로 `weight`는 `uniform(-182574, +182574)`가 되야 한다. 확인해보자
+이므로 `weight`는 `uniform(-1.82574, +1.82574)`가 되야 한다. 확인해보자
 
 ![weight_init_colab](../../../assets/images/ai/weight_init_colab.jpg){: width="75%" height="75%"}
 
