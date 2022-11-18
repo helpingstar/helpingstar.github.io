@@ -1,7 +1,7 @@
 ---
 title: "알고리즘 PS 오답노트/팁"
 date: 2022-11-14 09:27:52
-lastmod : 2022-11-16 15:08:12
+lastmod : 2022-11-18 18:03:05
 categories: algorithm
 tag: [algorithm, ps]
 toc: true
@@ -60,3 +60,76 @@ True
 # == (1 in one) and (one != 2) and (2 in one)
 ```
 과 같은 의미가 된 것이고 `2 in one == False`이기 때문에 `False`를 반환한 것이다.
+
+## 4. `sort(key=??)`
+
+파이썬은 정렬시에 `key`에 함수를 인자로 줄 경우 조건 외 부분은 기존의 순서를 유지한다. 기본 정렬이 아닐 경우 주의해야 한다.
+
+예를 보자
+```python
+>>> test = [[2, 3], [2, 2], [3, 2], [3, 1]]
+>>> sorted(test)
+[[2, 2], [2, 3], [3, 1], [3, 2]]
+```
+`key`에 아무것도 설정하지 않으면 생각하는 기본 순서대로 우선순위를 왼쪽에서 오른쪽으로 가면서 정렬한다.
+
+다음 예를 보자
+```python
+>>> test = [[2, 3], [3, 2], [2, 2], [3, 1]]
+>>> sorted(test, key=lambda x: x[1])
+[[3, 1], [3, 2], [2, 2], [2, 3]]
+```
+두번째 원소를 기준으로 정렬했다. 그런데 `[3, 2]`와 `[2, 2]`는 뒤에서부터 정렬하면 `[2, 2]`가 앞으로 나와야할 것 같지만 `key`에 들어간 함수로 정렬할 때는 요소 외의 이외 부분은 신경도 쓰지 않고 기존의 순서 (`[3, 2], [2, 2]`)를 유지한다.
+
+만약 뒤에부터 정렬하고싶다면
+
+```python
+>>> test = [[2, 3], [3, 2], [2, 2], [3, 1]]
+>>> sorted(test, key=lambda x: x[::-1])
+[[3, 1], [2, 2], [3, 2], [2, 3]]
+```
+처럼 쓰면 될 것이다.
+
+## 5. `Dynamic Programming`
+아주 간단한 문제이다. 문제가 DP로 풀린다는 느낌이 올 경우 재귀코드로 헷갈리게 생각하지말고 일단 수학적으로 점화식을 떠올린 후에 그것을 코드로 옮기자.
+
+## 6. Traveling Sales Person
+
+```python
+import sys
+
+input = sys.stdin.readline
+
+n_city = int(input())
+graph = [list(map(int, input().split())) for _ in range(n_city)]
+INF = int(1e9)
+
+board = [[0] * (1 << n_city) for _ in range(n_city)]
+
+def tsp(now, visited):
+    if visited == (1 << n_city) - 1:
+        if graph[now][0]:
+            return graph[now][0]
+        else:
+            return INF
+
+    if board[now][visited]:
+        return board[now][visited]
+
+    n_min = INF
+    for next in range(1, n_city):
+        if not graph[now][next]:
+            continue
+        if visited & (1 << next):
+            continue
+        n_min = min(n_min, graph[now][next]
+                    + tsp(next, visited | 1 << next))
+    board[now][visited] = n_min
+
+    return board[now][visited]
+
+print(tsp(0, 1))
+```
+`TSP` 문제에서 모두 방문한 경우 마지막에 `now`에서 `0`으로가는 길을 설정할 때 길이 0이면 `INF`를 리턴해야 한다. 그래야 그것을 받은 호출자에서 그것을 최단경로로 선택하지 않는다. 나는 그러지 않고 그냥 반환했다가 길이 없음을 의미하는 0을 0으로 반환해서 그것이 선택되게 해서 틀렸다.
+
+또 초기 `board`를 `INF`보다는 `0`으로 초기화하는 것이 빠른 것 같다. 뒤에서 조건판단할때는 상관이 없다. 그런데 `INF`로 초기화하면 시간초과가 났다. 그래서 실험을 해보았다.
