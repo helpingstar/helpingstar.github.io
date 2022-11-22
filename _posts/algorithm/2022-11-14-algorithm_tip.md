@@ -1,7 +1,7 @@
 ---
 title: "알고리즘 PS 오답노트/팁"
 date: 2022-11-14 09:27:52
-lastmod : 2022-11-18 18:03:05
+lastmod : 2022-11-21 10:26:34
 categories: algorithm
 tag: [algorithm, ps]
 toc: true
@@ -139,3 +139,13 @@ print(tsp(0, 1))
 가끔 코드의 직관성을 위해 index를 1부터 시작할 때가 있다. 예를 들어 도시의 이름이 1부터 N까지 주어지는 경우 같은 것이다. 그럴경우 각 요소의 속성을 배열에 저장할 경우 index 0부분에 어떤 수를 미리 집어넣고 append하는 경우가 있다. 그래프에서 간선의 목록을 표현할 때도 마찬가지이다. 하지만 파이썬은 기본적으로 `zero-based`이기 때문에 함수 사용시 주의해야 한다. 이로 인해 말도 안되는 실수가 나올 때가 있다.
 
 예를 들어 1부터 8까지의 수 중에서 3개를 뽑는 조합을 구한다고 하자. 그럼 경우의 수는 $_8C_3$이 될 것이다. 그리고 해당 조합들을 구하려면 `combinations(range(1, 8+1), 3)`을 써야 한다. 하지만 나의 경우 실수로 `combinations(range(8+1), 3)`을 써서 한참 헤맸다. 요소가 1부터 시작하여 따로 장치를 해야 하는 경우 코드를 `zero-based`로 쓰지 않았는지 확인하자.
+
+# 8.
+
+[**LEETCODE 015**](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/solutions/)
+
+이진트리의 순회는 dfs와 연관지어 생각하자. 중위 순회는 함수 수준에서 root -> left -> right 순서로 방문했을때의 순서와 같다.
+
+또한 전위 순회(inorder)를 배열에 나열하게 되면 그 모습은 이진 트리를 1차원 선에 투영한 것과 같은 모양이다.
+
+중위순회(preorder)은 tree의 root가 맨 앞에 있다.

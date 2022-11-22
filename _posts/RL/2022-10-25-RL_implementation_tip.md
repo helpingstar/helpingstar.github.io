@@ -86,7 +86,7 @@ memory를 아끼고 싶다면 맨 처음에 빈 배열로 초기화 되고 memor
 
 결국 실패했다. 안되는 이유를 곰곰히 생각해봤는데 다음과 같다.
 
-조금이라도 개선이 되지 않는 것으로 보아 알고리즘 파라미터의 문제는 아닌 것 같았다. 가장 유력한 실패원인은 너무 큰 `action_space` 때문인 것 같다. 예를 들어 아직 optimal action을 찾지 못한 state가 있다면 optimal action을 찾기 위해 exploration을 해야 한다. 그런데 243(9\*9\*3)개중에 optimal action이 다른 것으로 걸려 있다면 나는 나머지 242개를 탐색해야 하는데 epsilon이 0.1이라고 하면 나머지 `action` 모두를 탐색하기 위해 엄청난 `step`이 필요할 것이다. 또한 근사되긴 하지만 `observation` 또한 경우의 수가 $2^{9*9 + 3*5*5}$이다. 각각의 `observation`에 243개의 `action`을 모두 탐색하려면 이는 엄청난 시간이 필요할 것 같다. `PPO` 등 Policy Based Learning으로 도전해야겠다.
+조금이라도 개선이 되지 않는 것으로 보아 알고리즘 파라미터의 문제는 아닌 것 같았다. 가장 유력한 실패원인은 너무 큰 `action_space` 때문인 것 같다. 예를 들어 아직 optimal action을 찾지 못한 state가 있다면 optimal action을 찾기 위해 exploration을 해야 한다. 그런데 243(9\*9\*3)개중에 optimal action이 다른 것으로 걸려 있다면 나는 나머지 242개를 탐색해야 하는데 epsilon이 0.1이라고 하면 나머지 `action` 모두를 탐색하기 위해 엄청난 `step`이 필요할 것이다. 또한 근사되긴 하지만 `observation` 또한 경우의 수가 $$2^{9*9 + 3*5*5}$$이다. 각각의 `observation`에 243개의 `action`을 모두 탐색하려면 이는 엄청난 시간이 필요할 것 같다. `PPO` 등 Policy Based Learning으로 도전해야겠다.
 
 
 <a name="footnote_1">1</a>: Mnih, V., Kavukcuoglu, K., Silver, D. et al. Human-level control through deep reinforcement learning. Nature 518, 529–533 (2015).
