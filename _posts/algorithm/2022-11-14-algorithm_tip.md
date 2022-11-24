@@ -140,7 +140,7 @@ print(tsp(0, 1))
 
 예를 들어 1부터 8까지의 수 중에서 3개를 뽑는 조합을 구한다고 하자. 그럼 경우의 수는 $_8C_3$이 될 것이다. 그리고 해당 조합들을 구하려면 `combinations(range(1, 8+1), 3)`을 써야 한다. 하지만 나의 경우 실수로 `combinations(range(8+1), 3)`을 써서 한참 헤맸다. 요소가 1부터 시작하여 따로 장치를 해야 하는 경우 코드를 `zero-based`로 쓰지 않았는지 확인하자.
 
-# 8.
+## 8.
 
 [**LEETCODE 015**](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/solutions/)
 
@@ -149,3 +149,37 @@ print(tsp(0, 1))
 또한 전위 순회(inorder)를 배열에 나열하게 되면 그 모습은 이진 트리를 1차원 선에 투영한 것과 같은 모양이다.
 
 중위순회(preorder)은 tree의 root가 맨 앞에 있다.
+
+## 9. 행렬에서 판단시 자주 쓰이는 연산
+
+![matrix_tip_1](/assets/images/algorithm/matrix_tip_1.jpg){: width="60%" height="60%" class="align-center"}
+![matrix_tip_2](/assets/images/algorithm/matrix_tip_2.jpg){: width="60%" height="60%" class="align-center"}
+![matrix_tip_3](/assets/images/algorithm/matrix_tip_3.jpg){: width="60%" height="60%" class="align-center"}
+
+## 10.
+AND를 반환해야 하는지 OR을 반환해야 하는지 답의 개수를 반환해야 하는지 가능여부를 반환해야 하는지를 판단하자.
+
+```
+if b or c or d:
+    return True
+```
+
+문제 형식이 위와 같이 `or`이 조건으로 사용되면 b, c, d 모두 판단하지말고 셋중하나라도 만족하면 바로 다음으로 넘어가야 한다.
+
+파이썬에서 `if` 문을 쓸경우 최대한 빠르게 판단해준다.
+
+```python
+>>> if (t := 4) > 3 or (t := 3) > 3 or (t := 2) > 3:
+...     pass
+
+>>> print(t)
+4
+
+
+>>> if (t := 2) > 3 and (t := 3) > 3 and (t := 4) > 3:
+...     pass
+
+>>> print(t)
+2
+```
+비슷하게 개수를 찾는 문제와 가능 여부를 묻는 문제가 있다. [**LEETCODE 079**](https://leetcode.com/problems/word-search/) 문제에서 가능 여부만 묻기 때문에 하위여러개 중 하나라도 만족하면 바로 `True`를 반환하면 된다. 근데 처음에 4개를 다 판단하고 리턴시에 `or`을 써서 시간초과가 났다. 문제의 조건을 잘 파악하고 필요없는 연산을 줄이자.
