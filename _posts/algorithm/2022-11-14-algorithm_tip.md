@@ -1,7 +1,7 @@
 ---
 title: "알고리즘 PS 오답노트/팁"
 date: 2022-11-14 09:27:52
-lastmod : 2022-11-21 10:26:34
+lastmod : 2022-12-01 19:29:42
 categories: algorithm
 tag: [algorithm, ps]
 toc: true
@@ -183,3 +183,21 @@ if b or c or d:
 2
 ```
 비슷하게 개수를 찾는 문제와 가능 여부를 묻는 문제가 있다. [**LEETCODE 079**](https://leetcode.com/problems/word-search/) 문제에서 가능 여부만 묻기 때문에 하위여러개 중 하나라도 만족하면 바로 `True`를 반환하면 된다. 근데 처음에 4개를 다 판단하고 리턴시에 `or`을 써서 시간초과가 났다. 문제의 조건을 잘 파악하고 필요없는 연산을 줄이자.
+
+## 11.
+구간합
+* 값이 중간에 변경된다 : Segment Tree
+* 값이 변경되지 않는다 : 누적합
+
+## 12.
+그래프 문제
+* 다익스트라 : 기본적으로 사용, 한 지점에서 각 지점까지의 최소거리
+* 벨만 포드 : 음수 간선이 있을때 최소거리 조회
+* 플로이드 워셜 : 모든 지점에 대해 최소거리 조회
+
+## 13.
+MST, Undirected Graph
+* 크루스칼: 간선이 Sparse
+  * Time complexity: $O(E\log{E})$
+* 프림: 간선이 Dense
+  * Time complexity: $O(E\log{V})$
