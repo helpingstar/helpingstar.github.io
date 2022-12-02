@@ -201,3 +201,20 @@ MST, Undirected Graph
   * Time complexity: $O(E\log{E})$
 * 프림: 간선이 Dense
   * Time complexity: $O(E\log{V})$
+
+## 14.
+
+`XOR` 연산은 결합법칙, 교환법칙이 성립한다.
+
+`XOR`은 어떤 수에 대해 흔적을 놓거나 지우는 역할을 할 수 있다.
+
+```python
+>>> 5 ^ 5
+0
+>>> 4 ^ 5 ^ 5
+4
+>>> 6 ^ 5 ^ 6
+5
+```
+
+[**LEETCODE 136**](https://leetcode.com/problems/single-number/description/)에서 배웠다. 어떤 배열에서 한 수를 제외하고 모두 두개씩 있다면 `XOR`연산을 누적하여 그 한 수를 구할 수 있다.
