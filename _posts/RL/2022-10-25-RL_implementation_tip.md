@@ -1,7 +1,7 @@
 ---
 title: "강화학습 코드/환경 구현시 팁"
 date: 2022-10-25 17:19:02
-lastmod : 2022-11-10 17:48:38
+lastmod : 2022-12-05 17:21:57
 categories: RL
 tag: [RL]
 toc: true
@@ -21,6 +21,36 @@ Creating a tensor from a list of numpy. ndarrays is extremely slow.
 Please consider converting the list to a single numpy.
 ndarray with numpy.array() before converting to a tensor.
 ```
+
+----
+
+**문제 자체의 원인과 해결 방법**
+
+`torch.tensor([np.array, np.array])`와 같이 리스트 안에 들어가 있는 `np.array`를 `tensor`로 바꾸면 오래걸리니 다차원 `np.ndarray`로 바꿔서 바꾸든 다른 방법을 이용하라는 것이다. 아마 주소할당이 복잡해서 내는 `Warning`인 듯 하다.
+
+여러 해결 방법이 있다.
+
+```python
+>>> import torch
+>>> import numpy as np
+>>> a = np.array([1, 2, 3])
+>>> b = np.array([2, 3, 4])
+>>> test = [a, b]
+>>> test
+[array([1, 2, 3]), array([2, 3, 4])]
+>>> torch.tensor(test)
+<stdin>:1: UserWarning: Creating a tensor from a list of numpy. ndarrays is extremely slow...
+```
+
+1. `torch.tensor(np.array(test))`
+   * 리스트를 `np.array`로 감싸서 다차원 `np.ndarray`를 만든다.
+2. `torch.tensor(np.append(a, b).reshape(-1, 2, 3))`
+   * 즉석에서 만들어봤는데 효율적인 방법은 아닌 듯하다
+
+**핵심**은 `list`안에 `np.array`를 넣고 그것을 `torch.tensor`로 변환하지 말라는 것이다
+
+
+**강화학습 측면에서 해결 방법**
 
 그러면 2차원으로 단순히 하면되는 것 아닌가? 하겠지만 한 `transition`에는 `(s, a, r, s', done)`이 포함되기 때문에 단순히 `state`만 볼 수 없다.
 
