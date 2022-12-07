@@ -1,7 +1,7 @@
 ---
 title: "알고리즘 PS 오답노트/팁"
 date: 2022-11-14 09:27:52
-lastmod : 2022-12-01 19:29:42
+lastmod : 2022-12-07 11:00:40
 categories: algorithm
 tag: [algorithm, ps]
 toc: true
@@ -144,11 +144,11 @@ print(tsp(0, 1))
 
 [**LEETCODE 015**](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/solutions/)
 
-이진트리의 순회는 dfs와 연관지어 생각하자. 중위 순회는 함수 수준에서 root -> left -> right 순서로 방문했을때의 순서와 같다.
+이진트리의 순회는 dfs와 연관지어 생각하자. **중위 순회(preorder)**는 `root` -> `left` -> `right` 순서로 방문하는데 이것은 dfs에서 children을 `left` -> `right` 순서로 탐색할 때 dfs의 탐색 순서와 같다.
 
-또한 전위 순회(inorder)를 배열에 나열하게 되면 그 모습은 이진 트리를 1차원 선에 투영한 것과 같은 모양이다.
+또한 **전위 순회(inorder)**를 배열에 나열하게 되면 그 모습은 이진 트리를 1차원 선에 투영한 것과 같은 모양이다.
 
-중위순회(preorder)은 tree의 root가 맨 앞에 있다.
+**중위순회(preorder)**은 tree의 root가 맨 앞에 있다.
 
 ## 9. 행렬에서 판단시 자주 쓰이는 연산
 
@@ -218,3 +218,20 @@ MST, Undirected Graph
 ```
 
 [**LEETCODE 136**](https://leetcode.com/problems/single-number/description/)에서 배웠다. 어떤 배열에서 한 수를 제외하고 모두 두개씩 있다면 `XOR`연산을 누적하여 그 한 수를 구할 수 있다.
+
+
+## 15. 그래프의 탐색 순서 전환
+
+[8번](#8)과 연관지어 생각하면 좋다.
+
+* **preorder**(전위 순회) : `left` -> `root` -> `right`
+* **inorder**(중위 순회) : `root` -> `left` -> `right`
+* **postorder**(후위 순회) : `left` -> `right` -> `root`
+
+위 순회들을 순회 순서대로 한 배열에 저장했다고 하자
+
+이때 `left`, `root`, `right의` 의미를 생각해보자 `left`, `right는` subtree를 의미하며 root는 단일 노드다. 전위 순회의 가장 큰 특징은 `root`가 가운데 있으며 이 `root`의 인덱스를 통해 왼쪽과 오른쪽을 유일한 경우의 수로 나눌 수 있다. **inorder**, **postorder**의 경우에는 각각 `left`, `right`가 가운데에서 양쪽을 나누고 있긴 하지만 각각 범위를 모르기 때문에 유일한 경우로 나눌 수 없다.
+
+그럼 **preorder**가 주어졌을 경우 이 것을 잘 활용해야 한다. 어떤 tree(subtree)가 있다고 했을 때 **inorder**이 주어졌을 경우 `root`가 맨 앞에 있다. **postorder**이 주어졌을 경우 `root`가 맨 뒤에 있다. 이 `root`의 인덱스를 주어진 **preorder** 배열을 통해 인덱스를 구하면 해당 tree의 `left`, `right`의 범위를 구할 수 있고 범위를 알 수 있다는 것은 노드 개수를 알 수 있다는 뜻이기도 하다.
+
+이제 그 개수나 범위를 이용하여 **inorder**이나 **postorder**의 `left`, `right`를 구할 수 있고 이제 그것을 이용하여 재귀탐색을 할 수 있게 된다.
