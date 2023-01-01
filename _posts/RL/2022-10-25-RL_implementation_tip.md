@@ -1,7 +1,7 @@
 ---
 title: "강화학습 코드/환경 구현시 팁"
 date: 2022-10-25 17:19:02
-lastmod : 2022-12-05 17:21:57
+lastmod : 2023-01-01 20:56:27
 categories: RL
 tag: [RL]
 toc: true
@@ -118,5 +118,8 @@ memory를 아끼고 싶다면 맨 처음에 빈 배열로 초기화 되고 memor
 
 조금이라도 개선이 되지 않는 것으로 보아 알고리즘 파라미터의 문제는 아닌 것 같았다. 가장 유력한 실패원인은 너무 큰 `action_space` 때문인 것 같다. 예를 들어 아직 optimal action을 찾지 못한 state가 있다면 optimal action을 찾기 위해 exploration을 해야 한다. 그런데 243(9\*9\*3)개중에 optimal action이 다른 것으로 걸려 있다면 나는 나머지 242개를 탐색해야 하는데 epsilon이 0.1이라고 하면 나머지 `action` 모두를 탐색하기 위해 엄청난 `step`이 필요할 것이다. 또한 근사되긴 하지만 `observation` 또한 경우의 수가 $$2^{9*9 + 3*5*5}$$이다. 각각의 `observation`에 243개의 `action`을 모두 탐색하려면 이는 엄청난 시간이 필요할 것 같다. `PPO` 등 Policy Based Learning으로 도전해야겠다.
 
+### 6.
+
+렌더링은 미리 해두는 것이 좋다. (간단한 환경이라면) 복잡한 알고리즘보다 큰 틀 안에서 렌더링을 미리 해두고 내부 알고리즘을 구현하면 디버그하기 편한다.
 
 <a name="footnote_1">1</a>: Mnih, V., Kavukcuoglu, K., Silver, D. et al. Human-level control through deep reinforcement learning. Nature 518, 529–533 (2015).
