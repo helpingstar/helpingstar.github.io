@@ -1,7 +1,7 @@
 ---
 title: "알고리즘 PS 오답노트/팁"
 date: 2022-11-14 09:27:52
-lastmod : 2022-12-13 10:15:37
+lastmod : 2022-12-18 01:33:18
 categories: algorithm
 tag: [algorithm, ps]
 toc: true
@@ -247,3 +247,50 @@ MST, Undirected Graph
 응용 문제
 * [BOJ_17472](https://www.acmicpc.net/problem/17472)
 * [BOJ_2887](https://www.acmicpc.net/problem/2887)
+
+
+## 17. Union-Find 에서 조상을 찾을때는 parent 참조가 아니라 find를 쓰자
+
+어떤 노드의 조상을 알고 싶다면 `find_parent`를 써야지 `parent`를 바로 참조하면 안된다.
+
+다음 코드를 보자.
+
+```python
+NODE = 4
+
+parent = [i for i in range(NODE+1)]
+
+def find_parent(parent, x):
+    if parent[x] != x:
+        parent[x] = find_parent(parent, parent[x])
+    return parent[x]
+
+def union_parent(parent, a, b):
+    a = find_parent(parent, a)
+    b = find_parent(parent, b)
+    
+    if a > b:
+        parent[a] = b
+    else:
+        parent[b] = a
+        
+edges = [(1, 2), (3, 4), (2, 3)]
+
+for a, b in edges:
+    if find_parent(parent, a) != find_parent(parent, b):
+        union_parent(parent, a, b)
+
+print(parent)
+
+>>> [0, 1, 1, 1, 3]
+```
+4개의 노드가 있고 `edges` 의 순서대로 `union`을 하는 코드이다.
+
+
+위 코드는 4개의 노드를 `1-2`, `3-4`, `2-3` 순서로 이은 후 `parent`를 출력한 것이다.
+
+4번 노드의 `parent`는 1이지만 `parent` 리스트에는 3으로 저장되어있다.
+
+아직 4번노드를 거치지 않았기 때문에 `find_parent`로 인해 `parent`가 업데이트되지 않은 것이다. 그러므로 어떤 노드의 `parent`를 알고 싶다면 `find_parent` 함수를 써야 한다.
+
+또한 `find_parent`는 조상을 찾아가면서 `parent`를 업데이트하기 때문에 `find_parent(parent, 4)`를 호출한 후에는 `parent[4] == 1`이 될 것이다. 
