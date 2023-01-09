@@ -1,7 +1,7 @@
 ---
 title: "강화학습 코드/환경 구현시 팁"
 date: 2022-10-25 17:19:02
-lastmod : 2023-01-07 19:51:31
+lastmod : 2023-01-10 05:20:25
 categories: RL
 tag: [RL]
 toc: true
@@ -124,5 +124,8 @@ memory를 아끼고 싶다면 맨 처음에 빈 배열로 초기화 되고 memor
 ### 7.
 
 렌더링은 미리 해두는 것이 좋다. (간단한 환경이라면) 복잡한 알고리즘보다 큰 틀 안에서 렌더링을 미리 해두고 내부 알고리즘을 구현하면 디버그하기 편한다.
+
+### 8.
+`observation`이 올바르게 출력되는 지 확인한다. 예를 들어 어떤 보드게임을 나타낸다고 할 때 `uint8` 형식으로 넘파이 배열이 저장되어 있다고 하자. 그럼 이 `observation`을 `Wrapper` 수준에서 어떤 수로 나눈다면 그 `observation` 또한 `uint8`이다. 이럴 때는 `Wrapper`에서 데이터 타입을 바꿔주던가, 해당 환경을 수정해야 한다.
 
 <a name="footnote_1">1</a>: Mnih, V., Kavukcuoglu, K., Silver, D. et al. Human-level control through deep reinforcement learning. Nature 518, 529–533 (2015).
