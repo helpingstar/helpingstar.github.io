@@ -137,4 +137,11 @@ memory를 아끼고 싶다면 맨 처음에 빈 배열로 초기화 되고 memor
 ### 10.
 STEP을 10M번을 돌렸는데 학습이 모두 안될 수도 있다. 무한루프는 학습 마무리가 안정적이지 못하기 때문에 STEP을 유한숫자로 하는 경우가 있는데 곡선이 수렴되지 않고 상승곡선인데 STEP이 끝날 수 있다. 이럴 경우를 대비하여 학습중간이나 마무리시에 신경망의 weight를 저장해두는 것이 좋다.
 
+### 11.
+
+사용시에 wrappers 간의 관계를 신경써야 한다. 예를 들어 `RecordEpisodeStatistics`를 사용하고 그것에 `RewardWrappers`를 사용하면 반영이 되지 않는다.
+
+wrappers를 다양하게 사용할 경우 신경을 써야 한다. 기록의 경우에는 당연히 맨 마지막에 써야 한다.
+
+
 <a name="footnote_1">1</a>: Mnih, V., Kavukcuoglu, K., Silver, D. et al. Human-level control through deep reinforcement learning. Nature 518, 529–533 (2015).

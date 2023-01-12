@@ -14,6 +14,9 @@ toc_sticky: true
 강화학습 학습시 `gym`이나 `wrappers`를 사용할 일이 참 많다. `Vector`와 함께 사용될때도 많은데 자주 사용하는 것 위주로 정리해본다. 자세한 설명은 [공식 문서](https://gymnasium.farama.org/)를 참고하기 바란다.
 
 기본 사용 방법은 간단하다. 아래와 같이 환경을 Wrapper클래스 안에 인자로 넘겨주고 반환된 환경을 사용하면 된다. 기타 설정이 필요할 경우 파라미터도 같이 적어주면 된다.
+
+사용시에 wrappers 간의 관계를 신경써야 한다. 예를 들어 `RecordEpisodeStatistics`를 사용하고 그것에 `RewardWrappers`를 사용하면 반영이 되지 않는다.
+
 ```python
 env = gym.make(env_id)
 env = gym.wrappers.YourWrapper(env, param1=param1, param2=param2, ...)
