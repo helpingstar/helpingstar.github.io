@@ -2,7 +2,7 @@
 layout: single
 title: "gym Wrappers 정리"
 date: 2023-01-08 13:58:15
-lastmod : 2023-01-08 13:58:18
+lastmod : 2023-01-13 00:14:13
 categories: RL
 tag: [gymnaisum, gym, wrappers, vector]
 toc: true
@@ -86,9 +86,9 @@ info
 ```
 info
  ├ 'final_observation' : final_observation
- └ 'final_info'
-     └ 'episode
-        ├ 'r' : <array of cumulative reward>
-        ├ 'l' : <array of episode length>
-        └ 't' : <array of elapsed time since beginning of episode>
+ ├ 'final_info'
+ └ 'episode'
+    ├ 'r' : <array of cumulative reward>
+    ├ 'l' : <array of episode length>
+    └ 't' : <array of elapsed time since beginning of episode>
 ```
