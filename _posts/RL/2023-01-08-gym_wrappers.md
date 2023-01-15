@@ -22,6 +22,17 @@ env = gym.make(env_id)
 env = gym.wrappers.YourWrapper(env, param1=param1, param2=param2, ...)
 ```
 
+# Wrappers 우선순위
+
+순위값이 높을수록 먼저 wrapping 해야 한다. 순위값은 임의로 설정한 것으로 공식적인 숫자가 아니다.
+
+|순위|Wrappers|
+|-|-|
+|1|`Observation/Action/Reward Wrappers`|
+|2|`TimeLimit`|
+|3|`AutoResetWrapper`|
+|4|`RecordEpisodeStatistics`|
+
 # RecordVideo
 
 ```python
@@ -103,5 +114,7 @@ class gymnasium.wrappers.TimeLimit(env, max_episode_steps = None)
 ```
 
 `max_episode_steps`를 초과하면 `truncated` 신호를 발생시킨다. `max_episodes_steps == None`일 경우 `env.spec.max_episode_steps` 값이 사용된다.
+
+`AutoResetWrapper`보다 먼저 적용해야 한다. `TimeLimit` 은 `truncated` 신호를 보내고 `AutoResetWrapper`는 신호를 처리하기 때문에 신호를 먼저 발생시켜야 한다.
 
 이 또한 우선순위에 주의해야 한다. `RecordEpisodeStatistics`보다 앞서 사용되어야 한다. 왜냐하면 `RecordEpisodeStatistics`는 `terminated==True or truncated == True`일때 episode의 통계를 보여주는데 `TimeLimit`이 더 뒤에 있으면 통계도 나오지 않은 `info` 상태로 `truncated` 신호가 발생되어 에피소드가 끝났는데도 불구하고 통계를 보여주지 않는다.
