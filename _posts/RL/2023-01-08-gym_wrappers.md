@@ -2,7 +2,7 @@
 layout: single
 title: "gym Wrappers 정리"
 date: 2023-01-08 13:58:15
-lastmod : 2023-01-13 00:14:13
+lastmod : 2023-01-15 18:21:11
 categories: RL
 tag: [gymnaisum, gym, wrappers, vector]
 toc: true
@@ -95,3 +95,13 @@ info
     ├ 'l' : <array of episode length>
     └ 't' : <array of elapsed time since beginning of episode>
 ```
+
+# TimeLimit
+
+```python
+class gymnasium.wrappers.TimeLimit(env, max_episode_steps = None)
+```
+
+`max_episode_steps`를 초과하면 `truncated` 신호를 발생시킨다. `max_episodes_steps == None`일 경우 `env.spec.max_episode_steps` 값이 사용된다.
+
+이 또한 우선순위에 주의해야 한다. `RecordEpisodeStatistics`보다 앞서 사용되어야 한다. 왜냐하면 `RecordEpisodeStatistics`는 `terminated==True or truncated == True`일때 episode의 통계를 보여주는데 `TimeLimit`이 더 뒤에 있으면 통계도 나오지 않은 `info` 상태로 `truncated` 신호가 발생되어 에피소드가 끝났는데도 불구하고 통계를 보여주지 않는다.
