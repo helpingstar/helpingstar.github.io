@@ -135,6 +135,7 @@ memory를 아끼고 싶다면 맨 처음에 빈 배열로 초기화 되고 memor
 나의 경우 처음에는 episode 200마다 영상을 저장했는데 영상은 episode 단위로 index를 저장하고 에피소드의 리턴은 따로 step 기준으로 저장하여 둘을 대응시킬 수가 없어 그냥 시간의 흐름에 따라 판별할 수 밖에 없었다. 한 에피소드가 너무 길어지면 무한루프에 빠졌는지를 판별하기 위해 STEP 별로 리턴값을 대응시켰는데 X축을 한 에피소드로 두고 한 에피소드의 길이, 한 에피소드의 return값, 그리고 에피소드별로 영상을 저장하는 것이 좋은 것 같다.
 
 ### 10.
+
 STEP을 10M번을 돌렸는데 학습이 모두 안될 수도 있다. 무한루프는 학습 마무리가 안정적이지 못하기 때문에 STEP을 유한숫자로 하는 경우가 있는데 곡선이 수렴되지 않고 상승곡선인데 STEP이 끝날 수 있다. 이럴 경우를 대비하여 학습중간이나 마무리시에 신경망의 weight를 저장해두는 것이 좋다.
 
 ### 11.
@@ -143,5 +144,14 @@ STEP을 10M번을 돌렸는데 학습이 모두 안될 수도 있다. 무한루�
 
 wrappers를 다양하게 사용할 경우 신경을 써야 한다. 기록의 경우에는 당연히 맨 마지막에 써야 한다.
 
+이에 대한 자세한 내용은 [gym Wrappers 정리](https://helpingstar.github.io/rl/gym_wrappers/)에 서술하였다.
+
+### 12.
+
+MSE Loss는 사용을 자제하는 것이 좋은 것 같다. snake game을 학습시키는데 MSE Loss를 사용하였더니 Loss가 말도안되게 크게 나왔다.
+
+![rl_implementation_tip_1](../../assets/images/rl/rl_implementation_tip_1.png){: width="50%" height="50%" class="align-center"}
+
+가능하면 Huber Loss를 사용해야겠다.
 
 <a name="footnote_1">1</a>: Mnih, V., Kavukcuoglu, K., Silver, D. et al. Human-level control through deep reinforcement learning. Nature 518, 529–533 (2015).

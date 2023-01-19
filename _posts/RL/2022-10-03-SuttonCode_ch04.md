@@ -4,7 +4,7 @@ title: "단단한 강화학습 코드 정리, chap4"
 date: 2022-10-03 20:44:24
 lastmod : 2022-10-03 20:44:26
 categories: RL
-tag: [Sutton, 단단한 강화학습]
+tag: [Sutton, 단단한 강화학습, RL]
 toc: true
 toc_sticky: true
 use_math: true

@@ -4,7 +4,7 @@ title: "gym Wrappers 정리"
 date: 2023-01-08 13:58:15
 lastmod : 2023-01-15 18:21:11
 categories: RL
-tag: [gymnaisum, gym, wrappers, vector]
+tag: [gymnaisum, gym, wrappers, vector, RL]
 toc: true
 toc_sticky: true
 ---

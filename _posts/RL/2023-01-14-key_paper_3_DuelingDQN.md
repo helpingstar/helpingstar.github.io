@@ -4,7 +4,7 @@ title: Dueling DQN
 date: 2023-01-14 10:14:09
 lastmod : 2023-01-14 10:14:07
 categories: RL
-tag: [RL Paper Review, Dueling DQN]
+tag: [RL Paper Review, Dueling DQN, RL]
 toc: true
 toc_sticky: true
 use_math: true

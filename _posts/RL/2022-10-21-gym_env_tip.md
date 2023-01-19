@@ -4,7 +4,7 @@ title: "OpenAI gym 환경 구성시 고려할 점"
 date: 2022-10-13 15:17:26
 lastmod : 2022-10-27 14:23:41
 categories: RL
-tag: [env, openai, gym]
+tag: [env, openai, gym, RL]
 toc: true
 toc_sticky: true
 ---
