@@ -50,7 +50,7 @@ ndarray with numpy.array() before converting to a tensor.
 **핵심**은 `list`안에 `np.array`를 넣고 그것을 `torch.tensor`로 변환하지 말라는 것이다
 
 
-**강화학습 측면에서 해결 방법**
+**강화학습 구현 측면에서 해결 방법**
 
 그러면 2차원으로 단순히 하면되는 것 아닌가? 하겠지만 한 `transition`에는 `(s, a, r, s', done)`이 포함되기 때문에 단순히 `state`만 볼 수 없다.
 
