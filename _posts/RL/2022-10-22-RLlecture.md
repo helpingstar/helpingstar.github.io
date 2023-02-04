@@ -1,7 +1,7 @@
 ---
 title: "강화학습 강의 모음"
 date: 2022-10-22 21:27:14
-lastmod : 2022-10-22 21:27:14
+lastmod : 2023-02-04 10:51:09
 categories: RL
 tag: [RL]
 toc: true
@@ -25,3 +25,7 @@ toc_sticky: true
 [Fundamentals of Reinforcement Learning](https://www.coursera.org/learn/fundamentals-of-reinforcement-learning)
 
 [Reinforcement Learning](https://www.coursera.org/specializations/reinforcement-learning)
+
+# Site
+
+[Hugging Face Deep Reinforcement Learning Course](https://huggingface.co/deep-rl-course/unit0/introduction?fw=pt)
