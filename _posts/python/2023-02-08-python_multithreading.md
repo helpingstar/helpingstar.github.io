@@ -21,6 +21,12 @@ toc_sticky: true
 
 ### 스레드 객체 생성
 
+* 호출 가능한 객체(함수 등)를 생성자에 직접 전달
+* 하위 클래스에서 `run()` 메서드를 중복
+
+---
+
+
 * **[threadex1.py](https://github.com/helpingstar/multi-python/blob/main/python3_bible/threadex1.py)**
 * **[threadex2.py](https://github.com/helpingstar/multi-python/blob/main/python3_bible/threadex2.py)**
 
