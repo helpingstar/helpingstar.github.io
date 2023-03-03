@@ -268,12 +268,12 @@ def find_parent(parent, x):
 def union_parent(parent, a, b):
     a = find_parent(parent, a)
     b = find_parent(parent, b)
-    
+
     if a > b:
         parent[a] = b
     else:
         parent[b] = a
-        
+
 edges = [(1, 2), (3, 4), (2, 3)]
 
 for a, b in edges:
@@ -293,4 +293,8 @@ print(parent)
 
 아직 4번노드를 거치지 않았기 때문에 `find_parent`로 인해 `parent`가 업데이트되지 않은 것이다. 그러므로 어떤 노드의 `parent`를 알고 싶다면 `find_parent` 함수를 써야 한다.
 
-또한 `find_parent`는 조상을 찾아가면서 `parent`를 업데이트하기 때문에 `find_parent(parent, 4)`를 호출한 후에는 `parent[4] == 1`이 될 것이다. 
+또한 `find_parent`는 조상을 찾아가면서 `parent`를 업데이트하기 때문에 `find_parent(parent, 4)`를 호출한 후에는 `parent[4] == 1`이 될 것이다.
+
+## 18. 그래프 탐색 시 그래프의 모든 정점이 연결되어 있지 않을 수도 있다.
+
+[BOJ 1707](https://www.acmicpc.net/problem/1707) 문제에서 BFS로 알맞게 탐색하였으나 모든 정점이 연결되어 있다고 가정하여 시작점을 1로 놓았더니 틀렸다. 예를 들어 1, 2-3-4로 연결되어 있다면 2-3-4에 대한 탐색을 할 수 없게되기 때문이다. 이런 경우도 고려하여 모든 정점에 대해 탐색할 수 있게 해야 한다.
