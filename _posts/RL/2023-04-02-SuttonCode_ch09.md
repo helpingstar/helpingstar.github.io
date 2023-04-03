@@ -86,9 +86,19 @@ class ValueFunction:
         group_index = (state - 1) // self.group_size
         self.params[group_index] += delta
 ```
-* **(5)** : `self.num_of_groups` : 결집의 개수(몇 개로 결집할 것인지)
-* **(6)** : `self.group_size` : 한 결집에 포함된 상태의 개수 (`N_STATES` == 1000)
-* 
+* **(5)** : `self.num_of_groups` : 결집의 개수(몇 개로 결집할 것인지), 10개
+* **(6)** : `self.group_size` : 한 결집에 포함된 상태의 개수 (`N_STATES // num_of_groups` == 100)
+* **(8~9)** : $\theta$, 각 state들을 결집해서 근사한 group의 value를 저장할 배열
+* **(11~12)** : state의 value를 반환하는 함수이다.
+* **(13~14)** : state가 0 또는 `N_STATES+1 == 1001` 일 경우 0을 반환한다.
+* **(15)** : state를 해당하는 group으로 바꿔준다. {0: [1, 100], 2: [101, 200], ..., 9: [901, 1000]} 과 같이 10개로 나눠진다.
+* **(16)** : 해당하는 `group_index`의 value를 반환한다.
+* **(18~21)** : delta와 현재 state를 받아서 value를 업데이트하는 함수
+* **(22)** : group_index를 구한다. **(15)** 와 같다.
+* **(23)** : 
+$$\textbf{w} \leftarrow \textbf{w} + \alpha \left [ G_t-\hat{v}(S_t, \textbf{w}) \right ]\nabla \hat{v}(S_t, \textbf{w})$$
+
+
 
 # `gradient_monte_carlo`
 ```python
@@ -127,8 +137,15 @@ $$G_t \doteq R_{t+1}+\gamma R_{t+2} + \gamma^{2}R_{t+3} + \cdots = \sum^{\infty}
 * **(14)** : **(7)**에서 정의한 `trajectory`에 **(13)**에서 얻은 새로운 상태(next_state)를 append한다.
 * **(15)** : 새로운 상태를 state에 저장한다.
 
+* **(17)** : trajectory의 각 state에 대해 gradient update를 한다.
+* **(18)** : 마지막 state를 제외하고 state를 처음부터 탐색한다.
+* **(19)** : $\text{delta}=\alpha \left [ G_t-\hat{v}(S_t, \textbf{w}) \right ]$, 환경 특성상 $G_t = R_T$ 이다
+* **(20)** : 구한 delta와 탐색하는 state에 대해 업데이트 한다.
+* **(21~22)** : `distribution`이 주어질 경우 방문한 state 인덱스의 값을 1 늘린다.
 
 # figure 9.1
+
+![fcode_figure_9_1](../../assets/images/rl/fcode_figure_9_1.png){: width="50%" height="50%" class="align-center"}
 
 ```python
 # Figure 9.1, gradient Monte Carlo algorithm
@@ -146,6 +163,34 @@ def figure_9_1(true_value):
     state_values = [value_function.value(i) for i in STATES]
 ```
 * **(4)** : `alpha` : step size
-* **(7)** : 
-* **(8)** :
-* **(9~10)** : `episodes` 개수만큼 `gradient_monte_carlo` 를 수행한다.
+* **(7)** : 10개로 결집된 상태의 가치를 나타내는 클래스를 정의한다.
+* **(8)** : 전체 상태의 방문 횟수를 계산한다.
+* **(9~10)** : `episodes` 횟수만큼 `gradient_monte_carlo` 를 수행한다.
+* **(12)** : 
+
+$$\mu(s) = \frac{\mu(s)}{\sum_{s'}\mu(s')}, \text{for all } s \in \textbf{S}$$
+
+* **(13)** : 각 state의 가치를 저장한다. 
+  * `N_STATES = 1000`
+  * `STATES = np.arange(1, N_STATES + 1)` 
+
+# figure 9.2
+
+![fcode_figure_9_2](../../assets/images/rl/fcode_figure_9_2.png){: width="50%" height="50%" class="align-center"}
+
+# figure 9.2 left
+
+```python
+# semi-gradient TD on 1000-state random walk
+def figure_9_2_left(true_value):
+    episodes = int(1e5)
+    alpha = 2e-4
+    value_function = ValueFunction(10)
+    for ep in tqdm(range(episodes)):
+        semi_gradient_temporal_difference(value_function, 1, alpha)
+
+    stateValues = [value_function.value(i) for i in STATES]
+```
+
+# figure 9.2 right
+
