@@ -14,7 +14,7 @@ use_math: true
 
 [단단한 강화학습](http://www.kyobobook.co.kr/product/detailViewKor.laf?ejkGb=KOR&mallGb=KOR&barcode=9791190665179&orderClick=LAG&Kc=) 책의 코드를 공부하기 위해 쓰여진 글이다.
 
-# `step(state, action)`
+# `step`
 
 ```python
 # take an @action at @state, return new state and reward for this transition
@@ -143,9 +143,77 @@ $$G_t \doteq R_{t+1}+\gamma R_{t+2} + \gamma^{2}R_{t+3} + \cdots = \sum^{\infty}
 * **(20)** : 구한 delta와 탐색하는 state에 대해 업데이트 한다.
 * **(21~22)** : `distribution`이 주어질 경우 방문한 state 인덱스의 값을 1 늘린다.
 
-# figure 9.1
+# `semi_gradient_temporal_difference`
+```python
+# semi-gradient n-step TD algorithm
+# @valueFunction: an instance of class ValueFunction
+# @n: # of steps
+# @alpha: step size
+def semi_gradient_temporal_difference(value_function, n, alpha):
+    # initial starting state
+    state = START_STATE
 
-![fcode_figure_9_1](../../assets/images/rl/fcode_figure_9_1.png){: width="50%" height="50%" class="align-center"}
+    # arrays to store states and rewards for an episode
+    # space isn't a major consideration, so I didn't use the mod trick
+    states = [state]
+    rewards = [0]
+
+    # track the time
+    time = 0
+
+    # the length of this episode
+    T = float('inf')
+    while True:
+        # go to next time step
+        time += 1
+
+        if time < T:
+            # choose an action randomly
+            action = get_action()
+            next_state, reward = step(state, action)
+
+            # store new state and new reward
+            states.append(next_state)
+            rewards.append(reward)
+
+            if next_state in END_STATES:
+                T = time
+
+        # get the time of the state to update
+        update_time = time - n
+        if update_time >= 0:
+            returns = 0.0
+            # calculate corresponding rewards
+            for t in range(update_time + 1, min(T, update_time + n) + 1):
+                returns += rewards[t]
+            # add state value to the return
+            if update_time + n <= T:
+                returns += value_function.value(states[update_time + n])
+            state_to_update = states[update_time]
+            # update the value function
+            if not state_to_update in END_STATES:
+                delta = alpha * (returns - value_function.value(state_to_update))
+                value_function.update(delta, state_to_update)
+        if update_time == T - 1:
+            break
+        state = next_state
+```
+* **(6~7)** : 초기 state에 시작 상태를 대입한다. `START_STATE = 500`
+* **(9~12)** : state와 reward를 저장할 리스트를 생성한다. mod trick을 이용하면 state, reward를 `n`만큼만 생성해도 되지만, 편리한 구현을 위해 모두 저장한다.
+* **(14~15)** : termination까지 진행된 tiem step의 개수를 저장한다.
+* **(17~18)** : 마지막 time step을 의미하는 $T$를 $\infty$로 초기화한다.
+* **(23~24)** : 에피소드의 길이를 저장한다.
+* **(20~21)** : 타임스텝이 진행됨으로써 `time`에 1을 더한다.
+* **(23)** : 1씩 증가하는 `time`이 $T$보다 작으면 진행한다. **(32~33)** 에서 `END_STATES`로 가면서 $T$에 `time`이 대입되면 이 조건문은 실행되지 않는다.
+* **(24~25)** : [get_action()](#get_action) 함수를 이용하여 왼쪽, 오른쪽 중 하나를 50% 확률로 선택한다.
+* **(26)** : [step(state, action)](#step) 함수에 따라 $s_t, a_t$ 를 인수로 주고 $s_{t+1}, r_{t+1}$를 얻는다.
+* **(28~30)** : $s_{t+1}, r_{t+1}$를 리스트에 저장한다.
+* **(32~33)** : 만약 $s_{t+1}$이 `END_STATES = [0, N_STATES + 1]` 에 속한다면 마지막 time step을 의미하는 $T$에 현재 `time`을 대입한다.
+
+
+# figure 9_1
+
+<!-- ![fcode_figure_9_1](../../assets/images/rl/fcode_figure_9_1.png){: width="50%" height="50%" class="align-center"} -->
 
 ```python
 # Figure 9.1, gradient Monte Carlo algorithm
@@ -174,11 +242,11 @@ $$\mu(s) = \frac{\mu(s)}{\sum_{s'}\mu(s')}, \text{for all } s \in \textbf{S}$$
   * `N_STATES = 1000`
   * `STATES = np.arange(1, N_STATES + 1)` 
 
-# figure 9.2
+# figure 9_2
 
-![fcode_figure_9_2](../../assets/images/rl/fcode_figure_9_2.png){: width="50%" height="50%" class="align-center"}
+<!-- ![fcode_figure_9_2](../../assets/images/rl/fcode_figure_9_2.png){: width="50%" height="50%" class="align-center"} -->
 
-# figure 9.2 left
+# figure 9_2 left
 
 ```python
 # semi-gradient TD on 1000-state random walk
@@ -191,6 +259,5 @@ def figure_9_2_left(true_value):
 
     stateValues = [value_function.value(i) for i in STATES]
 ```
-
-# figure 9.2 right
+# figure 9_2 right
 
