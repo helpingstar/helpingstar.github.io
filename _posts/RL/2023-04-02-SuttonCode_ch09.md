@@ -46,7 +46,7 @@ def get_action():
         return 1
     return -1
 ```
-* **(3)** : 
+* **(3)** :
 
 `numpy.random.binomial(n, p, size=None)` : Draw samples from a binomial distribution.
 
@@ -95,7 +95,7 @@ class ValueFunction:
 * **(16)** : 해당하는 `group_index`의 value를 반환한다.
 * **(18~21)** : delta와 현재 state를 받아서 value를 업데이트하는 함수
 * **(22)** : group_index를 구한다. **(15)** 와 같다.
-* **(23)** : 
+* **(23)** :
 $$\textbf{w} \leftarrow \textbf{w} + \alpha \left [ G_t-\hat{v}(S_t, \textbf{w}) \right ]\nabla \hat{v}(S_t, \textbf{w})$$
 
 
@@ -209,11 +209,32 @@ def semi_gradient_temporal_difference(value_function, n, alpha):
 * **(26)** : [step(state, action)](#step) 함수에 따라 $s_t, a_t$ 를 인수로 주고 $s_{t+1}, r_{t+1}$를 얻는다.
 * **(28~30)** : $s_{t+1}, r_{t+1}$를 리스트에 저장한다.
 * **(32~33)** : 만약 $s_{t+1}$이 `END_STATES = [0, N_STATES + 1]` 에 속한다면 마지막 time step을 의미하는 $T$에 현재 `time`을 대입한다.
+* **(35~36)** : $\tau \leftarrow t - n + 1$인데 코드는 `update_time = time - n`인 이유 : 코드상에서는 구현상 **(21)**에서 1을 더한다. 책에서는 $R_{t+1}, S_{t+1}$를 구할 때 $t$인데 코드에서는 $t+1$이다. 그러므로 코드상에서는 1이 미리 더해져 있으므로 n만 빼는 것이다.
+* **(37)** : 업데이트를 시작하는 `update_time`이 0 이상인지 확인한다.
+* **(38)** : return 값인 $G$ 를 저장할 `returns` 변수를 선언한다.
+* **(39~41)** :
 
+$$ G \leftarrow \sum_{i=\tau+1}^{\min(\tau + n, T)}\gamma^{i-\tau-1} R_{i} $$
+
+현재 환경에서는 $\gamma = 1$이므로 해당 부분을 생략한다. 만약 $\gamma \neq 1$ 이라면 `returns += pow(GAMMA, t-update_time-1) * rewards[t]` 가 되었을 것이다.
+
+* **(42~44)** : $\hat{v}(\text{terminal}, \cdot)=0$ 이므로 terminal이 아닐 경우 ($\text{If } \tau + n < T$)
+
+$$G \leftarrow G + \gamma^{n}\hat{v}(S_{\tau + n}, \textbf{w})$$
+
+* **(45)** : 업데이트하고자 하는 state를 `start_to_update`에 저장한다 ($S_{\tau}$와 같다)
+* **(46~49)** : 만약 $S_{\tau}$가 terminal state가 아니라면 ($\tau \neq T$) 다음과 같이 업데이트를 진행한다.
+
+$$\textbf{w} \leftarrow \textbf{w} + \alpha \left [ G - \hat{v}(S_{\tau}, \textbf{w}) \right ] \nabla \hat{v} (S_{\tau + n}, \textbf{w})$$
+
+여기서 $\text{delta} = G - \hat{v}(S_{\tau}, \textbf{w})$이다 이것을 `value_function.update()`를 이용해 $\textbf{w}$를 조정한다.
+
+* **(50~51)** : $\tau = T - 1$ 이 되면 반복문을 종료한다.
+* **(52)** : state를 갱신한다.
 
 # figure 9_1
 
-<!-- ![fcode_figure_9_1](../../assets/images/rl/fcode_figure_9_1.png){: width="50%" height="50%" class="align-center"} -->
+![fcode_figure_9_1](../../assets/images/rl/fcode_figure_9_1.png){: width="50%" height="50%" class="align-center"}
 
 ```python
 # Figure 9.1, gradient Monte Carlo algorithm
@@ -234,17 +255,17 @@ def figure_9_1(true_value):
 * **(7)** : 10개로 결집된 상태의 가치를 나타내는 클래스를 정의한다.
 * **(8)** : 전체 상태의 방문 횟수를 계산한다.
 * **(9~10)** : `episodes` 횟수만큼 `gradient_monte_carlo` 를 수행한다.
-* **(12)** : 
+* **(12)** :
 
 $$\mu(s) = \frac{\mu(s)}{\sum_{s'}\mu(s')}, \text{for all } s \in \textbf{S}$$
 
-* **(13)** : 각 state의 가치를 저장한다. 
+* **(13)** : 각 state의 가치를 저장한다.
   * `N_STATES = 1000`
-  * `STATES = np.arange(1, N_STATES + 1)` 
+  * `STATES = np.arange(1, N_STATES + 1)`
 
 # figure 9_2
 
-<!-- ![fcode_figure_9_2](../../assets/images/rl/fcode_figure_9_2.png){: width="50%" height="50%" class="align-center"} -->
+![fcode_figure_9_2](../../assets/images/rl/fcode_figure_9_2.png){: width="50%" height="50%" class="align-center"}
 
 # figure 9_2 left
 
@@ -260,4 +281,3 @@ def figure_9_2_left(true_value):
     stateValues = [value_function.value(i) for i in STATES]
 ```
 # figure 9_2 right
-
