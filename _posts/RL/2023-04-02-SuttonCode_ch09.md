@@ -14,6 +14,76 @@ use_math: true
 
 [단단한 강화학습](http://www.kyobobook.co.kr/product/detailViewKor.laf?ejkGb=KOR&mallGb=KOR&barcode=9791190665179&orderClick=LAG&Kc=) 책의 코드를 공부하기 위해 쓰여진 글이다.
 
+# `compute_true_value`
+```python
+def compute_true_value():
+    # true state value, just a promising guess
+    true_value = np.arange(-1001, 1003, 2) / 1001.0
+
+    # Dynamic programming to find the true state values, based on the promising guess above
+    # Assume all rewards are 0, given that we have already given value -1 and 1 to terminal states
+    while True:
+        old_value = np.copy(true_value)
+        for state in STATES:
+            true_value[state] = 0
+            for action in ACTIONS:
+                for step in range(1, STEP_RANGE + 1):
+                    step *= action
+                    next_state = state + step
+                    next_state = max(min(next_state, N_STATES + 1), 0)
+                    # asynchronous update for faster convergence
+                    true_value[state] += 1.0 / (2 * STEP_RANGE) * true_value[next_state]
+        error = np.sum(np.abs(old_value - true_value))
+        if error < 1e-2:
+            break
+    # correct the state value for terminal states to 0
+    true_value[0] = true_value[-1] = 0
+
+    return true_value
+```
+
+전체적인 코드의 진행은 chap 4에 서술된 **$V \approx v_{\pi}$를 위한 반복 정책 평가**와 같다.
+
+![4_1_Iterative_Policy_Evaluation](../../assets/images/rl/4_1_Iterative_Policy_Evaluation.png){: width="50%" height="50%" class="align-center"}
+
+* **(1)** : 상태결집과 실제 값을 비교하는데 쓰이는 실제 값이다.
+* **(2~3)** : 실제 값을 저장할 배열에 유망한 값들을 미리 저장한다. 1002개의 값이 저장되어 있으며 (-1001, ..., 1001)으로 저장된 값들을 1001.0으로 나누기 때문에 (-1, ..., 1) 이 저장된다.
+* **(5~6)** : 유망한 값을 저장한 true_value를 기반으로 DP를 이용하여 실제 값을 찾아낸다. 마지막 state에서 1 또는 -1을 보상으로 받으며 나머지 상태에서는 보상이 0이다
+* **(7)** : 종료 조건인 **(19~20)**에 해당할 때까지 반복한다.
+* **(8)** : 이전의 추정치를 깊은 복사를 통해 `old_value`에 저장한다. $v \leftarrow V(s)$와 같다. 코드에서는 모든 상태에 대해 한번에 하므로 반복문 밖에서 진행한다.
+* **(9)** : `STATES = np.arange(1, N_STATES + 1)` 으로 $[1, 1000]$ 범위의 모든 상태에 대해서 계산을 진행한다.
+* **(10)** : 업데이트 하기 위한 현재 상태의 `true_value`를 0으로 초기화한다.
+* **(11)** : 왼쪽으로 갈 지 오른쪽으로 갈 지를 선택한다.
+* **(12)** : 스텝의 범위에 대해 탐색한다. `STEP_RANGE = 100` 이기 때문에 $[1, 100]$ 범위에 대해서 탐색한다.
+* **(13)** : 스텝(크기)에 action(방향)을 곱하여 어떤 방향으로 어느정도 갈지를 정한다.
+* **(14)** : 현재 상태에서 스텝만큼 움직이고 이를 `next_state`에 대입한다.
+* **(15)** : 0보다 작을경우 0으로, `N_STATES + 1` (1001) 보다 클 경우 `N_STATES + 1`로 클리핑한다.
+* **(16)** : 비동기 동적 프로그래밍을 사용하여 업데이트 한다면 더 빨리 수렴될 것이라는 것이다 자세한 내용은 책의 4.5단원을 참고하면 된다
+* **(17)** :
+
+$$V(s) \leftarrow V(s) + \frac{1}{2 * \text{(step range)}}V(s') \tag{17.1}$$
+
+이 공식은 DP의 반복 정책평가의 공식과 같은데 천천히 설명해보겠다. 일단 정책평가의 공식은 다음과 같다.
+
+$$V(s) \leftarrow \sum_{a} \pi(a \vert s) \sum_{s',r}p(s',r \vert s,a) \left [ r + \gamma V(s') \right ] \tag{17.2}$$
+
+여기서 2는 방향의 개수를 의미하고 step_range는 스텝의 개수를 의미한다. 그리고 모든 행동은 동일한 확률로 추출되므로 다음과 같다.
+
+$$\frac{1}{2 * \text{(step range)}} = \pi(a \vert s)$$
+
+또한 deterministic 한 환경이므로 전이확률은 1이다.
+
+$$p(s', r \vert s, a) = 1$$
+
+그리고 terminal_state를 제외하고 $r=0$이고 $\gamma=1$이다. 또한 **(11~12)** 부분에서 `for`문을 통해 값을 누적한 것은 $\sum$을 표현한 것이라 할 수 있다.
+
+그러므로 $(17.1)$은 코드의 예시에 맞춰 $(17.2)$를 표현한 것이라 볼 수 있다.
+
+* **(18)** : 이전 값인 `old_value`와 이를 기반으로 새롭게 산출한 `true_value` 의 절댓값 차이를 모두 더하여 `error`에 대입한다.  $\Delta \leftarrow \max ( \Delta, \vert v - V(s) \vert)$에 대응하는 부분이라고 할 수 있다. 반복의 종료 조건을 설정하는 것인데 알고리즘에서는 값 차이(error)의 최대값으로 하였다.
+* **(19~20)** : 절댓값의 차이의 합이 0.01보다 작을 때까지 반복한다. $\text{until } \Delta < \theta$ 에 대응하는 부분이다.
+* **(21~22)** : terminal state에 대해 가치를 0으로 만든다. // TODO
+* **(24)** : true_value 테이블을 반환한다.
+
 # `step`
 
 ```python
