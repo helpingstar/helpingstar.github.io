@@ -335,7 +335,7 @@ $$\mu(s) = \frac{\mu(s)}{\sum_{s'}\mu(s')}, \text{for all } s \in \textbf{S}$$
 
 # figure 9_2
 
-![fcode_figure_9_2](../../assets/images/rl/fcode_figure_9_2.png){: width="50%" height="50%" class="align-center"}
+<!-- ![fcode_figure_9_2](../../assets/images/rl/fcode_figure_9_2.png){: width="50%" height="50%" class="align-center"} -->
 
 # figure 9_2 left
 
@@ -351,3 +351,49 @@ def figure_9_2_left(true_value):
     stateValues = [value_function.value(i) for i in STATES]
 ```
 # figure 9_2 right
+
+```python
+# different alphas and steps for semi-gradient TD
+def figure_9_2_right(true_value):
+    # all possible steps
+    steps = np.power(2, np.arange(0, 10))
+
+    # all possible alphas
+    alphas = np.arange(0, 1.1, 0.1)
+
+    # each run has 10 episodes
+    episodes = 10
+
+    # perform 100 independent runs
+    runs = 100
+
+    # track the errors for each (step, alpha) combination
+    errors = np.zeros((len(steps), len(alphas)))
+    for run in tqdm(range(runs)):
+        for step_ind, step in zip(range(len(steps)), steps):
+            for alpha_ind, alpha in zip(range(len(alphas)), alphas):
+                # we have 20 aggregations in this example
+                value_function = ValueFunction(20)
+                for ep in range(0, episodes):
+                    semi_gradient_temporal_difference(value_function, step, alpha)
+                    # calculate the RMS error
+                    state_value = np.asarray([value_function.value(i) for i in STATES])
+                    errors[step_ind, alpha_ind] += np.sqrt(np.sum(np.power(state_value - true_value[1: -1], 2)) / N_STATES)
+    # take average
+    errors /= episodes * runs
+```
+
+* **(1~2)** : n-step, step size를 서로 다르게 하여 각각의 준경사도 TD의 성능을 측정하기 위한 함수이다.
+* **(3~4)** : n-step의 리스트이며 $n \in \\{ 2^0, 2^1, \cdots ,2^8, 2^9 \\}$를 가진다.
+* **(6~7)** : 가능한 step size, $\alpha \in \\{0, 0.1, ..., 0.9, 1.0 \\}$
+* **(9~10)** : 각각의 실행은 10번의 에피소드를 가진다 // TODO
+* **(12~13)** : 결과는 100개의 결과를 평균한다.
+* **(15~16)** : 각 n-step, step size의 결과를 저장하는 행렬이다. 해당 예시는 (10, 10)이다
+* **(17)** : 100번의 실행을 평균하기 위해 100번 반복한다.
+* **(18~19)** : 각각의 n-step, $\alpha$ 에 대해 실험을 진행한다. 실험 결과를 해당하는 배열에 저장하기 위해 인덱스도 같이 포함한다, `zip`으로 하기보다는 `enumerate`를 쓰는 것이 더 깔끔하다.
+* **(20~21)** : 책에서 나온 바와 같이 한 묶음당 50개의 상태를 갖는 20개의 묶음으로 상태를 결집한다.
+* **(23)** : 지정한 하이퍼파라미터로 n단계 준경사도 TD 연산을 실행하고 추정한 가치를 `value_function`에 저장한다.
+* **(24)** : $\hat{v}$의 RMS Error 를 계산한다.
+* **(25)** : 모든 상태에 대해 $\hat{v}(s, \textbf{w})$를 리스트에 저장한다.
+* **(26)** : $\text{Error}(n, \alpha) = \sqrt{\frac{1}{n}\sum_{s} (\hat{v}(s, \textbf{w}) - v(s))^2}$
+* **(27~28)** : 누적한 Error에 대해 (에피소드 횟수) * (반복 횟수)로 나눠 평균을 얻는다.
