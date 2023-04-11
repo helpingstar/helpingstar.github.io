@@ -2,7 +2,7 @@
 layout: single
 title: "단단한 강화학습 코드 정리, chap9"
 date: 2023-04-02 14:13:45
-lastmod : 2023-04-02 14:13:45
+lastmod : 2023-04-11 21:45:00
 categories: RL
 tag: [Sutton, 단단한 강화학습, RL]
 toc: true
@@ -302,6 +302,59 @@ $$\textbf{w} \leftarrow \textbf{w} + \alpha \left [ G - \hat{v}(S_{\tau}, \textb
 * **(50~51)** : $\tau = T - 1$ 이 되면 반복문을 종료한다.
 * **(52)** : state를 갱신한다.
 
+# `BasesValueFunction`
+```python
+# a wrapper class for polynomial / Fourier -based value function
+POLYNOMIAL_BASES = 0
+FOURIER_BASES = 1
+class BasesValueFunction:
+    # @order: # of bases, each function also has one more constant parameter (called bias in machine learning)
+    # @type: polynomial bases or Fourier bases
+    def __init__(self, order, type):
+        self.order = order
+        self.weights = np.zeros(order + 1)
+
+        # set up bases function
+        self.bases = []
+        if type == POLYNOMIAL_BASES:
+            for i in range(0, order + 1):
+                self.bases.append(lambda s, i=i: pow(s, i))
+        elif type == FOURIER_BASES:
+            for i in range(0, order + 1):
+                self.bases.append(lambda s, i=i: np.cos(i * np.pi * s))
+
+    # get the value of @state
+    def value(self, state):
+        # map the state space into [0, 1]
+        state /= float(N_STATES)
+        # get the feature vector
+        feature = np.asarray([func(state) for func in self.bases])
+        return np.dot(self.weights, feature)
+
+    def update(self, delta, state):
+        # map the state space into [0, 1]
+        state /= float(N_STATES)
+        # get derivative value
+        derivative_value = np.asarray([func(state) for func in self.bases])
+        self.weights += delta * derivative_value
+```
+* **(1)** : 다항식/푸리에 기저 가치함수를 위한 클래스
+* **(2~3)** : 기저를 구분하기 위해 변수로 `POLYNOMIAL_BASES = 0; FOURIER_BASES = 1` 를 저장한다.
+* **(4)** : 클래스 선언
+* **(5~7)** : 생성자를 선언한다
+  * `order` : 기저의 수, 각 함수에는 상수 매개변수가 하나 더 있다(머신 러닝에서는 편향이라고 함).
+  * `type` : 다항식 기저 / 푸리에 기저
+* **(9)** : // TODO
+* **(11~12)** : 기저 함수를 저장한다 `self.bases` 에는 각 기저함수가 저장된다.
+* **(13~15)** : 다항식 기저일 경우 아래 식을 계산하는 함수를 `self.bases`에 추가한다.
+
+$$f(s, i) = x^i$$
+
+* **(16~18)** : 푸리에 기저일 경우 아래 식을 계산하는 함수를 `self.bases`에 추가한다.
+
+$$f(s, i) = \cos(\pi s i) \quad i \in \left [ 0, \text{order}\right ]$$
+
+
 # figure 9_1
 
 ![fcode_figure_9_1](../../assets/images/rl/fcode_figure_9_1.png){: width="50%" height="50%" class="align-center"}
@@ -335,7 +388,7 @@ $$\mu(s) = \frac{\mu(s)}{\sum_{s'}\mu(s')}, \text{for all } s \in \textbf{S}$$
 
 # figure 9_2
 
-<!-- ![fcode_figure_9_2](../../assets/images/rl/fcode_figure_9_2.png){: width="50%" height="50%" class="align-center"} -->
+![fcode_figure_9_2](../../assets/images/rl/fcode_figure_9_2.png){: width="50%" height="50%" class="align-center"}
 
 # figure 9_2 left
 
@@ -386,7 +439,7 @@ def figure_9_2_right(true_value):
 * **(1~2)** : n-step, step size를 서로 다르게 하여 각각의 준경사도 TD의 성능을 측정하기 위한 함수이다.
 * **(3~4)** : n-step의 리스트이며 $n \in \\{ 2^0, 2^1, \cdots ,2^8, 2^9 \\}$를 가진다.
 * **(6~7)** : 가능한 step size, $\alpha \in \\{0, 0.1, ..., 0.9, 1.0 \\}$
-* **(9~10)** : 각각의 실행은 10번의 에피소드를 가진다 // TODO
+* **(9~10)** : 각각의 실행은 10번의 에피소드를 가진다
 * **(12~13)** : 결과는 100개의 결과를 평균한다.
 * **(15~16)** : 각 n-step, step size의 결과를 저장하는 행렬이다. 해당 예시는 (10, 10)이다
 * **(17)** : 100번의 실행을 평균하기 위해 100번 반복한다.
@@ -397,3 +450,44 @@ def figure_9_2_right(true_value):
 * **(25)** : 모든 상태에 대해 $\hat{v}(s, \textbf{w})$를 리스트에 저장한다.
 * **(26)** : $\text{Error}(n, \alpha) = \sqrt{\frac{1}{n}\sum_{s} (\hat{v}(s, \textbf{w}) - v(s))^2}$
 * **(27~28)** : 누적한 Error에 대해 (에피소드 횟수) * (반복 횟수)로 나눠 평균을 얻는다.
+
+# figure 9_5
+
+```python
+# Figure 9.5, Fourier basis and polynomials
+def figure_9_5(true_value):
+    # my machine can only afford 1 run
+    runs = 1
+
+    episodes = 5000
+
+    # # of bases
+    orders = [5, 10, 20]
+
+    alphas = [1e-4, 5e-5]
+    labels = [['polynomial basis'] * 3, ['fourier basis'] * 3]
+
+    # track errors for each episode
+    errors = np.zeros((len(alphas), len(orders), episodes))
+    for run in range(runs):
+        for i in range(len(orders)):
+            value_functions = [BasesValueFunction(orders[i], POLYNOMIAL_BASES), BasesValueFunction(orders[i], FOURIER_BASES)]
+            for j in range(len(value_functions)):
+                for episode in tqdm(range(episodes)):
+
+                    # gradient Monte Carlo algorithm
+                    gradient_monte_carlo(value_functions[j], alphas[j])
+
+                    # get state values under current value function
+                    state_values = [value_functions[j].value(state) for state in STATES]
+
+                    # get the root-mean-squared error
+                    errors[j, i, episode] += np.sqrt(np.mean(np.power(true_value[1: -1] - state_values, 2)))
+
+    # average over independent runs
+    errors /= runs
+```
+* **(1~2)** : 푸리에 기저와 다항식 기저를 비교한다.
+* **(3~4)** : 실행을 몇번 할 것인지를 선택한다 (코드 저자의 경우 1번)
+* **(6)** : 한 실험당 몇 번의 에피소드를 진행할 것인지 선택한다.
+* **(8~9)** : // TODO BaseValueFunction
