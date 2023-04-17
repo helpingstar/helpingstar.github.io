@@ -18,6 +18,12 @@ Creates a categorical distribution parameterized by either `probs` or `logits` (
 
 ---
 
+probs, logits 단어가 중복해서 등장하다보니 헷갈려서 정리하였다. 먼저 요약하자면 다음과 같다.
+
+1. 파라미터 *probs*, *logits* 는 프로퍼티(속성) `probs`, `logits`와 다르다!
+2. 파라미터 *probs* 또는 *logits* 는 상대적 수치로 이 파라미터를 받으면 `Categorical` 내부에서는 이를 **진짜 확률**로 바꾼다.
+3. 프로퍼티 `probs`, `logits`는 이 **진짜 확률**을 기반으로 값을 반환한다
+
 `Categorical`은 *logits* 또는 *probs* 인수 중 하나를 받아서 확률 분포를 구성하는 클래스를 만든다는 것이다. 이 두개를 구분하면 어려워진다. 사실 확률을 산출하기 위한 수단일 뿐이다. 하나씩 정복해보자
 
 인수(parameter)와 속성(property)의 단어가 같기 때문에 함수의 파라미터로 쓰이는 단어는 *기울임* 를 적용하고 속성의 경우 `하이라이트`를 적용하여 구분하겠다. 파이토치 내부 구현의 순서가 `prob` -> `logits`는 아니지만 설명의 편의성을 위해 다음 순서를 따르겠다.
