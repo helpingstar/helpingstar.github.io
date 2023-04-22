@@ -112,7 +112,9 @@ def episode(q_value):
 
 이항분포 확률에 따라 0에서 n까지의 숫자중 하나를 출력한다. 0부터 n까지의 숫자 중 어떤 숫자 x(p에 몇번 해당되었는지)가 산출될 확률은 아래와 같다.
 
-$$P(N)=\binom{n}{x}p^x(1-p)^{n-x}$$
+$$P(x)=\binom{n}{x}p^x(1-p)^{n-x}$$
+
+$n$ : number of trial, $p$ probability of success, $x$: number of successes.
 
 코드에서는 `np.random.binomial(1, EPSILON)`으로 되어 있는데 그러면 반환값이 1이 나올 확률이 `EPSILON`이 된다는 뜻이다. 그러므로 해당 조건문은 `EPSILON`의 확률로 `True`를 반환한다.
 
