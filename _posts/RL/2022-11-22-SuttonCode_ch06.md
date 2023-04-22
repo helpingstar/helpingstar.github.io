@@ -1,8 +1,8 @@
 ---
 layout: single
-title: "단단한 강화학습 코드 정리, chap7"
+title: "단단한 강화학습 코드 정리, chap6"
 date: 2022-11-22 18:10:56
-lastmod : 2022-11-22 18:11:00
+lastmod : 2023-04-22 12:17:19
 categories: RL
 tag: [Sutton, 단단한 강화학습, RL]
 toc: true
@@ -10,7 +10,7 @@ toc_sticky: true
 use_math: true
 ---
 
-[ShangtongZhang github](https://github.com/ShangtongZhang/reinforcement-learning-an-introduction/blob/master/chapter02/ten_armed_testbed.py)
+[ShangtongZhang github](https://github.com/ShangtongZhang/reinforcement-learning-an-introduction/tree/master/chapter06)
 
 [단단한 강화학습](http://www.kyobobook.co.kr/product/detailViewKor.laf?ejkGb=KOR&mallGb=KOR&barcode=9791190665179&orderClick=LAG&Kc=) 책의 코드를 공부하기 위해 쓰여진 글이다.
 
