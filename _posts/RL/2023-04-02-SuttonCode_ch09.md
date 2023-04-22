@@ -15,6 +15,10 @@ use_math: true
 [단단한 강화학습](http://www.kyobobook.co.kr/product/detailViewKor.laf?ejkGb=KOR&mallGb=KOR&barcode=9791190665179&orderClick=LAG&Kc=) 책의 코드를 공부하기 위해 쓰여진 글이다.
 
 # `compute_true_value`
+전체적인 코드의 진행은 chap 4에 서술된 **$V \approx v_{\pi}$를 위한 반복 정책 평가**와 같다.
+
+![4_1_Iterative_Policy_Evaluation](../../assets/images/rl/4_1_Iterative_Policy_Evaluation.png){: width="80%" height="80%" class="align-center"}
+
 ```python
 def compute_true_value():
     # true state value, just a promising guess
@@ -42,9 +46,7 @@ def compute_true_value():
     return true_value
 ```
 
-전체적인 코드의 진행은 chap 4에 서술된 **$V \approx v_{\pi}$를 위한 반복 정책 평가**와 같다.
 
-![4_1_Iterative_Policy_Evaluation](../../assets/images/rl/4_1_Iterative_Policy_Evaluation.png){: width="50%" height="50%" class="align-center"}
 
 * **(1)** : 상태결집과 실제 값을 비교하는데 쓰이는 실제 값이다.
 * **(2~3)** : 실제 값을 저장할 배열에 유망한 값들을 미리 저장한다. 1002개의 값이 저장되어 있으며 (-1001, ..., 1001)으로 저장된 값들을 1001.0으로 나누기 때문에 (-1, ..., 1) 이 저장된다.
@@ -124,7 +126,9 @@ p의 당첨확률을 가진 복권을 n개 사서 몇개가 당첨될지 테스�
 
 이항분포 확률에 따라 0에서 n까지의 숫자중 하나를 출력한다. 0부터 n까지의 숫자 중 어떤 숫자 x(p에 몇번 해당되었는지)가 산출될 확률은 아래와 같다.
 
-$$P(N)=\binom{n}{x}p^x(1-p)^{n-x}$$
+$$P(x)=\binom{n}{x}p^x(1-p)^{n-x}$$
+
+$n$ : number of trial, $p$ probability of success, $x$: number of successes.
 
 코드에서는 `np.random.binomial(1, 0.5)`으로 되어 있는데 그러면 반환값이 1이 나올 확률이 `0.5`이 된다는 뜻이다. 그러므로 해당 조건문은 `0.5`의 확률로 `True`를 반환한다.
 
@@ -171,6 +175,9 @@ $$\textbf{w} \leftarrow \textbf{w} + \alpha \left [ G_t-\hat{v}(S_t, \textbf{w})
 
 
 # `gradient_monte_carlo`
+
+![9_3_gradient_monte_carlo_algorithm](../../assets/images/rl/9_3_gradient_monte_carlo_algorithm.png){: width="80%" height="80%" class="align-center"}
+
 ```python
 # gradient Monte Carlo algorithm
 # @value_function: an instance of class ValueFunction
@@ -214,6 +221,9 @@ $$G_t \doteq R_{t+1}+\gamma R_{t+2} + \gamma^{2}R_{t+3} + \cdots = \sum^{\infty}
 * **(21~22)** : `distribution`이 주어질 경우 방문한 state 인덱스의 값을 1 늘린다.
 
 # `semi_gradient_temporal_difference`
+
+![9_4_n_step_semi_gradient_TD](../../assets/images/rl/9_4_n_step_semi_gradient_TD.png){: width="80%" height="80%" class="align-center"}
+
 ```python
 # semi-gradient n-step TD algorithm
 # @valueFunction: an instance of class ValueFunction
