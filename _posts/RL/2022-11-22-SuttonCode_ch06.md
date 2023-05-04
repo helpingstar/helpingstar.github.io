@@ -1,8 +1,8 @@
 ---
 layout: single
-title: "단단한 강화학습 코드 정리, chap7"
+title: "단단한 강화학습 코드 정리, chap6"
 date: 2022-11-22 18:10:56
-lastmod : 2022-11-22 18:11:00
+lastmod : 2023-04-22 12:17:19
 categories: RL
 tag: [Sutton, 단단한 강화학습, RL]
 toc: true
@@ -10,7 +10,7 @@ toc_sticky: true
 use_math: true
 ---
 
-[ShangtongZhang github](https://github.com/ShangtongZhang/reinforcement-learning-an-introduction/blob/master/chapter02/ten_armed_testbed.py)
+[ShangtongZhang github](https://github.com/ShangtongZhang/reinforcement-learning-an-introduction/tree/master/chapter06)
 
 [단단한 강화학습](http://www.kyobobook.co.kr/product/detailViewKor.laf?ejkGb=KOR&mallGb=KOR&barcode=9791190665179&orderClick=LAG&Kc=) 책의 코드를 공부하기 위해 쓰여진 글이다.
 
@@ -112,7 +112,9 @@ def episode(q_value):
 
 이항분포 확률에 따라 0에서 n까지의 숫자중 하나를 출력한다. 0부터 n까지의 숫자 중 어떤 숫자 x(p에 몇번 해당되었는지)가 산출될 확률은 아래와 같다.
 
-$$P(N)=\binom{n}{x}p^x(1-p)^{n-x}$$
+$$P(x)=\binom{n}{x}p^x(1-p)^{n-x}$$
+
+$n$ : number of trial, $p$ probability of success, $x$: number of successes.
 
 코드에서는 `np.random.binomial(1, EPSILON)`으로 되어 있는데 그러면 반환값이 1이 나올 확률이 `EPSILON`이 된다는 뜻이다. 그러므로 해당 조건문은 `EPSILON`의 확률로 `True`를 반환한다.
 
