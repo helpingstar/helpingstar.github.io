@@ -77,6 +77,7 @@ class ValueFunction:
 
 
 ## OffLineLambdaReturn
+
 ```python
 # Off-line lambda-return algorithm
 class OffLineLambdaReturn(ValueFunction):
@@ -172,7 +173,9 @@ $$G_t^{\lambda}=(1-\lambda)\sum_{n=1}^{T-t-1}\lambda^{n-1}G_{t:t+n} + \lambda^{T
 * **(53)** : $G^{\lambda}\_{t} - \hat{v}(S_t, \textbf{w})$를 의미하며 $G^{\lambda}\_{t}$는 `self.lambda_return_from_time`를 통해 얻는다.
 
 
-# TD(λ)
+## TemporalDifferenceLambda
+
+![12_2_semi_gradient_td_lambda](../../assets/images/rl/12_2_semi_gradient_td_lambda.png){: width="80%" height="80%" class="align-center"}
 ```python
 # TD(lambda) algorithm
 class TemporalDifferenceLambda(ValueFunction):
@@ -212,8 +215,62 @@ class TemporalDifferenceLambda(ValueFunction):
   * `step_size` : $\alpha$
 * **(20)** : $S \leftarrow S'$
 
+## TrueOnlineTemporalDifferenceLambda
 
-## parameter_sweep
+![12_5_true_online_td_lambda](../../assets/images/rl/12_5_true_online_td_lambda.png){: width="80%" height="80%" class="align-center"}
+
+```python
+# True online TD(lambda) algorithm
+class TrueOnlineTemporalDifferenceLambda(ValueFunction):
+    def __init__(self, rate, step_size):
+        ValueFunction.__init__(self, rate, step_size)
+
+    def new_episode(self):
+        # initialize the eligibility trace
+        self.eligibility = np.zeros(N_STATES + 2)
+        # initialize the beginning state
+        self.last_state = START_STATE
+        # initialize the old state value
+        self.old_state_value = 0.0
+
+    def learn(self, state, reward):
+        # update the eligibility trace and weights
+        last_state_value = self.value(self.last_state)
+        state_value = self.value(state)
+        dutch = 1 - self.step_size * self.rate * self.eligibility[self.last_state]
+        self.eligibility *= self.rate
+        self.eligibility[self.last_state] += dutch
+        delta = reward + state_value - last_state_value
+        self.weights += self.step_size * (delta + last_state_value - self.old_state_value) * self.eligibility
+        self.weights[self.last_state] -= self.step_size * (last_state_value - self.old_state_value)
+        self.old_state_value = state_value
+        self.last_state = state
+```
+* **(1~2)** : $\text{TD}(\lambda)$를 나타내는 클래스, [`ValueFunction`](#valuefunction)을 상속한다.
+* **(3~4)** : 상속한 [`ValueFunction`](#valuefunction)의 생성자를 호출하여 `weights` 배열, `rate`($\lambda$), `step_size`($\alpha$) 을 클래스 변수로 저장한다.
+* **(6)** : 새로운 에피소드가 시작될떄 호출되는 함수이다.
+* **(7~8)** : 적격 흔적 벡터($\textbf{z}$)를 0으로 초기화한다.
+* **(9~10)** : 마지막(최근) 상태를 시작상태로 초기화한다.
+* **(11~12)** : 이전 상태 가치($V_{\text{old}}$)를 0으로 초기화한다
+* **(14)** : 상태($S=\textbf{x}$)와 보상($R$)을 인수로 받아 가중치를 갱신하는 함수, $\gamma=1$
+* **(16)** : $V \leftarrow \textbf{w}^{\top}\textbf{x}$
+  * `last_state_value` : $V$
+* **(17)** : $V' \leftarrow \textbf{w}^{\top}\textbf{x}'$
+  * `state_value` : $V'$
+* **(18)** : $\text{dutch} \leftarrow (1-\alpha \gamma \lambda \textbf{z}^{\top}_{t-1} \textbf{x})\textbf{x}$
+  * $\textbf{x}_t \doteq \textbf{x}(S_t)$인데 여기서는 근사하지 않고 표에서 그 상태 자체로 계산하므로 one-hot 벡터이다. 즉 벡터로 보면 벡터로 봐도 되고 단일 스칼라 값으로 계산해도 구현상 문제없다는 뜻이다.
+  * `step_size` : $\alpha$
+  * `rate` : $\lambda$
+  * `eligibility` : $\textbf{z}$
+* **(19~20)** : $\textbf{z} \leftarrow \gamma \lambda \textbf{z} + (1-\alpha \gamma \lambda \textbf{z}^{\top}_{t-1} \textbf{x})\textbf{x}$
+* **(21)** : $\delta \leftarrow R + \gamma \hat{v}(S', \textbf{w})-\hat{v}(S, \textbf{w})$
+  * `delta` : $\delta$
+* **(22~23)** : $\textbf{w} \leftarrow \textbf{w} + \alpha(\delta+V-V_{\text{old}})\textbf{z} - \alpha(V-V_{\text{old}})\textbf{x}$
+* **(24)** : $V_{\text{old}} \leftarrow V'$
+* **(25)** : $\textbf{x} \leftarrow \textbf{x}'$
+
+
+## `parameter_sweep`
 ```python
 # general plot framework
 # @valueFunctionGenerator: generate an instance of value function
@@ -259,6 +316,9 @@ def parameter_sweep(value_function_generator, runs, lambdas, alphas):
 
 
 ## figure 12_3
+
+![fcode_figure_12_3](../../assets/images/rl/fcode_figure_12_3.png){: width="80%" height="80%" class="align-center"}
+
 ```python
 # Figure 12.3: Off-line lambda-return algorithm
 def figure_12_3():
@@ -279,6 +339,9 @@ def figure_12_3():
 
 
 ## figure 12_6
+
+![fcode_figure_12_6](../../assets/images/rl/fcode_figure_12_6.png){: width="80%" height="80%" class="align-center"}
+
 ```python
 # Figure 12.6: TD(lambda) algorithm
 def figure_12_6():
@@ -292,6 +355,28 @@ def figure_12_6():
               np.arange(0, 0.11, 0.01),
               np.arange(0, 0.044, 0.004)]
     parameter_sweep(TemporalDifferenceLambda, 50, lambdas, alphas)
+```
+
+* **(3)** : 실험에 사용할 $\lambda$ 값의 목록이다.
+* **(4~11)** : 같은 인덱스의 $\lambda$에 대응하는 $\alpha$의 값의 목록
+
+## figure 12_8
+
+![fcode_figure_12_8](../../assets/images/rl/fcode_figure_12_8.png){: width="80%" height="80%" class="align-center"}
+
+```python
+# Figure 12.7: True online TD(lambda) algorithm
+def figure_12_8():
+    lambdas = [0.0, 0.4, 0.8, 0.9, 0.95, 0.975, 0.99, 1]
+    alphas = [np.arange(0, 1.1, 0.1),
+              np.arange(0, 1.1, 0.1),
+              np.arange(0, 1.1, 0.1),
+              np.arange(0, 1.1, 0.1),
+              np.arange(0, 1.1, 0.1),
+              np.arange(0, 0.88, 0.08),
+              np.arange(0, 0.44, 0.04),
+              np.arange(0, 0.11, 0.01)]
+    parameter_sweep(TrueOnlineTemporalDifferenceLambda, 50, lambdas, alphas)
 ```
 
 * **(3)** : 실험에 사용할 $\lambda$ 값의 목록이다.
