@@ -2,7 +2,7 @@
 layout: single
 title: "단단한 강화학습 코드 정리, chap7"
 date: 2023-04-22 12:15:02
-lastmod : 2023-04-22 12:15:02
+lastmod : 2023-05-09 03:10:11
 categories: RL
 tag: [Sutton, 단단한 강화학습, RL]
 toc: true
@@ -180,7 +180,7 @@ $$V(S_{\tau}) \leftarrow V(S_{\tau}) + \alpha \left [ G - V(S_{\tau}) \right ]$$
 $$\text{Until } \tau = T-1$$
 
 # figure 7_2
-
+![fcode_figure_7_2](../../assets/images/rl/fcode_figure_7_2.png){: width="80%" height="80%" class="align-center"}
 ```python
 # Figure 7.2, it will take quite a while
 def figure7_2():

@@ -2,7 +2,7 @@
 layout: single
 title: "단단한 강화학습 코드 정리, chap9"
 date: 2023-04-02 14:13:45
-lastmod : 2023-04-11 21:45:00
+lastmod : 2023-05-09 03:10:19
 categories: RL
 tag: [Sutton, 단단한 강화학습, RL]
 toc: true
@@ -462,6 +462,8 @@ def figure_9_2_right(true_value):
 * **(27~28)** : 누적한 Error에 대해 (에피소드 횟수) * (반복 횟수)로 나눠 평균을 얻는다.
 
 # figure 9_5
+
+![fcode_figure_9_5](../../assets/images/rl/fcode_figure_9_5.png){: width="80%" height="80%" class="align-center"}
 
 ```python
 # Figure 9.5, Fourier basis and polynomials

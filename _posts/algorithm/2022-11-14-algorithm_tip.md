@@ -1,13 +1,16 @@
 ---
 title: "알고리즘 PS 오답노트/팁"
 date: 2022-11-14 09:27:52
-lastmod : 2023-04-13 20:14:20
+lastmod : 2023-05-04 23:58:27
 categories: algorithm
-tag: [algorithm, ps]
+tag: [algorithm]
 toc: true
 toc_sticky: true
 use_math: true
 ---
+
+뒷 내용(1~20)은 ["알고리즘 PS 오답노트/팁 2"](https://helpingstar.github.io/algorithm/algorithm_tip2/)에서 찾아볼 수 있다.
+
 
 ## 1.
 
