@@ -2,7 +2,7 @@
 layout: single
 title: "단단한 강화학습 코드 정리, chap5"
 date: 2023-05-10 18:51:36
-lastmod : 2023-05-12 18:42:28
+lastmod : 2023-05-13 11:54:20
 categories: RL
 tag: [Sutton, 단단한 강화학습, RL]
 toc: true
@@ -225,7 +225,7 @@ def play(policy_player, initial_state=None, initial_action=None):
 * **(63~64)** : 플레이어부터 시작한다.
 * **(65~67)** : `initial_action`이 `None`이 아니라면 해당 행동을 `action`으로 저장하고 `initial_action=None`을 통해 한번만 실행되도록 한다.
 * **(68~70)** : `initial_action`이 `None`이라면(첫 행동 이후는 무조건 `initial_action`이 `None`이다.) 함수의 인자로 들어온 `policy_player`에 해당하는 정책을 통해 행동을 결정한다.
-* **(72~73)** : importance sampling을 위해 player의 trajectory를 저장한다.
+* **(72~73)** : 몬테 카를로 알고리즘이기 때문에 (+importance sampling을 위해) player의 trajectory를 저장한다. 이 이후에 카드를 뽑고 bust가 일어날 경우 함수가 바로 리턴되므로 trajectory의 `plyaer_sum`은 21이하이다.
 * **(75~76)** : 행동이 스탠드일 경우(=카드를 더이상 받지 않을 경우) 플레이어의 턴을 종료한다.
 * **(77~78)** : 행동이 히트일 경우 카드를 더 받는다.
 * **(79~81)** : 에이스는 여러 개를 가질 수 있으므로 에이스의 개수를 세는 `ace_count`를 선언한다. 엄밀히는 1로 변환이 가능한 에이스의 개수이다. 해당 변수에 `usable_ace_player`이 `True`일 경우 1, `False`일 경우 0을 저장한다. 에이스는 처음에 두 장을 받고 22일 경우 한 장을 1로 만드므로 최대 1개이다.
@@ -284,4 +284,14 @@ def monte_carlo_on_policy(episodes):
 * **(6)** : 사용 가능한 에이스가 **없는** 경우 보상의 누적
 * **(7~8)** : 사용 가능한 에이스가 **없는** 경우 각 상태의 방문 횟수, `division by zero`를 방지하기 위해 1로 시작한다.
 * **(9)** : 인수로 주어진 `episodes` 횟수만큼 에피소드를 실행한다.
-* **(10)** :
+* **(10)** : `play`를 통해 얻어진 정보를 저장한다 $\gamma=1$이므로 보상은 모든 상태에서 같다. `player_trajectory`에는 각 요소가 `[(usable_ace_player, player_sum, dealer_card1), action]` 형태로 저장되어 있다.
+* **(11)** : 에피소드의 각 단계에 대해 반복수행, $\gamma=1$이므로 reward는 결과값 하나만 있으면 되고 상태가치 함수를 얻을 것이므로 행동($A$)은 사용하지 않는다. $0 < \gamma < 1$ 이면 $G \leftarrow \gamma G + R_{t+1}$을 이용하여 마지막부터 계산하는 것이 편하다. 
+* **(12)** : 11이하는 상태에 있어서 사용될 일이 없다. 왜냐하면 11에서는 어떤 카드를 받아도 bust가 아니기 때문이다. 그러므로 이 이하는 승부를 결정하는 상태에서 고려될 필요가 없다. 그러므로 `player_sum`에서 12를 빼서 인덱스를 0부터 표현한다. [`play`](#play) **(72~73)** 에서 설명했다시피 `player_sum`은 무조건 21이하이므로 이는 0~9로 10개의 인덱스를 가진다.
+* **(13)** : 딜러의 카드는 1~10인데 배열에 효율적으로 저장하기 위해 1을 뺀다. 나중에 플로팅할 때는 1~10으로 표현한다.
+* **(14~16)** : 사용 가능한 에이스가 있는 상태일 경우 (`usable_ace == True`)
+  * `states_usable_ace_count`를 1 증가
+  * `states_usable_ace`에 reward를 더한다.
+* **(17~19)** : 사용 가능한 에이스가 없는 상태일 경우 (`usable_ace == False`)
+  * `states_no_usable_ace_count`를 1 증가
+  * `states_no_usable_ace`에 reward를 더한다.
+* **(20)** : 각 상태의 가치의 보상의 합을 상태의 방문횟수로 나누어 각 상태의 기댓값을 구한후 반환한다.
