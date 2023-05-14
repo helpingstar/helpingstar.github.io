@@ -2,7 +2,7 @@
 layout: single
 title: "단단한 강화학습 코드 정리, chap10"
 date: 2023-05-14 02:09:39
-lastmod : 2023-05-14 02:09:36
+lastmod : 2023-05-14 17:57:15
 categories: RL
 tag: [Sutton, 단단한 강화학습, RL]
 toc: true
@@ -55,8 +55,20 @@ class IHT:
 * **(1)** : 타일 코딩을 위한 해시값을 구하는 함수
 * **(3~6)** : 클래스의 생성자
   * `self.size = size_val` : 인덱스의 최댓값(=인덱스의 개수)
-  * `self.overfull_count` : // TODO
-  * `self.dictionary` : // TODO
+  * `self.overfull_count` : key 값이 꽉찼는데 hash 함수를 호출한 횟수 
+  * `self.dictionary` : 해시의 key, value를 저장하는 해시테이블
+* **(8~9)** : 해시테이블의 key 의 개수를 반환하는 메소드
+* **(11~12)** : 해시테이블의 key 개수가 지정된 size 이상인지를 확인하는 함수
+* **(14)** : 해시값을 반환하는 메소드
+  * `obj` : 해시값을 구하게 될 대상 객체
+  * `read_only` : True일 경우 읽기만 하며 해시테이블에 key 값이 없으면 None을 반환한다. False일 경우 key 값에 해당하는 Value 값을 만들고 해당 값을 해시테이블에 저장하고 해당 값을 반환한다..
+* **(15)** : 클래스 변수 `self.dictionary`를 `d`에 저장한다.
+* **(16~17)** : 해시테이블에 key가 존재할경우 해당 key의 value를 반환한다.
+* **(18~19)** : `read_only` 가 `True`일 경우 읽기만 하므로 바로 `None`을 반환한다.
+* **(20~21)** : 해시테이블의 사이즈와 해시테이블에 저장된 key의 개수를 각각 `size`, `count`에 저장한다.
+* **(22~25)** : 해시테이블의 key의 개수가 size 이상일 경우 `self.overfull_count`를 1 증가시키고 `obj`의 파이썬 내부 해시값의 `size`의 나머지를 반환한다.
+* **(26~28)** : 해시테이블이 꽉 차있지 않으면 현재 key의 개수를 value로 하여 값을 반환한다.
+* 요약 : 먼저 온 것부터 1, 2, 3 채우다가 다 차면 `hash(obj) % size`를 반환한다.
 
 ## hash_coords
 ```python
@@ -95,7 +107,7 @@ def tiles(iht_or_size, num_tilings, floats, ints=None, read_only=False):
 * **(1~2)** : 수들을 받고 그에 해당하는 tile 인덱스들을 반환하는 함수
   * `iht_or_size` : [`IHT`](#iht) 클래스 또는 정수값을 인수로 받아 [`hash_coords`](#hash_coords)에서 해당 인스턴스에 해당하는 해시값을 구한다.
   * `num_tilings` : 반환하는 타일 인덱스의 개수
-  * `floats` : 상태를 표현하는 실수, 여기서는 (위치, 속도)로 표현된다.
+  * `floats` : 상태를 표현하는 정규화된 실수, 여기서는 (위치, 속도)로 표현된다.
   * `ints` : 행동을 표현하는 정수, 여기서는 -1, 0, 1 중 하나가 된다.
   * `read_only` : True일 경우 읽기만 하며 해시테이블에 key 값이 없으면 None을 반환한다. False일 경우 key 값에 해당하는 Value 값을 만들고 해당 값을 해시테이블에 저장하고 해당 값을 반환한다..
 * **(3~4)** : `ints` 가 `None`일 경우 `ints`를 빈 리스트로 초기화한다. 상태 가치만 얻고 싶다면 `ints`를 `None`으로 하여 근사할 수 있다. 예시에서는 행동도 같이 제공하므로 해당하지 않는다.
@@ -116,7 +128,57 @@ def tiles(iht_or_size, num_tilings, floats, ints=None, read_only=False):
 * **(15)** : `coords`, `iht_or_size`, `read_only` 값을 기반으로 얻은 해시값을 `tiles` 리스트에 추가한다.
 * **(16)** : `num_tilings` 개수 만큼 타일 인덱스를 가진 `tiles`를 반환한다. 
 
+# mountain_car
 
+![mountain_car](../../assets/images/rl/mountain_car.gif){: width="80%" height="80%" class="align-center"}
+
+```python
+# all possible actions
+ACTION_REVERSE = -1
+ACTION_ZERO = 0
+ACTION_FORWARD = 1
+# order is important
+ACTIONS = [ACTION_REVERSE, ACTION_ZERO, ACTION_FORWARD]
+
+# bound for position and velocity
+POSITION_MIN = -1.2
+POSITION_MAX = 0.5
+VELOCITY_MIN = -0.07
+VELOCITY_MAX = 0.07
+
+# use optimistic initial value, so it's ok to set epsilon to 0
+EPSILON = 0
+
+# take an @action at @position and @velocity
+# @return: new position, new velocity, reward (always -1)
+def step(position, velocity, action):
+    new_velocity = velocity + 0.001 * action - 0.0025 * np.cos(3 * position)
+    new_velocity = min(max(VELOCITY_MIN, new_velocity), VELOCITY_MAX)
+    new_position = position + new_velocity
+    new_position = min(max(POSITION_MIN, new_position), POSITION_MAX)
+    reward = -1.0
+    if new_position == POSITION_MIN:
+        new_velocity = 0.0
+    return new_position, new_velocity, reward
+```
+* **(1~4)** : 가속 방향을 나타내는 변수
+  * `ACTION_REVERSE` : 뒷방향(왼쪽)
+  * `ACTION_ZERO` : 아무 행동도 하지 않음
+  * `ACTION_FORWARD` : 정면(오른쪽)
+* **(5~6)** : 행동들을 저장하는 리스트, (←, ·, →) 순서로 저장된다
+* **(8~12)** : 위치와 속도의 경계값
+  * 위치 : $[-1.2, 0.5]$
+  * 속도 : $[-0.7, 0.7]$
+* **(14~15)** : ε-greedy 정책을 위한 ε의 값을 결정한다. 최적의 초기값을 설정하므로 ε을 0으로 설정한다, (보상이 무조건 -1이므로 상태 또는 상태-액션 가치가 0을 넘을 수 없다, 이 경우 모든 action에 대해 충분한 탐색을 할 수 있다.) ε이 0일 경우 이는 greedy-policy와 같다.
+* **(17~19)** : (위치, 속도, 행동)을 받아 (다음 위치, 다음 속도, 보상)을 반환한다.
+* $v$ : 속도, $a$ : 행동(-1, 0, 1), $p$ : 위치
+* **(20)** : $v_{t+1} \leftarrow v_t + 0.001a_t - 0.0025\cos(3p_t)$
+* **(21)** : $v_{t+1} \leftarrow \text{clip}(v_{t+1}, -0.07, 0.07)$
+* **(22)** : $p_{t+1} \leftarrow p_t + v_{t+1}$
+* **(23)** : $p_{t+1} \leftarrow \text{clip}(p_{t+1}, -1.2, 0.5)$
+* **(24)** : 보상은 언제나 -1이다.
+* **(25)** : 맨 왼쪽에 도달할 경우 속도를 0으로 만든다.
+* **(27)** : 새로운 위치, 새로운 속도, 보상을 반환한다.
 
 # ValueFunction
 ```python
@@ -183,7 +245,29 @@ class ValueFunction:
 * **(10~11)** : 인수로 들어온 `num_of_tilings`, `max_size`를 클래스 변수에 저장한다.
 * **(13~14)** : 인수로 들어온 `step_size`를 타일의 개수로 나누어 클래스 변수에 저장한다.
 * **(16)** : 타일링을 위한 해시 값을 구하기 위한 IHT(Index Hash Table) 클래스를 선언하고 클래스변수에 저장한다.
-
+* **(18~19)** : 가치함수를 근사하기 위한 함수 가중치를 0으로 초기화한다. (각 타일의 가중치) 
+* **(21~23)** : tile coding을 위해 스케일링 값을 저장한다.
+  * `position_scale` : $\vert T \vert / (p_{\max} - p_{\min})$
+  * `velocity_scale` : $\vert T \vert / (v_{\max} - v_{\min})$
+* **(25~26)** : (위치, 속도, 행동)을 받아 그에 해당하는 활성화 타일들(8개) 반환하는 함수이다.
+* **(27~28)** : `positionScale * (position - position_min)`으로 하면 범위가 $[0, 8]$로 된다. 근데 `positionScale * position_min`은 상수이므로 이를 제외해도 된다는 것이다. 제외할 경우 범위는 약 $[-5.65, 2.35]$가 된다.
+* **(29~31)** : [`tiles`](#tiles)에 해시테이블, 타일의 개수, 정규화된 위치와 속도, 행동을 넣고 활성화된 타일들을 얻는다. (`num_of_tiling`만큼)
+* **(32)** : 활성화된 타일들을 반환한다.
+* **(34~35)** : (위치, 속도, 행동) 쌍에 해당하는 추정가치를 반환하는 함수이다, 수식으로 나타내면 $\hat{q}(S, A, \textbf{w})$로 나타낼 수 있다.
+* **(36~37)** : 목표 위치(`POSITION_MAX`)에 도달한 상태이면 0을 반환한다.
+* **(38)** : `get_active_tiles` 메소드를 통해 활성화된 타일들을 얻는다.
+* **(39)** : 활성화된 타일들의 가중치를 모두 더한 값을 반환한다.
+* **(41~42)** : $S, A, G$(상태, 행동, 목표)로 가치함수($\textbf{w}$)를 학습한다. 
+* **(43~44)** : `self.get_active_tiles`를 통해 활성화된 타일들을 얻고 이를 토대로 추정치($\hat{q}(S, A, \textbf{w})$)를 얻는다.
+* **(45)** : $\textbf{w}$를 갱신하기 위한 업데이트 양인 delta 값을 얻는다.
+  * $\text{delta} = \alpha \left [ G - \hat{q}(S_{\tau}, A_{\tau}, \textbf{w})\right ]\nabla\hat{q}(S_{\tau}, A_{\tau}, \textbf{w})$
+  * 활성화된 타일들의 가중치가 1이기 때문에 $\nabla \hat{q}$는 생략된다.
+* **(46~47)** : 활성화된 타일들만 delta 값을 더해서 갱신한다. 활성화되지 않은 타일들은 가중치가 0이므로 활성화된 타일들만 더해서 갱신한다.
+  * $\textbf{w} \leftarrow \textbf{w} + \alpha \left [ G - \hat{q}(S_{\tau}, A_{\tau}, \textbf{w})\right ]\nabla\hat{q}(S_{\tau}, A_{\tau}, \textbf{w})$
+* **(49~50)** : 현재 상태 가치함수를 기반으로 현재 상태에서 목표 도달까지 몇 스텝이 필요한지 계산하는 메소드, 보상이 무조건 -1이고 $\gamma=1$이므로 가치값이 곧 스텝의 값이다.
+* **(51)** : 각 행동별 스텝의 개수를 저장하는 리스트
+* **(52~53)** : 각 행동별로 가치를 구해서 `costs` 리스트에 추가한다.
+* **(54)** : 가치값은 모두 음수이므로 그중에 가장 큰 값(스텝이 가장 적은 값)을 -1을 곱해 양수로 바꾼 후 반환한다.
 
 # figure_10_2
 ```python
