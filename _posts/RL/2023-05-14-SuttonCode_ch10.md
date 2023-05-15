@@ -2,7 +2,7 @@
 layout: single
 title: "단단한 강화학습 코드 정리, chap10"
 date: 2023-05-14 02:09:39
-lastmod : 2023-05-14 17:57:15
+lastmod : 2023-05-15 20:05:44
 categories: RL
 tag: [Sutton, 단단한 강화학습, RL]
 toc: true
@@ -55,7 +55,7 @@ class IHT:
 * **(1)** : 타일 코딩을 위한 해시값을 구하는 함수
 * **(3~6)** : 클래스의 생성자
   * `self.size = size_val` : 인덱스의 최댓값(=인덱스의 개수)
-  * `self.overfull_count` : key 값이 꽉찼는데 hash 함수를 호출한 횟수 
+  * `self.overfull_count` : key 값이 꽉찼는데 hash 함수를 호출한 횟수
   * `self.dictionary` : 해시의 key, value를 저장하는 해시테이블
 * **(8~9)** : 해시테이블의 key 의 개수를 반환하는 메소드
 * **(11~12)** : 해시테이블의 key 개수가 지정된 size 이상인지를 확인하는 함수
@@ -112,7 +112,7 @@ def tiles(iht_or_size, num_tilings, floats, ints=None, read_only=False):
   * `read_only` : True일 경우 읽기만 하며 해시테이블에 key 값이 없으면 None을 반환한다. False일 경우 key 값에 해당하는 Value 값을 만들고 해당 값을 해시테이블에 저장하고 해당 값을 반환한다..
 * **(3~4)** : `ints` 가 `None`일 경우 `ints`를 빈 리스트로 초기화한다. 상태 가치만 얻고 싶다면 `ints`를 `None`으로 하여 근사할 수 있다. 예시에서는 행동도 같이 제공하므로 해당하지 않는다.
 * **(5)** : 상태를 나타내는 `floats`의 실수값들에 `num_tilings`를 곱한 후 내림하여 정수로 만든다. quantize의 q가 아닐까 싶다.
-* **(6)** : 반환할 tile의 인덱스를 저장하는 빈 리스트를 생성한다. 
+* **(6)** : 반환할 tile의 인덱스를 저장하는 빈 리스트를 생성한다.
 * **(7)** : `num_tilings` 횟수만큼 반복하며 반복마다 한 해시값을 `tiles`에 추가한다. `tiling`은 반복 변수이다.
 * **(8)** : 0부터 시작하는 반복변수 `tiling`에서 2를 곱한 값을 저장한다.
 * **(9)** : `coords` 리스트에 반복변수 `tiling`을 넣고 초기화한다.
@@ -126,7 +126,7 @@ def tiles(iht_or_size, num_tilings, floats, ints=None, read_only=False):
   * $j$ : index of state
 * **(14)** : `coords`에 `ints`를 추가한다. 이러면 `coords`는 [index of tile] + $K$ + [ints] 가 된다.
 * **(15)** : `coords`, `iht_or_size`, `read_only` 값을 기반으로 얻은 해시값을 `tiles` 리스트에 추가한다.
-* **(16)** : `num_tilings` 개수 만큼 타일 인덱스를 가진 `tiles`를 반환한다. 
+* **(16)** : `num_tilings` 개수 만큼 타일 인덱스를 가진 `tiles`를 반환한다.
 
 # mountain_car
 
@@ -245,7 +245,7 @@ class ValueFunction:
 * **(10~11)** : 인수로 들어온 `num_of_tilings`, `max_size`를 클래스 변수에 저장한다.
 * **(13~14)** : 인수로 들어온 `step_size`를 타일의 개수로 나누어 클래스 변수에 저장한다.
 * **(16)** : 타일링을 위한 해시 값을 구하기 위한 IHT(Index Hash Table) 클래스를 선언하고 클래스변수에 저장한다.
-* **(18~19)** : 가치함수를 근사하기 위한 함수 가중치를 0으로 초기화한다. (각 타일의 가중치) 
+* **(18~19)** : 가치함수를 근사하기 위한 함수 가중치를 0으로 초기화한다. (각 타일의 가중치)
 * **(21~23)** : tile coding을 위해 스케일링 값을 저장한다.
   * `position_scale` : $\vert T \vert / (p_{\max} - p_{\min})$
   * `velocity_scale` : $\vert T \vert / (v_{\max} - v_{\min})$
@@ -257,7 +257,7 @@ class ValueFunction:
 * **(36~37)** : 목표 위치(`POSITION_MAX`)에 도달한 상태이면 0을 반환한다.
 * **(38)** : `get_active_tiles` 메소드를 통해 활성화된 타일들을 얻는다.
 * **(39)** : 활성화된 타일들의 가중치를 모두 더한 값을 반환한다.
-* **(41~42)** : $S, A, G$(상태, 행동, 목표)로 가치함수($\textbf{w}$)를 학습한다. 
+* **(41~42)** : $S, A, G$(상태, 행동, 목표)로 가치함수($\textbf{w}$)를 학습한다.
 * **(43~44)** : `self.get_active_tiles`를 통해 활성화된 타일들을 얻고 이를 토대로 추정치($\hat{q}(S, A, \textbf{w})$)를 얻는다.
 * **(45)** : $\textbf{w}$를 갱신하기 위한 업데이트 양인 delta 값을 얻는다.
   * $\text{delta} = \alpha \left [ G - \hat{q}(S_{\tau}, A_{\tau}, \textbf{w})\right ]\nabla\hat{q}(S_{\tau}, A_{\tau}, \textbf{w})$
@@ -268,6 +268,111 @@ class ValueFunction:
 * **(51)** : 각 행동별 스텝의 개수를 저장하는 리스트
 * **(52~53)** : 각 행동별로 가치를 구해서 `costs` 리스트에 추가한다.
 * **(54)** : 가치값은 모두 음수이므로 그중에 가장 큰 값(스텝이 가장 적은 값)을 -1을 곱해 양수로 바꾼 후 반환한다.
+
+# get_action
+```python
+# get action at @position and @velocity based on epsilon greedy policy and @valueFunction
+def get_action(position, velocity, value_function):
+    if np.random.binomial(1, EPSILON) == 1:
+        return np.random.choice(ACTIONS)
+    values = []
+    for action in ACTIONS:
+        values.append(value_function.value(position, velocity, action))
+    return np.random.choice([action_ for action_, value_ in enumerate(values) if value_ == np.max(values)]) - 1
+```
+* **(1~2)** : `position`, `velocity`에서 ε-greedy 정책과 `value_function`에 기반하여 행동을 결정하는 함수
+* **(3~4)** : ε의 확률로 무작위로 행동을 선택한다.
+* **(5~7)** : 가능한 모든 행동들의 가치를 산출하여 `values` 리스트에 저장한다.
+* **(8)** : 최댓값을 가진 행동들 중 임의로 하나를 반환한다. `np.argmax`를 사용하면 최댓값이 여러 개 있을 때 첫 번째 인덱스를 반환하므로, 가치가 최대인 행동들 중 하나를 임의로 선택하는 코드를 사용한다.
+  * `if value_ == np.max(values)` : `values`의 요소값인 `value_`가 `values_`의 최댓값과 같다면
+  * `action_ for action_, value_ in enumerate(values)` : 행동의 인덱스를 배열에 추가한다.
+  * `np.random.choice(...)` : 배열에 들어간 행동중에 하나를 무작위로 선택한다.
+  * `np.random.choice(...) - 1` : `action_`은 [0, 1, 2]이고 실제 행동은 [-1, 0, 1] 이므로 선택된 행동에서 1을 빼준다.
+
+# semi_gradient_n_step_sarsa
+
+// TODO Algorithm Image
+
+```python
+# semi-gradient n-step Sarsa
+# @valueFunction: state value function to learn
+# @n: # of steps
+def semi_gradient_n_step_sarsa(value_function, n=1):
+    # start at a random position around the bottom of the valley
+    current_position = np.random.uniform(-0.6, -0.4)
+    # initial velocity is 0
+    current_velocity = 0.0
+    # get initial action
+    current_action = get_action(current_position, current_velocity, value_function)
+
+    # track previous position, velocity, action and reward
+    positions = [current_position]
+    velocities = [current_velocity]
+    actions = [current_action]
+    rewards = [0.0]
+
+    # track the time
+    time = 0
+
+    # the length of this episode
+    T = float('inf')
+    while True:
+        # go to next time step
+        time += 1
+
+        if time < T:
+            # take current action and go to the new state
+            new_position, new_velocity, reward = step(current_position, current_velocity, current_action)
+            # choose new action
+            new_action = get_action(new_position, new_velocity, value_function)
+
+            # track new state and action
+            positions.append(new_position)
+            velocities.append(new_velocity)
+            actions.append(new_action)
+            rewards.append(reward)
+
+            if new_position == POSITION_MAX:
+                T = time
+
+        # get the time of the state to update
+        update_time = time - n
+        if update_time >= 0:
+            returns = 0.0
+            # calculate corresponding rewards
+            for t in range(update_time + 1, min(T, update_time + n) + 1):
+                returns += rewards[t]
+            # add estimated state action value to the return
+            if update_time + n <= T:
+                returns += value_function.value(positions[update_time + n],
+                                                velocities[update_time + n],
+                                                actions[update_time + n])
+            # update the state value function
+            if positions[update_time] != POSITION_MAX:
+                value_function.learn(positions[update_time], velocities[update_time], actions[update_time], returns)
+        if update_time == T - 1:
+            break
+        current_position = new_position
+        current_velocity = new_velocity
+        current_action = new_action
+
+    return time
+```
+* **(1~4)** : 준경사도 n-step 살사 알고리즘
+  * `value_function` : 학습할 상태 가치 함수
+  * `n` : 스텝의 개수
+* **(5~6)** : `current_position` 에 초기 위치를 대입한다. $[-0.6, -0.4]$ 범위의 균등분포에서 추출한다.
+* **(7~8)** : `current_velocity` 에 초기 속도 0을 대입한다.
+* **(9~10)** : `current_action`에 초기 상태를 바탕으로 [`get_action`](#get_action) 함수를 통해 행동을 얻는다.
+* **(12~16)** : 상태(위치, 속도), 행동, 보상의 trajectory를 저장하는 리스트를 각각 만든다. mod를 이용해 메모리를 절약할 수 있지만 구현의 편의성을 위해 모두 저장한다.
+  * $\text{All store and access operations }(S_t, A_t,R_t)\text{ can take their index mod }n + 1$
+* **(18~19)** : 현재 시간을 나타내는 변수, $t$
+* **(21~22)** : 에피소드의 길이 $T$를 $\infty$로 초기화한다. 나중에 terminal state에 도달하면 $T$에 $t+1$을 대입한다.
+  * $T \leftarrow \infty$
+* **(23)** : `time` 변수를 하나씩 증가시키면서 반복한다. 무한반복인 것 같지만 아래의 종료조건에 의해 종료된다.
+  * $\text{Loop for }t = 0, 1, 2,... :$
+  * 의사코드에서는 $t=0$ 부터 시작하지만 코드에서는 반복 시작시에 `time += 1` 연산을 하므로 1부터 시작하고 반복문 내부에서 `time`이 알고리즘의 $t$보다 1이 크다는 차이가 있다.
+
 
 # figure_10_2
 ```python
@@ -289,4 +394,4 @@ def figure_10_2():
     steps /= runs
 ```
 
-* **(1~2)** : 
+* **(1~2)** :
