@@ -1,8 +1,8 @@
 ---
 layout: single
-title: "OpenAI gym 환경 구성시 고려할 점"
+title: "gym(gymnasium) 환경 구성시 고려할 점"
 date: 2022-10-13 15:17:26
-lastmod : 2022-10-27 14:23:41
+lastmod : 2023-05-16 17:09:04
 categories: RL
 tag: [env, openai, gym, RL]
 toc: true
@@ -106,3 +106,38 @@ Action에는 못하는 것이 있고, 할수 있는데 안되는 것이 있다 �
 3. 유효하지 않은 행동은 환경에 따라 상당히 여러가지가 될 수 있는데 모든 경우에 대해 적절히 한 `action`으로 일반화하지 않고 각각 처리해준다면 강화학습의 일반화 측면에서도 맞지 않고 알고리즘의 확장성도 떨어질 수 있다.
 
 해당 생각으로 내가 강화학습 환경을 만든다면 유효하지 않은 행동에 대해서는 아직 최대한 개입을 하지 않는 것으로 하고 있다. 더 공부하게 된다면 생각이 바뀔지도 모르겠으나, 주변 사람에게 물어봐도 나와 같은 생각을 하고 있는 듯 하다.
+
+
+# Space
+
+## 1.
+
+**[해당 커밋](https://github.com/Farama-Foundation/Gymnasium/commit/1bf58d8eb46dcb7e2da1a34c35b19af2565badf1#diff-09b11a63d0b8a53af3031d436624c12c82864156a4eddf296179b4cf85f26f12L33-L38)을 보면 WARN을 발생시키는 해당 코드가 지워졌다. 차기 버전에서는 오류가 뜨지 않게 될 듯 하다.**
+
+여태까지 [gym_woodoku](https://github.com/helpingstar/gym-woodoku), [gym_snakegame](https://github.com/helpingstar/gym-snakegame), [gym-game2048](https://github.com/helpingstar/gym-game2048) 을 만들었다. 각 observation은 다음과 같은데
+1. gym-woodoku : 25 x 25 그리드에 각 셀이 0또는 1
+2. gym-snakegame : size X size 그리드에 각 셀이 4개의 값 중 하나
+3. gym-game2048 : size X size 그리드에 각 셀이 11개의 값 중 하나
+
+이를 구현하기 위해 `observation_space`를 정의해야 하는데 `gymnasium`에는 각 게임에 해당하는 적절한 `Space`가 없다. 그나마 `Box`가 적합한데 예를 들어  `snakegame`에서는 그리드의 각 셀이 0, 1, 3, 5 중 하나의 값을 갖고 5는 지정된 개수만 존재하는데 `spaces.Box(low=0, high=5, shape=(size, size), dtype=np.float32)`는 보기에 적절해보이지만 적절하지 않다. $[\text{low}, \text{high}]$범위의 숫자가 임의로 등장할 수 있다는 뜻인데 게임에서는 불가능한 상황이 나올 수도 있기 때문이다. 예를 들면 그리드의 모든 셀이 apple인 경우가 그렇다. 또 4는 등장하지도 않는다.
+
+`gym-game2048`에서는 처음에는 0, 2, 4, 8과 같이 실제 게임과 같이 환경 내부도 구현했다가. 0, 1, 2, 3으로 바꿨다. 그러면 이런 경우에는 `spaces.Box(low=0, high=self.board_goal, shape=(size, size, 1), dtype=np.uint8)`로 해도된다! 하지만 
+```
+WARN: It seems a Box observation space is an image but the lower and upper bounds are not [0, 255]. Actual lower bound: 0, upper bound: 11. Generally, CNN policies assume observations are within that range, so you may encounter an issue if the observation values are not.
+```
+
+과 같은 `WARN`이 발생한다. `Box` observation space가 이미지같아 보이는데 정수라면 [0, 255]의 범위를 가져야하는데 그렇지 않다는 것이다.
+
+```python
+if np.any(observation_space.low != 0) or np.any(observation_space.high != 255):
+  logger.warn(
+    "It seems a Box observation space is an image but the lower and upper bounds are not [0, 255]. "
+    f"Actual lower bound: {np.min(observation_space.low)}, upper bound: {np.max(observation_space.high)}. "
+    "Generally, CNN policies assume observations are within that range, so you may encounter an issue if the observation values are not."
+  )
+```
+
+때문인데 이 때문에 Farama Foundation 디스코드에 물어봤더니
+![discordchat1](../../assets/images/etc/discordchat1.png){: width="50%" height="50%" class="align-center"}
+
+라는 답변을 달아주었다. 그래서 그냥 무시하기로했다.
