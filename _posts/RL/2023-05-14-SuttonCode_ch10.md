@@ -2,7 +2,7 @@
 layout: single
 title: "단단한 강화학습 코드 정리, chap10"
 date: 2023-05-14 02:09:39
-lastmod : 2023-05-15 20:05:44
+lastmod : 2023-05-16 16:43:16
 categories: RL
 tag: [Sutton, 단단한 강화학습, RL]
 toc: true
@@ -361,18 +361,49 @@ def semi_gradient_n_step_sarsa(value_function, n=1):
 * **(1~4)** : 준경사도 n-step 살사 알고리즘
   * `value_function` : 학습할 상태 가치 함수
   * `n` : 스텝의 개수
-* **(5~6)** : `current_position` 에 초기 위치를 대입한다. $[-0.6, -0.4]$ 범위의 균등분포에서 추출한다.
-* **(7~8)** : `current_velocity` 에 초기 속도 0을 대입한다.
+* **(5~8)** : `current_position` 에 $[-0.6, -0.4]$ 범위의 균등분포에서 추출한 초기 위치를 대입하고 `current_velocity` 에 초기 속도 0을 대입한다.
+  * $\text{Initialize and store }S_0 \neq \text{ terminal}$
 * **(9~10)** : `current_action`에 초기 상태를 바탕으로 [`get_action`](#get_action) 함수를 통해 행동을 얻는다.
+  * $\text{Select and store an action }A_0 \sim \pi(\cdot \vert S_0)\text{ or }\varepsilon\text{-greedy wrt }\hat{q}(S_0, \cdot, \textbf{w})$
 * **(12~16)** : 상태(위치, 속도), 행동, 보상의 trajectory를 저장하는 리스트를 각각 만든다. mod를 이용해 메모리를 절약할 수 있지만 구현의 편의성을 위해 모두 저장한다.
   * $\text{All store and access operations }(S_t, A_t,R_t)\text{ can take their index mod }n + 1$
 * **(18~19)** : 현재 시간을 나타내는 변수, $t$
 * **(21~22)** : 에피소드의 길이 $T$를 $\infty$로 초기화한다. 나중에 terminal state에 도달하면 $T$에 $t+1$을 대입한다.
   * $T \leftarrow \infty$
-* **(23)** : `time` 변수를 하나씩 증가시키면서 반복한다. 무한반복인 것 같지만 아래의 종료조건에 의해 종료된다.
+* **(23~25)** : `time` 변수를 하나씩 증가시키면서 반복한다. 무한반복인 것 같지만 **(39~40)** 과 **(57~58)** 의 종료조건에 의해 종료된다.
   * $\text{Loop for }t = 0, 1, 2,... :$
   * 의사코드에서는 $t=0$ 부터 시작하지만 코드에서는 반복 시작시에 `time += 1` 연산을 하므로 1부터 시작하고 반복문 내부에서 `time`이 알고리즘의 $t$보다 1이 크다는 차이가 있다.
+* **(27)** : 종료시점 전까지 행동을 수행한다.
+  * $\text{If } t < T,\text{ then:}$
+* **(28~40)** : 현재 (상태, 행동)에 대해 새로운 (상태, 행동, 보상)을 받는다. 정책에 따라 새로운 상태에 대해 [`get_action`](#get_action)으로 다음 행동을 얻고 새로운 (상태, 행동, 보상)을 각각 리스트에 저장한다. 새로운 상태가 terminal state라면 `T`에 `time`을 대입한다. **(23~25)** 에서 말한 것과 같이 현 상태에서 `time`은 $t+1$이므로 `time`을 그대로 대입한다.
 
+$$
+\begin{align*}
+& \text{Take action }A_t \\
+& \text{Observe and store the next reward as }R_{t+1} \text{ and the next state as }S_{t+1} \\
+& \text{If } S_{t+1} \text{ is terminal, then:} \\
+& \quad T \leftarrow t + 1 \\
+& \text{else:} \\
+& \quad \text{Select and store }A_{t+1} \sim \pi(\cdot \vert S_{t+1})\text{ or } \varepsilon\text{-greedy wrt }\hat{q}(S_{t+1}, \cdot, \textbf{w})
+\end{align*}
+$$
+
+* **(42~43)** : 업데이트(학습)될 시간을 구한다
+  * $\tau \leftarrow t-n+1$
+  * $(\tau\text{ is the time whose estimate is being updated})$
+* **(44)** : 업데이트될 시간이 0보다 크면 학습을 시작한다.
+  * $\text{If }\tau \geq 0$
+* **(45)** : 코드 구현적으로 이득을 추정할 변수를 0으로 초기화한다.
+* **(46~48)** : n-step만큼의 보상을 누적한다. 여기서 $\gamma=1$이다 `update_time+1` (`reward[0]`은 0으로 초기화됬기 때문) 부터 `T` 또는 `update_time+n` 까지 `returns`에 더한다. `update_time+n`까지 더할 경우 `n`개를 더하게 된다.
+  * $G \leftarrow \sum_{i=\tau+1}^{\min(\tau+n, T)}\gamma^{i-\tau-1}R_i$
+* **(49~53)** : `update_time`의 n-스텝 이후가 terminal state가 아닐 경우 n-스텝 이후의 가치를 더한다.
+  * $\text{If }\tau+n<T\text{, then }G \leftarrow G + \gamma^{n}\hat{q}(S_{\tau+n}, A_{\tau+n}, \textbf{w})$
+* **(54~56)** : `returns`과 현재 상태, 행동을 이용하여 가치함수의 가중치를 갱신한다.
+  * $\textbf{w} \leftarrow \textbf{w} + \alpha \left [ G - \hat{q}(S_{\tau}, A_{\tau}, \textbf{w})\right ]\nabla\hat{q}(S_{\tau}, A_{\tau}, \textbf{w})$
+* **(57~58)** : 업데이트될 시간이 종료시점 바로 전이면 반복을 종료한다.
+  * $\text{Until } \tau=T-1$
+* **(59~61)** : 새로운 상태와 행동을 갱신한다.
+* **(63)** : 에피소드 종료까지 소요된 시간을 반환한다.
 
 # figure_10_2
 ```python
@@ -394,4 +425,15 @@ def figure_10_2():
     steps /= runs
 ```
 
-* **(1~2)** :
+* **(1~2)** : step size($\alpha$) 별로 Mountain Car 환경에서 에피소드가 진행될 수록 Goal 도달까지 step의 개수의 변화를 그린다.
+* **(3~4)** : 독립적인 10번 실행하고 한번의 실행당 500번의 에피소드를 진행한다. 각 에피소드별로 10번의 실행이있을텐데 그것을 평균해서 플로팅한다.
+* **(5)** : 타일의 개수를 8개로 한다.
+* **(6)** : 각각 다르게 할 step size, 0.1, 0.2, 0.5로 설정한다.
+* **(8)** : 각 $alpha$값을 행으로 하고 각 에피소드의 시점을 열로 하는 행렬을 만든다. `value[a][b]`는 `a`번째 인덱스의 step size로 학습시 `b`번째 에피소드에서는 목표 도달까지 `value[a][b]` 번의 스텝이 소요된다는 뜻이다.
+* **(9)** : 독립적인 10번의 실행을 한다.
+* **(10)** : step size($alpha$)별로 가치함수를 초기화한다.
+* **(11)** : 각 step size 별로 학습을 시작한다.
+* **(12)** : `episodes` 번의 에피소드를 실행한다.
+* **(13)** : 해당 step size로 진행한 학습의 `episode`번째 실행에서의 목표까지 도달하는 데 필요한 `step`의 횟수를 저장한다.
+* **(14)** : `steps` 행렬에 누적한다
+* **(16)** : `steps`은 `runs`개수만큼 `step`이 누적되어 있으므로 이를 평균하기 위해 `runs`로 나누어준다.
