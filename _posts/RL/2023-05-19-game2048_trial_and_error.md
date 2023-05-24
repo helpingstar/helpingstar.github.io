@@ -2,7 +2,7 @@
 layout: single
 title: "2048 게임 강화학습 도전기"
 date: 2023-05-19 22:18:12
-lastmod : 2023-05-22 12:14:21
+lastmod : 2023-05-24 15:20:46
 categories: RL
 tag: [RL, PPO, '2048']
 toc: true
@@ -137,3 +137,72 @@ $$R = 0.1 \times \sum_{i}^{n}\log_{2}c_i$$
 $$R = 0.01 \times \sum_{i}^{n}c_i$$
 * 범위 : $\left [ 0, 0.01 \times \text{goal} \right ]$
 * 예시(goal=2048) : 0, 0.02, 0.04, ... 20.48
+
+(2023-05-24 15:20:46)
+
+실험의 결과를 보자 return의 경우는 reward 산정 방식이 달라졌기 때문에 의미가 없어 제외하였다.
+<span style="color: purple">**보라색**</span>이 새로운 결과이다.
+
+일단 예상치 못한 변수가 있었다.
+
+![gym-game2048-7](../../assets/images/rl/gym_game2048/gym-game2048-7.png){: width="80%" height="80%" class="align-center"}
+
+아파트 변압기 교체로 인하여 정전이 일어났다! 그래서 실험이 중간에 멈추긴 했지만 나름 진행되고 멈춰서 결과는 어느정도 확인할 수 있었다.
+
+![gym-game2048-8](../../assets/images/rl/gym_game2048/gym-game2048-8.png){: width="80%" height="80%" class="align-center"}
+<p style="text-align: center; font-style: italic;"> (Exponential Moving Average: 0.99) </p>
+
+실험의 목적인 "보드에 있는 숫자의 최댓값을 높이기, 2048을 달성하기"에 대해서는 더욱 효과가 있는 것으로 나타났다. 아무래도 노력의 추세와 보상의 추세를 동일하게 만든 것이 효과를 본 것 같다.
+
+또한 "턱에 걸린상태를 벗어나기", 직접적인 목표와는 관련이 없지만 학습을 효율적으로 하기 위한 것에 대해서 효과가 있었는지 살펴보자
+
+![gym-game2048-9](../../assets/images/rl/gym_game2048/gym-game2048-9.png){: width="80%" height="80%" class="align-center"}
+<p style="text-align: center; font-style: italic;"> (Exponential Moving Average: 0.99, Log Scale) </p>
+
+이전보다 더 나아졌다고 볼 수도 있지만. 이상치를 제외한 대부분에 있어서는 새 실험이 오히려 더 에피소드 길이가 늘어났다. 성능이 더 좋아졌기 때문에 그럴수도 있지 않냐 라고 할 수 있겠지만 해당 그래프의 세로축은 로그단위인 것을 감안하면 성능 향상에 의한 효과 이상으로 에피소드의 길이가 길어졌다고 판단된다. 그러므로 단순히 보상체계 변경이 "턱에 걸리는 상태를 벗어나기"라는 관점에서는 실패한 것으로 판단하였다.
+
+# 8. 이어달리기
+
+[7. 보상체계 변경](#7-보상체계-변경) 에서 정전으로 인해 실험이 끊겼다. 다행히 모델의 가중치는 일정 간격마다 저장했고 가장 최근의 가중치를 이어서 로드후에 학습을 다시 시작하였다.
+
+<span style="color: pink">**분홍색**</span>이 새로운 결과이다.
+
+![gym-game2048-10](../../assets/images/rl/gym_game2048/gym-game2048-10.png){: width="80%" height="80%" class="align-center"}
+<p style="text-align: center; font-style: italic;"> (Exponential Moving Average: 0.99) </p>
+
+![gym-game2048-11](../../assets/images/rl/gym_game2048/gym-game2048-11.png){: width="80%" height="80%" class="align-center"}
+<p style="text-align: center; font-style: italic;"> (Exponential Moving Average: 0.99) </p>
+
+보상 산정방식은 동일하기 때문에 return 그래프도 넣었다. 보다시피 두개 모두 이어서 하는 것 자체는 잘 되는 것으로 보인다.
+
+![gym-game2048-11](../../assets/images/rl/gym_game2048/gym-game2048-11.png){: width="80%" height="80%" class="align-center"}
+<p style="text-align: center; font-style: italic;"> (Exponential Moving Average: 0.99) </p>
+
+![gym-game2048-12](../../assets/images/rl/gym_game2048/gym-game2048-12.png){: width="80%" height="80%" class="align-center"}
+<p style="text-align: center; font-style: italic;"> (Exponential Moving Average: 0.99) </p>
+
+그런데 이 그래프를 보고 더 이상 개선될 여지가 있을까? 라는 생각이 들었다. 목표에 점점 다가갈수록 경우의 수가 급격하게 늘어나기 때문에 학습이 잠시 멈춘 것 처럼 보일 수 있지만 학습이 되고 있는 것일 수도 있기 때문이다.
+
+하지만 [7. 보상체계 변경](#7-보상체계-변경) 의 실험 결과로 인해 "턱에 걸리는 현상"은 해결을 못했다는 것이 밝혀졌기 때문에 어차피 개선도 안되는 것 같은데(확실하진 않지만) 이참에 좀 수정을 해보고 다시 실험을 진행해보자는 생각이 들었다.
+
+# 9. 새로운 실험 설계
+
+그동안 의문이었던 것을 수정하고 다시 실험하기로 하였다.
+
+**기존**
+
+1. 클리어시 추가 보상 없음 (20.48의 보상을 받고 종료)
+2. (1, 4, 4) ⇒ *[(32, 3, 3) kernel]* ⇒ (32, 2, 2) ⇒ *[Flatten]* ⇒ (128, ) ⇒ *[(128, actor/critic)]* ⇒ (actor/critic), MLP의 유닛을 128개로 하였다.
+3. 블록이 합쳐질 때만 보상을 주고 나머지는 0을 부과한다.
+
+**변경**
+
+1. 클리어시 **추가 보상 부과** (20의 보상을 추가로 준다.)
+2. **(1, 4, 4)** ⇒ *[(**128**, 3, 3) kernel]* ⇒ (**128**, 2, 2) ⇒ *[Flatten]* ⇒ (**512**, ) ⇒ *[(**512**, actor/critic)]* ⇒ (actor/critic), MLP의 유닛을 512개로 늘렸다.
+3. 모든 보상에 대해 **-0.001 의 보상을 추가**한다.
+
+수정이 필요했다고 느낀 점은 다음과 같다.
+
+1. 내 목표는 점수를 높이는 것이 아니라, 게임의 클리어 확률을 높이는 것이다. 그런데 보상체계는 점수와 같다. 그렇다면 1024와 1024를 합쳐서 2048을 만드는 것과 같이 클리어가 가능한 순간에 다른 블럭을 합쳐서 더 큰 점수를 얻을 수 있다면 에이전트는 그것을 선택할 것이다. 512를 4개 만들거나, 1024를 두개 더 만들면 같다. 물론 discount factor 같은 것들이 그런 것들의 효과를 줄여주긴 하지만 혹시 몰라 넣었다. 20.48과 비슷한 20점을 추가로 주기로 하였다. [`RewardByScore`](https://github.com/helpingstar/gym-game2048/blob/main/gym_game2048/wrappers/reward_by_score.py)를 사용하였다.
+2. 신경망의 크기에 대한 직관, 지식이 부족하기 때문에 다른 문제들의 신경망을 참고한다. 내가 본 두 신경망은 [`cleanrl/ppo.py`](https://github.com/vwxyzjn/cleanrl/blob/master/cleanrl/ppo.py), [`cleanrl/ppo_atari.py`](https://github.com/vwxyzjn/cleanrl/blob/master/cleanrl/ppo_atari.py) 두개였다. 전자는 cartpole문제에 대해 MLP(64)를 두개 사용하였고 후자는 CNN을 통과시킨 후 MLP(512)를 두개 통과시켰다. 전자의 코드를 참고하느라 MLP의 유닛을 64개로 사용하였고 그것이 부족하여 128개로 늘렸다. 그런데 2048의 문제에 대해서 observation의 경우의 수가 $11^{16}$이다. 그렇기 때문에 cartpole 보다는 atari에 가까운 복잡도라 생각하였고 MLP의 유닛을 대폭 늘렸다. atari보다는 덜 복잡하다고 생각하였고 CNN을 3개 통과한 atari코드에 비해 CNN을 한개만 통과시켜 가중치 개수는 그보다 적게 하였다.
+3. [gym(gymnasium) 환경 구성시 고려할 점](https://helpingstar.github.io/rl/gym_env_tip/#1-1) 에서 적기도 하였는데, 할수 있는데 못하는 행동(바둑에서 이미 돌이 있는 곳에 돌을 두는 행위같은 것)에 대해 고민이 많았다. 최근에 알게 되었는데 이런 행동을 illegal action이라고 한다. gymnasium에 구현된 환경들은 이런 illegal action이 없었다. 그러다가 멀티 에이전트 환경을 모아놓은 [PettingZoo](https://pettingzoo.farama.org/)을 보았다. illegal한 행동을 할 경우 -1의 보상과 함께 게임을 종료(좀 심한 것 아닌가?)시키는 [Chess/Legal Actions Mask](https://pettingzoo.farama.org/environments/classic/chess/#legal-actions-mask)가 구현된 것과 illegal action이 들어오면 `illegal_reward`와 함께 게임을 종료시키는 [TerminateIllegalWrapper](https://pettingzoo.farama.org/api/wrappers/pz_wrappers/#pettingzoo.utils.wrappers.TerminateIllegalWrapper) 를 보니 illegal action 에 대해 강경(?) 하게 대처하는 것을 확인할 수 있다. 두 플레이어가 있어서 legal action을 하는 것이 중요한 상황은 아니니 게임을 종료시키기는 좀 그렇고 전체 step마다 -0.001의 보상을 추가하기로 했다. illegal 한 행동을 검출하여 해당 행동에만 음의 보상을 줄 수도 있었지만 다른 reward가 0.001에 비해 충분히 높기 때문에 그냥 빼기로 했다.
