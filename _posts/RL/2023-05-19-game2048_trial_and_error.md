@@ -2,7 +2,7 @@
 layout: single
 title: "2048 게임 강화학습 도전기"
 date: 2023-05-19 22:18:12
-lastmod : 2023-05-24 15:20:46
+lastmod : 2023-05-26 18:01:57
 categories: RL
 tag: [RL, PPO, '2048']
 toc: true
@@ -206,3 +206,24 @@ $$R = 0.01 \times \sum_{i}^{n}c_i$$
 1. 내 목표는 점수를 높이는 것이 아니라, 게임의 클리어 확률을 높이는 것이다. 그런데 보상체계는 점수와 같다. 그렇다면 1024와 1024를 합쳐서 2048을 만드는 것과 같이 클리어가 가능한 순간에 다른 블럭을 합쳐서 더 큰 점수를 얻을 수 있다면 에이전트는 그것을 선택할 것이다. 512를 4개 만들거나, 1024를 두개 더 만들면 같다. 물론 discount factor 같은 것들이 그런 것들의 효과를 줄여주긴 하지만 혹시 몰라 넣었다. 20.48과 비슷한 20점을 추가로 주기로 하였다. [`RewardByScore`](https://github.com/helpingstar/gym-game2048/blob/main/gym_game2048/wrappers/reward_by_score.py)를 사용하였다.
 2. 신경망의 크기에 대한 직관, 지식이 부족하기 때문에 다른 문제들의 신경망을 참고한다. 내가 본 두 신경망은 [`cleanrl/ppo.py`](https://github.com/vwxyzjn/cleanrl/blob/master/cleanrl/ppo.py), [`cleanrl/ppo_atari.py`](https://github.com/vwxyzjn/cleanrl/blob/master/cleanrl/ppo_atari.py) 두개였다. 전자는 cartpole문제에 대해 MLP(64)를 두개 사용하였고 후자는 CNN을 통과시킨 후 MLP(512)를 두개 통과시켰다. 전자의 코드를 참고하느라 MLP의 유닛을 64개로 사용하였고 그것이 부족하여 128개로 늘렸다. 그런데 2048의 문제에 대해서 observation의 경우의 수가 $11^{16}$이다. 그렇기 때문에 cartpole 보다는 atari에 가까운 복잡도라 생각하였고 MLP의 유닛을 대폭 늘렸다. atari보다는 덜 복잡하다고 생각하였고 CNN을 3개 통과한 atari코드에 비해 CNN을 한개만 통과시켜 가중치 개수는 그보다 적게 하였다.
 3. [gym(gymnasium) 환경 구성시 고려할 점](https://helpingstar.github.io/rl/gym_env_tip/#1-1) 에서 적기도 하였는데, 할수 있는데 못하는 행동(바둑에서 이미 돌이 있는 곳에 돌을 두는 행위같은 것)에 대해 고민이 많았다. 최근에 알게 되었는데 이런 행동을 illegal action이라고 한다. gymnasium에 구현된 환경들은 이런 illegal action이 없었다. 그러다가 멀티 에이전트 환경을 모아놓은 [PettingZoo](https://pettingzoo.farama.org/)을 보았다. illegal한 행동을 할 경우 -1의 보상과 함께 게임을 종료(좀 심한 것 아닌가?)시키는 [Chess/Legal Actions Mask](https://pettingzoo.farama.org/environments/classic/chess/#legal-actions-mask)가 구현된 것과 illegal action이 들어오면 `illegal_reward`와 함께 게임을 종료시키는 [TerminateIllegalWrapper](https://pettingzoo.farama.org/api/wrappers/pz_wrappers/#pettingzoo.utils.wrappers.TerminateIllegalWrapper) 를 보니 illegal action 에 대해 강경(?) 하게 대처하는 것을 확인할 수 있다. 두 플레이어가 있어서 legal action을 하는 것이 중요한 상황은 아니니 게임을 종료시키기는 좀 그렇고 전체 step마다 -0.001의 보상을 추가하기로 했다. illegal 한 행동을 검출하여 해당 행동에만 음의 보상을 줄 수도 있었지만 다른 reward가 0.001에 비해 충분히 높기 때문에 그냥 빼기로 했다.
+
+# 10. 바보야, 문제는 신경망이야!
+
+실수로 실험을 끊어버리긴 했지만 그전 실험과 비교해 유의미한 결과가 나왔다. 차트를 직접 보면 직관적으로 이해가 갈 것이다.
+
+<span style="color: #e78555">**주황색**</span>이 9번을 적용한 새로운 결과이다.
+
+![gym-game2048-13](../../assets/images/rl/gym_game2048/gym-game2048-13.png){: width="80%" height="80%" class="align-center"}
+<p style="text-align: center; font-style: italic;"> (Exponential Moving Average: 0.99) </p>
+
+![gym-game2048-14](../../assets/images/rl/gym_game2048/gym-game2048-14.png){: width="80%" height="80%" class="align-center"}
+<p style="text-align: center; font-style: italic;"> (Exponential Moving Average: 0.99) </p>
+
+![gym-game2048-15](../../assets/images/rl/gym_game2048/gym-game2048-15.png){: width="80%" height="80%" class="align-center"}
+<p style="text-align: center; font-style: italic;"> (Exponential Moving Average: 0.99) </p>
+
+압도적으로 성능이 좋은 것을 확인할 수 있다. 시간적 한계로 인하여 개선점 세 개를 한번에 적용하였지만 몇가지 결론을 얻을 수 있었다.
+
+1. **episodic length** 그래프를 보면 '턱에 걸리는 상황'을 억제하는 데는 효과가 크지 않은 것을 볼 수 있다. 물론 성능이 증가했기 때문에 그럴 수 있지만. 전체적인 억제 효과는 미미했던 것 같다. 물론 학습이 지속된다면 점점 억제되는 효과는 있지 않을까 싶다.
+2. 목표(11)에 도달하면 추가적인 보상을 주었는데 도달하기 전에 이미 전 실험결과를 뛰어넘었다. 그럼 9.1처럼 성공시 보상 추가에 대한 효과 덕분은 아니라는 뜻이다. 그래서 전반적인 성능 향상은 신경망의 크기 증가 덕분이라고 결론내렸다.
+3. 성공시 보상 추가에 대한 것은 해당 파라미터만 조절후 다시 도전해보는 것이 좋을 것 같다.
