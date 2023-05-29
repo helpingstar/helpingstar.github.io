@@ -2,9 +2,9 @@
 layout: single
 title: "gym(gymnasium) 환경 구성시 고려할 점"
 date: 2022-10-13 15:17:26
-lastmod : 2023-05-16 17:09:04
+lastmod : 2023-05-29 20:44:30
 categories: RL
-tag: [env, openai, gym, RL]
+tag: [openai, gym, RL, gymnasium, pettingzoo]
 toc: true
 toc_sticky: true
 ---
@@ -71,7 +71,7 @@ def _get_3_blocks(self) -> tuple:
 
 # Action
 
-## 1.
+## 1. 할 수 있는데 안되는 행동
 Action에는 못하는 것이 있고, 할수 있는데 안되는 것이 있다 말이 애매하니 예를 들어보겠다
 
 바둑을 예로 들어보자 바둑판은 19X19의 칸으로 구성되어 있다.
@@ -107,6 +107,15 @@ Action에는 못하는 것이 있고, 할수 있는데 안되는 것이 있다 �
 
 해당 생각으로 내가 강화학습 환경을 만든다면 유효하지 않은 행동에 대해서는 아직 최대한 개입을 하지 않는 것으로 하고 있다. 더 공부하게 된다면 생각이 바뀔지도 모르겠으나, 주변 사람에게 물어봐도 나와 같은 생각을 하고 있는 듯 하다.
 
+# 2. action_mask
+
+[**Action-1. 할 수 있는데 안되는 행동**](#1-할-수-있는데-안되는-행동) 에서 나온 상황을 Illegal Action 이라고 칭한다.
+
+Petting Zoo documentation을 보다가 알았다. 특히 2인용게임의 보드게임에서 많이 나오는 상황이기 때문인 듯 하다.
+
+이렇게 Illegal Action이 있는 환경같은 경우에는 Legal Action과 Illegal Action을 구분해서 표시해주는 action_mask를 구현하는게 좋다. Legal Action을 1, Illegal Action을 0으로 표시한다.
+
+info에 넣는 방법이 있고 observation에 넣는 방법이 있다. gymnasium 환경에서는 info에 넣는 것이 좋은 것 같다. pettingzoo에서는 observation에 넣는 것이 표준인 듯 하다.
 
 # Space
 
@@ -121,7 +130,7 @@ Action에는 못하는 것이 있고, 할수 있는데 안되는 것이 있다 �
 
 이를 구현하기 위해 `observation_space`를 정의해야 하는데 `gymnasium`에는 각 게임에 해당하는 적절한 `Space`가 없다. 그나마 `Box`가 적합한데 예를 들어  `snakegame`에서는 그리드의 각 셀이 0, 1, 3, 5 중 하나의 값을 갖고 5는 지정된 개수만 존재하는데 `spaces.Box(low=0, high=5, shape=(size, size), dtype=np.float32)`는 보기에 적절해보이지만 적절하지 않다. $[\text{low}, \text{high}]$범위의 숫자가 임의로 등장할 수 있다는 뜻인데 게임에서는 불가능한 상황이 나올 수도 있기 때문이다. 예를 들면 그리드의 모든 셀이 apple인 경우가 그렇다. 또 4는 등장하지도 않는다.
 
-`gym-game2048`에서는 처음에는 0, 2, 4, 8과 같이 실제 게임과 같이 환경 내부도 구현했다가. 0, 1, 2, 3으로 바꿨다. 그러면 이런 경우에는 `spaces.Box(low=0, high=self.board_goal, shape=(size, size, 1), dtype=np.uint8)`로 해도된다! 하지만 
+`gym-game2048`에서는 처음에는 0, 2, 4, 8과 같이 실제 게임과 같이 환경 내부도 구현했다가. 0, 1, 2, 3으로 바꿨다. 그러면 이런 경우에는 `spaces.Box(low=0, high=self.board_goal, shape=(size, size, 1), dtype=np.uint8)`로 해도된다! 하지만
 ```
 WARN: It seems a Box observation space is an image but the lower and upper bounds are not [0, 255]. Actual lower bound: 0, upper bound: 11. Generally, CNN policies assume observations are within that range, so you may encounter an issue if the observation values are not.
 ```
