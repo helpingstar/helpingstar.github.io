@@ -2,7 +2,7 @@
 layout: single
 title: "2048 게임 강화학습 도전기"
 date: 2023-05-19 22:18:12
-lastmod : 2023-05-30 18:25:46
+lastmod : 2023-05-31 13:12:44
 categories: RL
 tag: [RL, PPO, '2048']
 toc: true
@@ -300,7 +300,7 @@ PPO의 보상추정이랑, 행동 선택 이유를 추적하는 방법을 공부
 턱에 걸리는 상황을 방지하기 위해 [**9. 새로운 실험 설계**](#9-새로운-실험-설계) 에서 0.001의 보상을 뺐다. 그런데 다음과 같은 상황이 일어났다.
 
 ![gym-game2048-20](../../assets/images/rl/gym_game2048/gym-game2048-20.png){: width="80%" height="80%" class="align-center"}
-<p style="text-align: center; font-style: italic;"> (Exponential Moving Average: 0.5) </p>
+<p style="text-align: center; font-style: italic;"> (Log Scale, Exponential Moving Average: 0.5) </p>
 
 갑자기 Return이 급락해서 다른 그래프를 보니 다음과 같았다. 300K 이후부터 확대해 보았다.
 
@@ -313,22 +313,22 @@ PPO의 보상추정이랑, 행동 선택 이유를 추적하는 방법을 공부
 
 해당 시간에 나온 값들을 살펴보면 다음과 같다.
 
-![gym-game2048-22](../../assets/images/rl/gym_game2048/gym-game2048-22.png){: width="50%" height="50%" class="align-center"}
-<p style="text-align: center; font-style: italic;"> 측정되지 않은 episode 가 있을 수 있음 </p>
+![gym-game2048-22](../../assets/images/rl/gym_game2048/gym-game2048-22.png){: width="80%" height="80%" class="align-center"}
 
-확실히 350K~420K 부분에서 엄청난 시간을 소모했고 그것으로 인하여 episodic_return 또한 엄청난 음수값을 가진 것을 볼 수 있다. 그 뒤에서도 발산하면서 학습이 망가진 것을 볼 수 있다. 숫자들이 거의다 400K 이상이다.
+확실히 350K~420K 부분에서 "갑자기" 엄청난 시간을 소모했고 그것으로 인하여 episodic_return 또한 엄청난 음수값을 가진 것을 볼 수 있다. 그 뒤에서도 발산하면서 학습이 망가진 것을 볼 수 있다. 한 에피소드의 길이가 엄청나게 늘어나는 것을 볼 수 있다.
 
 내가 생각하는 학습의 흐름은 다음과 같다.
 
-0. 일단 해당 학습은 그전에 학습된 weight를 이어서 학습한 것이다.
-1. 이전에도 비정상적인 episode_length 가 있었을 것이다.
-2. 하지만 학습이 진행되면서 근사의 정확도가 높아졌고 어떤 행동에 대한 확률이 상당히 높게 측정되었을 것이다. (PPO, Policy-based)
-3. 어떤 상태에서 해당 행동을 엄청나게 시도했을 것이다. 하지만 해당 행동은 Illegal Action이었다.
-4. 3M의 step동안 -0.001의 보상만 계속 받았을 것이고 discount 없이 누적된 return은 -600을 넘어갔다. 이렇게 엄청나게 오랜 시간동안 의미없는 행동에 대해서 음의 보상만 계속 주어지고 그것의 한도가 없으니 (양의 보상은 그전에 클리어가 되기 때문에 한계가 있다, episodic_return의 최대값은 238이었다.) 신경망을 망가뜨렸다.
-5. 망가진 신경망이 복구가 되지 않고 이후로 회복이 되지 않아 계속해서 학습을 망가뜨렸다.
+1. 일단 해당 학습은 그전에 학습된 weight를 이어서 학습한 것이다.
+2. 이전에도 비정상적인 episode_length 가 있었을 것이다.
+3. 하지만 학습이 진행되면서 근사의 정확도가 높아졌고 어떤 행동에 대한 확률이 상당히 높게 측정되었을 것이다. (PPO, Policy-based)
+4. 어떤 상태에서 해당 행동을 엄청나게 시도했을 것이다. 하지만 해당 행동은 Illegal Action이었다.
+5. 3M의 step동안 -0.001의 보상만 계속 받았을 것이고 discount 없이 누적된 return은 엄청난 음수를 만들었다. 이렇게 엄청나게 오랜 시간동안 의미없는 행동에 대해서 음의 보상만 계속 주어지고 그것의 한도가 없으니 (양의 보상은 그전에 클리어가 되기 때문에 한계가 있다, episodic_return의 최대값은 254이었다.) 신경망을 망가뜨렸다.
+6. 망가진 신경망이 복구가 되지 않고 이후로 회복이 되지 않아 계속해서 학습을 망가뜨렸다.
 
 이것으로 느낀 것은 다음과 같다.
 
-1. 생각보다 Illegal Action에 소비되는 step 수가 많다. 3M이면 블록 숫자가 2만 스폰 되었을 때 2048를 만들기 위해 1024 스텝이 필요한데 그것을 감안하면 학습을 약 3000에피소드는 더 할 수 있는 숫자이다.
+1. 생각보다 Illegal Action에 소비되는 step 수가 많다.
+   * episodic_length 표의 숫자들을 보면 알겠지만 엄청난 스텝이 의미없는 행동에 소요되고 있었다.
 2. **Illegal Action 행동에 대해서는 Terminate 하는 것이 무조건 나은 것 같다.**
 3. Return의 하한선도 생각해야겠다. 물론 PPO가 MC 기반의 방법은 아니지만 전체적으로 분산을 높이는데 일조한 것 같다.
