@@ -2,9 +2,9 @@
 layout: single
 title: "gym Wrappers 정리"
 date: 2023-01-08 13:58:15
-lastmod : 2023-01-15 18:21:11
+lastmod : 2023-05-31 11:24:12
 categories: RL
-tag: [gymnaisum, gym, wrappers, vector, RL]
+tag: [gymnaisum, gym, wrappers, RL]
 toc: true
 toc_sticky: true
 ---
@@ -28,10 +28,11 @@ env = gym.wrappers.YourWrapper(env, param1=param1, param2=param2, ...)
 
 |순위|Wrappers|
 |-|-|
-|1|`Observation/Action/Reward Wrappers`|
+|1|`Misc/Obs/Action/Reward Wrappers`|
 |2|`TimeLimit`|
-|3|`AutoResetWrapper`|
-|4|`RecordEpisodeStatistics`|
+|3|`RecordVideo`|
+|4|`AutoResetWrapper`|
+|5|`RecordEpisodeStatistics`|
 
 # RecordVideo
 
@@ -41,7 +42,38 @@ class gymnasium.wrappers.RecordVideo(env, video_folder, episode_trigger, step_tr
 
 에피소드를 저장하는 wrapper이다. 결과 영상을 출력할 때나 디버그할 때 유용하다.
 
-Parameter
+**주의**
+
+```python
+# Gymnasium/gymnasium/wrappers/record_video.py
+...
+
+def _video_enabled(self):
+    if self.step_trigger:
+        return self.step_trigger(self.step_id)
+    else:
+        return self.episode_trigger(self.episode_id)
+
+if not (self.terminated or self.truncated):
+    # increment steps and episodes
+    self.step_id += 1
+    if not self.is_vector_env:
+        if terminateds or truncateds:
+            self.episode_id += 1
+            self.terminated = terminateds
+            self.truncated = truncateds
+    elif terminateds[0] or truncateds[0]:
+        self.episode_id += 1
+        self.terminated = terminateds[0]
+        self.truncated = truncateds[0]
+...
+```
+
+코드를 보면 스텝에 따라 `step_id`가 증가하고 `terminated`, `truncated` 일 때 `episode_id`가 증가한다.
+
+그러므로 `AutoResetWrapper`을 적용하기 전에 `RecordVideo`를 써야한다. `AutoResetWrapper`는 에피소드의 종료정보를 `info`를 통해 알려주기 때문에 `RecordVideo`에서는 그것에 대해 알 수가 없다.
+
+**Parameter**
 * `env` : Wrappers를 적용할 환경
 * `video_folder` : 영상을 저장할 폴더
 * `episode_trigger` : 영상을 녹화할 조건이다. 200개의 episode마다 저장하고 싶다면 아래와 같이 하면 된다
