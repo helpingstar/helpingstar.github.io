@@ -332,3 +332,41 @@ PPO의 보상추정이랑, 행동 선택 이유를 추적하는 방법을 공부
    * episodic_length 표의 숫자들을 보면 알겠지만 엄청난 스텝이 의미없는 행동에 소요되고 있었다.
 2. **Illegal Action 행동에 대해서는 Terminate 하는 것이 무조건 나은 것 같다.**
 3. Return의 하한선도 생각해야겠다. 물론 PPO가 MC 기반의 방법은 아니지만 전체적으로 분산을 높이는데 일조한 것 같다.
+
+(2023-06-01 21:36:18)
+
+# 14. 개선된 결과
+
+결론적으로 엄청난 개선이 있었다.
+
+![gym-game2048-23](../../assets/images/rl/gym_game2048/gym-game2048-23.png){: width="80%" height="80%" class="align-center"}
+
+![gym-game2048-25](../../assets/images/rl/gym_game2048/gym-game2048-25.png){: width="80%" height="80%" class="align-center"}
+
+<p style="text-align: center; font-style: italic;"> Exponential Moving Average: 0.99 </p>
+
+플로팅에 스텝이 반영되지 않아 설명을 덧붙인다. 빨간색, 청록색이 새로 한 결과이다. 세부사항은 아래와 같다.
+
+| 색  | time step | Linear | Illegal Action | Anneal LR |
+| -- | -- | -- | -- | -- |
+| 빨강 |250M| 512 | False | True |
+| 청록 |300M| 512 | False | False |
+| 주황 |500M| 512 | True | False |
+| 보라 |500M| 128 | True | False |
+
+빨강과 청록의 차이가 있는데 자세한 보상 설정은 다음과 같다.
+
+| 색  | 블록 합칠 때 | Illegal Action | Clear | 범위 |
+| -- | -- | -- | -- | -- |
+| 빨강 | × 0.0025| -5 | 5     | [-5, 10] |
+| 청록 | × 0.01  | -0.2 | 0.2 | [-0.2, 20.68] |
+
+청록색의 보상설정이 이상할 수 있는데 Wrapper 설정중에 실수가 있었다. 그런데도 이전 결과를 따라잡은 것을 보면 Illegal Action시 바로 게임을 종료시키는 것이 효과가 있었던 것 같다.
+
+![gym-game2048-24](../../assets/images/rl/gym_game2048/gym-game2048-24.png){: width="80%" height="80%" class="align-center"}
+
+에피소드길이도 상당히 안정적인 것을 볼 수 있다.
+
+마지막 100, 300개의 에피소드에서 **66.6%**의 클리어률을 보였다.
+
+저장해둔 weight를 통해 100%에 최대한 수렴시켜보고 마무리할 생각이다.
