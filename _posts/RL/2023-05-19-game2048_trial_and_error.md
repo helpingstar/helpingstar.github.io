@@ -2,7 +2,7 @@
 layout: single
 title: "2048 게임 강화학습 도전기"
 date: 2023-05-19 22:18:12
-lastmod : 2023-06-02 16:18:36
+lastmod : 2023-06-07 11:15:40
 categories: RL
 tag: [RL, PPO, '2048']
 toc: true
@@ -10,7 +10,12 @@ toc_sticky: true
 use_math: true
 ---
 
-2048 게임을 정복하기 위해 [gym-game2048](https://github.com/helpingstar/gym-game2048) 강화학습 환경을 만들고 그것을 정복하기 위해 시도한 시행착오를 적어놓은 일지이다.
+2048 게임을 정복하기 위해 [**gym-game2048**](https://github.com/helpingstar/gym-game2048) 강화학습 환경을 만들고 그것을 정복하기 위해 시도한 시행착오를 적어놓은 일지이다.
+
+학습에 사용한 코드는 [**rl-application-gym-game2048**](https://github.com/helpingstar/rl-application-gym-game2048)에서 확인할 수 있다.
+
+차트는 아래 링크에서 자세히 볼 수 있다.
+https://wandb.ai/iamhelpingstar/game2048?workspace=user-iamhelpingstar
 
 (2023-05-19 23:43:28)
 
@@ -374,3 +379,103 @@ PPO의 보상추정이랑, 행동 선택 이유를 추적하는 방법을 공부
 저장해둔 weight를 통해 100%에 최대한 수렴시켜보고 마무리할 생각이다.
 
 **★★13. 후에 Illegal Action을 적용하면서 게임 로직을 개선하였고 그 과정에서 중대한 버그가 있었다. "14. 개선된 결과" 내용은 잘못된 환경에서 실험된 결과이므로 완전히 잘못된 결과, 실험이다. 하지만 필자의 반성을 위해 남겨둔다.★★**
+
+(2023-06-07 10:11:29)
+
+# 15. IllegalTerminate
+
+Illegal Action에 대해 바로 Terminate를 적용하였다. 잘못된 환경이었던 14번과는 달리 실험은 훨씬 오래걸렸다.
+
+결론적으로는 실험은 성공했다. 일단 차트를 먼저 올리고 내용을 설명해보겠다. 클리어률은 약 50%이다.
+
+![gym-game2048-26](../../assets/images/rl/gym_game2048/gym-game2048-26.png){: width="80%" height="80%" class="align-center"}
+
+![gym-game2048-27](../../assets/images/rl/gym_game2048/gym-game2048-27.png){: width="80%" height="80%" class="align-center"}
+
+![gym-game2048-28](../../assets/images/rl/gym_game2048/gym-game2048-28.png){: width="80%" height="80%" class="align-center"}
+
+![gym-game2048-29](../../assets/images/rl/gym_game2048/gym-game2048-29.png){: width="80%" height="80%" class="align-center"}
+
+더 진행하면 더욱 개선될 것 같긴 하나 충분히 성공률도 높고 시간상의 제약으로 인하여 학습을 멈추었다. 학습시간은 i5-9500K, GTX 1660ti, RAM 16GB 기준으로 90시간 정도 소요되었다. 나머지 하이퍼파라미터는 마지막에 제시하고 다른 이야기를 먼저 적어보겠다.
+
+가장 큰 변화는 IllegalTerminate (Illegal Action시에 바로 에피소드를 종료함)이다. 학습이 오래걸릴 것이라 생각했긴 했지만 이정도로 오래 걸릴 줄은 몰랐다.
+
+이전 실험에서는 Illegal Action시에 에피소드를 유지했는데 바로 종료하는 것이 학습이나 나중에 활용시에 더 적합하다 생각이 들어 실험을 진행하였다.
+
+바로 종료하는 것은 큰 단점인데 극단적인 예를 제시해 보겠다.
+
+```
+2 2 0 0
+0 0 0 0
+0 0 0 0
+0 0 0 0
+```
+과 같은 상황으로 게임이 시작했다고 하자. 여기서 Illegal Action은 위로 올리는 행동이다. 그런데 에이전트가 이 행동을 선택했다면 게임을 바로 끝낸다. 이것이 시작할때 뿐만 아니라 Illegal Action이 가능한 상황이라면 언제든지 발생할 수 있는 것이다. 그래서 게임 진행 중간에 툭 죽어버리는 상황이 자주 발생하였다. 그러다가 나중에는 그런 행동을 회피하는 쪽으로 학습하였다.
+
+보상 정책은 다음과 같다.
+
+| 색  | 블록 합칠 때 | Illegal Action | Clear | 범위 |
+| -- | -- | -- | -- | -- |
+| 빨강 | × 0.0025| -5 | 0 | [-5, 5.12] |
+
+클리어 상황에 대해 대해서는 보상을 주지 않았다. 나중에 4096같은 숫자로 확장 가능성도 있기도 하고 스코어를 높이는 것이 곧 클리어일 수 밖에 없다는 생각이 들었다. 1024 두개가 생기면 바로 합쳤을 때 점수가 약 2만점이 나오는데 두개를 합치지 않고 2만점을 만드는 것이 너무 힘들다. 에이전트는 큰 수일수록 구석으로 몰아가는데 1024 두개를 합치지 않은 채로 2만점을 넘기는 것은 거의 불가능한 일이기 때문이다.
+
+전략은 거의 비슷하다. 한쪽 구석으로 큰 수를 몰아넣으면서 어쩔 수 없이 다른 수가 그 자리에 들어갔을 경우 큰 수 방향을 채우고 빼낸다. 그림으로보면 다음과 같다.
+
+![gym-game2048-30](../../assets/images/rl/gym_game2048/gym-game2048-30.png){: width="80%" height="80%" class="align-center"}
+
+왼쪽같은 상황이 나왔다면 게임을 진행하면서 오른쪽과 같이 큰 수 옆에는 합칠 것이 없고 구석은 블록을 합치거나, 빈 공간이 있는 것과 같이 왼쪽으로 움직여서 공간을 비울 여지가 존재하는 경우 옮겨서 큰 수를 위로 옮긴다.
+
+그리고 전체적인 전략은 다음과 같다.
+
+![gym-game2048-31](../../assets/images/rl/gym_game2048/gym-game2048-31.png){: width="80%" height="80%" class="align-center"}
+
+위와 같이 블록을 오름차순으로 구성하여 마지막에 합쳐서 게임을 끝내는 것이다. 위 그림을 기준으로 위로 올라갈수록, 오른쪽으로 갈 수록 숫자가 커진다.
+
+아래는 플레이 영상이다.
+
+* Youtube: https://youtu.be/2MOhczUvmhA
+* wandb : https://wandb.ai/iamhelpingstar/game2048?workspace=user-
+
+wandb 에서는 media 탭을 보면 에피소드 진행별로 환경의 영상을 볼 수 있다.
+
+학습 진행을 위한 하이퍼 파라미터는 다음과 같다.
+
+| Name                | ppo_cnn    |
+| ------------------- | ---------- |
+| anneal_lr           | TRUE       |
+| batch_size          | 2048       |
+| clip_coef           | 0.2        |
+| clip_vloss          | TRUE       |
+| cnn_channel         | 128        |
+| cuda                | TRUE       |
+| ent_coef            | 0.01       |
+| gae_lambda          | 0.95       |
+| gamma               | 0.99       |
+| goal                | 2048       |
+| learning_rate       | 0.00025    |
+| linear_size         | 512        |
+| max_grad_norm       | 0.5        |
+| minibatch_size      | 512        |
+| norm_adv            | TRUE       |
+| num_envs            | 16         |
+| num_minibatches     | 4          |
+| num_steps           | 128        |
+| seed                | 1          |
+| torch_deterministic | TRUE       |
+| total_timesteps     | 1000000000 |
+| track               | TRUE       |
+| update_epochs       | 4          |
+| vf_coef             | 0.5        |
+| illegal_terminate   | \-5        |
+
+# 16. 추가 연구
+
+큰 틀에서 이 프로젝트를 마무리 할 생각이다. 아쉬운 점은 몇 개 있다.
+
+1. 성공률 100%가 가능한지 여부
+2. 다른 알고리즘과 비교
+3. 다른 시드에서 재현 여부
+4. 알고리즘 파라미터에 대한 이해
+
+자원이 한정적이라 지금은 못하지만 추후에 계속 학습시켜보면서 성공률을 어느정도까지 끌어올릴 수 있는지, 다른 알고리즘과 비교, 다른 시드에서 재현 여부를 실험해볼 생각이다. 아마 시간이 남으면 실험 후에 이 페이지에 더 업로드할 것 같다.
