@@ -2,7 +2,7 @@
 layout: single
 title: "Woodoku/BlockPuzzle 게임 강화학습 도전기"
 date: 2023-06-08 17:15:13
-lastmod : 2023-06-11 23:38:00
+lastmod : 2023-06-13 13:51:24
 categories: RL
 tag: [RL, PPO, Woodoku, BLockPuzzle]
 toc: true
@@ -72,7 +72,7 @@ Woodoku 게임을 정복하기 위해 [**Woodoku 강화학습 환경**](https://
 PPO, 4개의 병렬 환경, total_timestep이 20,000,000이다.
 
 
-이전 2048과 다르게 학습이 엄청 오래 걸렸다. 런타임은 22시간이다. 블록 하나를 합칠때 최소 2점인 것을 생각하면 매우 느리게 올라가는 것 같다. 243개의 행동중에 Illegal Action의 비중이 엄청나게 높다보니 그런 것이라고 추측하고 있다. 
+이전 2048과 다르게 학습이 엄청 오래 걸렸다. 런타임은 22시간이다. 블록 하나를 합칠때 최소 2점인 것을 생각하면 매우 느리게 올라가는 것 같다. 243개의 행동중에 Illegal Action의 비중이 엄청나게 높다보니 그런 것이라고 추측하고 있다.
 
 y축을 조정하면 다음과 같다.
 
@@ -88,7 +88,7 @@ y축을 조정하면 다음과 같다.
 
 <p style="text-align: center; font-style: italic;"> (Exponential Moving Average: 0.99) </p>
 
-위에있는 초록색 그래프가 위에서 제시한 그래프이다. 초록색 끝에서 weight를 이어받아서 빨간색으로 계속 학습시킨 것이다. 학습에 55시간이 들었다. 더 학습을 진행할까 하다가 문득 그생각이 들었다. 
+위에있는 초록색 그래프가 위에서 제시한 그래프이다. 초록색 끝에서 weight를 이어받아서 빨간색으로 계속 학습시킨 것이다. 학습에 55시간이 들었다. 더 학습을 진행할까 하다가 문득 그생각이 들었다.
 
 이 방법이 맞을까? 옳은 학습 방법일까? 다른 방법은 더 빠를 수도 있지 않을까? 하고 말이다. 그래서 신경망 weight는 일단 저장후 다른 파라미터를 적용하여 실험해보기로 했다.
 
@@ -113,4 +113,53 @@ y축을 조정하면 다음과 같다.
 4. clip_coef : 0.3
 5. kernel-size : 5
 
-다른 것은 건드리지 않고 위 사항만 바꿔보고 실험을 진행했다.
+다른 것은 건드리지 않고 위 사항만 바꿔보고 10M
+ step 만큼 실험을 진행했다. 결과는 다음과 같다.
+
+(2023-06-13 13:51:19)
+
+![gym-woodoku-6](../../assets/images/rl/gym_woodoku/gym-woodoku-6.png){: width="80%" height="80%" class="align-center"}
+
+<p style="text-align: center; font-style: italic;"> (Exponential Moving Average: 0.99) </p>
+
+1. <span style="color: #87cebf">**기존**</span>
+2. <span style="color: #5387dd">**kernel size = 5**</span>
+3. <span style="color: #7d54b2">**clip coef = 0.1**</span>
+4. <span style="color: #e87b9f">**clip coef = 0.3**</span>
+5. <span style="color: #da4c4c">**learning rate = 0.0005**</span>
+6. <span style="color: #479a5f">**learning rate = 0.001**</span>
+
+색이 잘 안보일 수도 있어 0.999로 smoothing 했을 때 최종 결과가 좋은 순으로 위에서부터 적었다.
+
+하이퍼 파라미터 조정으로 인한 눈에 띄는 변화는 없었다. 커널 사이즈 변화시에 엎치락 뒷치락 하는 정도는 있으나 큰 변화는 없다.
+
+또한 어느정도 속도를 높이고자 하는 욕심에 learning-rate를 높여보았는데 이 부분은 실패하였다. 강화학습이 역시 다른 학습에 비해 learning-rate에 대해 민감한 것 같다.
+
+그런데 특이한 점은 에피소드 길이에 있었다.
+
+![gym-woodoku-7](../../assets/images/rl/gym_woodoku/gym-woodoku-7.png){: width="80%" height="80%" class="align-center"}
+
+<p style="text-align: center; font-style: italic;"> (Exponential Moving Average: 0.99) </p>
+
+<span style="color: #5387dd">**커널 사이즈를 크게 한 것**</span>이 return은 적은데도 불구하고 에피소드의 길이는 전반적으로 긴 경향을 보였다. 이에 대해 몇가지 추론을 해봤다.
+
+1. 에피소드 길이가 더 짧은데도 불구하고 리턴이 비슷하다면 커널 사이즈가 작은 것이 줄을 더 잘 완성시키는 것이다.
+2. 파란색이 확실하게 더 길이가 더 긴데도 불구하고 리턴은 비슷하거나 혹은 더 작은 이유가 무엇일까
+
+
+확실한 경향은 알 수가 없었다.
+
+실험은 한번만 진행되었기 때문에 실험이 더 진행됐을 때 추세가 다를 수도 있다. 그래서 더 실험을 진행해보기로 했다.
+
+이전 실험결과에서 결과가 좋았던 3개(clip coef 0.3, 기존, kernel 5)를 그대로 하거나 조합하여 더욱 실험을 진행해보았다.
+
+이번에는 에피소드 길이를 10M에서 20M으로 늘렸다.
+
+실험은 다음과 같다.
+
+1. 기존
+2. kernel size 5
+3. clip coef 0.1
+4. kernel size 5 & clip coef = 0.1
+
+1, 2, 3은 그대로지만 20M까지 진행하여 10M에서의 우열이 계속 적용되는지 지켜보려고 한다.
