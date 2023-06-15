@@ -2,7 +2,7 @@
 layout: single
 title: "2048 게임 강화학습 도전기"
 date: 2023-05-19 22:18:12
-lastmod : 2023-06-07 11:15:40
+lastmod : 2023-06-15 21:53:02
 categories: RL
 tag: [RL, PPO, '2048']
 toc: true
@@ -313,6 +313,8 @@ PPO의 보상추정이랑, 행동 선택 이유를 추적하는 방법을 공부
 <p style="text-align: center; font-style: italic;"> Log Scale, No discounted </p>
 
 빨간 부분이 episodic_return 그래프에서 400K 쯤에 밑에서 뚝 꺾이는 부분이다. 이전은 학습이 잘 되는가 싶더니 저 부분 이후로 return이 급락하였다. 그래프가 일자인 이유는 에피소드가 끝날 때마다 업데이트 하게 되는데 에피소드가 끝나지 않고 한참 있다 끝나게 되어서 step 마다 값 갱신이 되지 않은 것이다.
+
+*(2023-06-15 추가) 그래프가 일자인 이유는 위의 이유도 있지만 큰 이유는 wandb의 한 metric에 100K 이상의 스칼라를 누적했기 때문이다. 관련하여 [**wandb 사용시 주의할 점**](https://helpingstar.github.io/wandb/wandb_tip/#1-%ED%95%9C-%EB%A9%94%ED%8A%B8%EB%A6%AD%EC%9D%98-%EC%8A%A4%EC%B9%BC%EB%9D%BC%EB%8A%94-100k-%EC%9D%B4%ED%95%98%EC%97%AC%EC%95%BC-%ED%95%9C%EB%8B%A4)에 서술하였다*
 
 그리고 이후 그래프를 보면 알 수 있다시피 학습 자체가 완전히 망가졌다
 
