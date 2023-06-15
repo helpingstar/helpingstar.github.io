@@ -96,6 +96,8 @@ y축을 조정하면 다음과 같다.
 
 # 5. Exploration
 
+**5., 5.5에 진행하는 실험은 추후 성능을 파악하기 위해 아주 극초반만 실험해본 것이다. 축의 크기에 유의해야 한다.**
+
 하이퍼파라미터를 바꿔보면서 실험을 진행했는데 변경 내용은 다음과 같다.
 
 
@@ -163,3 +165,80 @@ y축을 조정하면 다음과 같다.
 4. kernel size 5 & clip coef = 0.1
 
 1, 2, 3은 그대로지만 20M까지 진행하여 10M에서의 우열이 계속 적용되는지 지켜보려고 한다.
+
+(2023-06-15 21:15:19)
+
+# 5.5 추가 실험
+
+갑자기 그런 생각이 들었다. 학습률을 높이는 것은 오히려 학습의 성능을 떨어뜨렸다. 그럼 학습률을 낮추면 어떻게 될까?
+
+learning rate를 0.0001로 고정하고 실험을 진행하였다.
+
+실험 내용은 다음과 같이 4개를 추가하였다.
+
+|   | clip coef | kernel size |
+|---|-----------|-------------|
+| 1 | 0.1       | 3           |
+| 2 | 0.1       | 5           |
+| 3 | 0.2       | 3           |
+| 4 | 0.2       | 5           |
+
+그래프를 보자 실험결과가 쌓이니 부자가 된 기분이다.
+
+![gym-woodoku-8](../../assets/images/rl/gym_woodoku/gym-woodoku-8.png){: width="80%" height="80%" class="align-center"}
+
+<p style="text-align: center; font-style: italic;"> (Exponential Moving Average: 0.99) </p>
+
+너무 많은 것 같으니 가운데 분홍 실선 그래프 위만 추려서 남겨보자
+
+![gym-woodoku-9](../../assets/images/rl/gym_woodoku/gym-woodoku-9.png){: width="80%" height="80%" class="align-center"}
+
+<p style="text-align: center; font-style: italic;"> (Exponential Moving Average: 0.995) </p>
+
+좀더 보기 쉽게 하기 위해 Smoothing을 0.995까지 했다. 색상 구분을 쉽게 하기 위해 위의 그래프와 색이 다르다.
+
+끝점이 위에 있는 것 기준으로 적어보면 다음과 같다.
+
+| 순위 | 색 | clip coef | learning rate | kernel size |
+|---|-------|-----------|---------------|-------------|
+| 1 | <span style="color: #ff0000">**■**</span> | 0.1 | 0.0001  | 3 |
+| 2 | <span style="color: #7d54b2">**■**</span> | 0.1 | 0.00025 | 3 |
+| 3 | <span style="color: #b71ef3">**■**</span> | 0.2 | 0.00025 | 5 |
+| 4 | <span style="color: #87cebf">**■**</span> | 0.2 | 0.00025 | 3 |
+| 5 | <span style="color: #e57439">**■**</span> | 0.1 | 0.0001  | 5 |
+
+실험을 통해 알 수 있는 부분이 몇 가지 있다.
+
+<span style="color: #ff0000">**빨간색**</span>이 눈에 띄게 좋은 성능을 보인다. 초반에 성능이 안좋다가 갑자기 역전한 것이 매우 특이하다.
+
+그리고 clip coef가 0.1이면 learning rate가 0.0001인 것이 성능이 좋았고 clip coef가 0.2이면 learning rate가 0.00025인 것이 성능이 좋았다.
+
+**clip coef와 learning rate가 어느정도 비례해서 움직이는 것이 좋은 것 같다.**
+
+그리고 새로운 실험(learning rate: 0.0001) 안에서 특징을 발견할 수 있었는데 그래프를 보자
+
+![gym-woodoku-10](../../assets/images/rl/gym_woodoku/gym-woodoku-10.png){: width="80%" height="80%" class="align-center"}
+
+<p style="text-align: center; font-style: italic;"> (Exponential Moving Average: 0.995) </p>
+
+| 순위 | 색 | clip coef | learning rate | kernel size |
+|---|-------|-----------|---------------|-------------|
+| 1 | <span style="color: #ff0000">**■**</span> | 0.1 | 0.0001 | 3 |
+| 2 | <span style="color: #e57439">**■**</span> | 0.1 | 0.0001 | 5 |
+| 3 | <span style="color: #e87b9f">**■**</span> | 0.2 | 0.0001 | 3 |
+| 4 | <span style="color: #7d54b2">**■**</span> | 0.2 | 0.0001 | 5 |
+
+
+특징이 보이는가? learning rate가 0.0001일 때 clip coef가 같다면 **kernel size가 작은 것**이 더 결과가 좋았다.
+
+learning rate가 작으면 어떻게 될까 해서 혹시나 해서 해본 실험이다. 얻어간 것이 많은 것 같다. 이전에
+
+1. default (kernel size: 3, clip coef : 0.2)
+2. kernel size 5
+3. clip coef 0.1
+4. kernel size 5 & clip coef = 0.1
+
+이 네개로 20M step으로 실험해보겠다 했는데 결과가 좋은 실험이 몇 개 있어 위 네개에 추가로 두 개를 더 실험해볼 계획이다.
+
+1. learning rate 0.0001 & kernel size 5 & clip coef 0.1
+2. learning rate 0.0001 & kernel size 3 & clip coef 0.1
