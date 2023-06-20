@@ -2,7 +2,7 @@
 layout: single
 title: "단단한 강화학습 코드 정리, chap10"
 date: 2023-05-14 02:09:39
-lastmod : 2023-05-16 16:43:16
+lastmod : 2023-06-21 03:32:28
 categories: RL
 tag: [Sutton, 단단한 강화학습, RL]
 toc: true
@@ -130,7 +130,7 @@ def tiles(iht_or_size, num_tilings, floats, ints=None, read_only=False):
 
 # mountain_car
 
-![mountain_car](../../assets/images/rl/mountain_car.gif){: width="80%" height="80%" class="align-center"}
+![mountain_car](../../assets/images/rl/mountain_car.gif){: width="60%" height="60%" class="align-center"}
 
 ```python
 # all possible actions
@@ -291,7 +291,7 @@ def get_action(position, velocity, value_function):
 
 # semi_gradient_n_step_sarsa
 
-// TODO Algorithm Image
+![10_2_Episodic_semi_gradient_n-step_Sarsa](../../assets/images/rl/10_2_Episodic_semi_gradient_n-step_Sarsa.png){: width="80%" height="80%" class="align-center"}
 
 ```python
 # semi-gradient n-step Sarsa
@@ -406,6 +406,9 @@ $$
 * **(63)** : 에피소드 종료까지 소요된 시간을 반환한다.
 
 # figure_10_2
+
+![fcode_figure_10_2](../../assets/images/rl/fcode_figure_10_2.png){: width="80%" height="80%" class="align-center"}
+
 ```python
 # Figure 10.2, semi-gradient Sarsa with different alphas
 def figure_10_2():
