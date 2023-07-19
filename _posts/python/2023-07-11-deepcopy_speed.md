@@ -2,7 +2,7 @@
 layout: single
 title: "Python copy.deepcopy vs list[:]"
 date: 2023-07-11 09:52:27
-lastmod : 2023-07-11 09:52:27
+lastmod : 2023-07-19 11:40:21
 categories: python
 tag: [python, deepcopy]
 use_math: true
@@ -21,18 +21,18 @@ length = 10
 source = [i for i in range(length)]
 
 %timeit dest1 = copy.deepcopy(source)
->>> 5.62 µs ± 84.8 ns per loop
+# 5.62 µs ± 84.8 ns per loop
 %timeit dest2 = source[:]
->>> 286 ns ± 140 ns per loop
+# 286 ns ± 140 ns per loop
 
 # 길이 100의 1차원 배열
 length = 100
 source = [i for i in range(length)]
 
 %timeit dest3 = copy.deepcopy(source)
->>> 45.1 µs ± 1.63 µs per loop
+# 45.1 µs ± 1.63 µs per loop
 %timeit dest4 = source[:]
->>> 319 ns ± 7.08 ns per loop
+# 319 ns ± 7.08 ns per loop
 
 # 길이 10000의 1차원 배열
 length = 10000
@@ -73,13 +73,12 @@ for i in range(L):
 
 # 동일함 확인
 test2 == test3
->>> True
+# True
 
 # copy.deepcopy
 %%timeit
 test2 = copy.deepcopy(test)
-
->>> 432 ms ± 11.7 ms per loop
+# 432 ms ± 11.7 ms per loop
 
 # iteration + list[:]
 %%timeit
@@ -87,8 +86,7 @@ test2 = copy.deepcopy(test)
 test3 = []
 for i in range(L):
     test3.append(test[i][:])
-
->>> 11.9 ms ± 1.24 ms per loop
+# 11.9 ms ± 1.24 ms per loop
 ```
 
 더 이상 실험은 안하지만 1000 X 1000 배열에 대해 40배 정도 속도 차이가 났다. test3에 대한 코드가 그리 깔끔하지 않은데도 말이다.
