@@ -2,7 +2,7 @@
 layout: single
 title: "gym Wrappers 정리"
 date: 2023-01-08 13:58:15
-lastmod : 2023-05-31 11:24:12
+lastmod : 2023-08-19 20:21:46
 categories: RL
 tag: [gymnaisum, gym, wrappers, RL]
 toc: true
@@ -37,10 +37,33 @@ env = gym.wrappers.YourWrapper(env, param1=param1, param2=param2, ...)
 # RecordVideo
 
 ```python
-class gymnasium.wrappers.RecordVideo(env, video_folder, episode_trigger, step_trigger, video_length, disable_logger = False)
+class gymnasium.wrappers.RecordVideo(env: Env,
+                                video_folder,
+                                episode_trigger = None,
+                                step_trigger = None,
+                                video_length = 0,
+                                name_prefix = 'rl-video',
+                                disable_logger = False)
 ```
 
 에피소드를 저장하는 wrapper이다. 결과 영상을 출력할 때나 디버그할 때 유용하다.
+
+**Parameter**
+
+* `env` : Wrappers를 적용할 환경
+* `video_folder` : 영상을 저장할 폴더
+* `episode_trigger` : 영상을 녹화할 조건이다. 200개의 episode마다 저장하고 싶다면 아래와 같이 하면 된다
+  * `episode_trigger=lambda x: x % 200 == 0`
+* `step_trigger` : 조건에 맞는 step 부터 에피소드가 끝날 때까지 녹화한다.
+  * 예를 들어 어떤 에피소드가 384~712 스텝동안 진행되었다면 `step_trigger=lambda x: x % 200 == 0`일때 400~712 스텝이 녹화된다.
+* `name_prefix` : 파일의 접두사이다. 귀찮아도 해주는게 편하다.
+* `disable_logger` : `moviepy`의 logger의 출력여부를 결정한다. `False`로 하여 출력할 경우 아래와 같은 문구가 출력되는데 영상이 길거나 용량이 클 경우 진행상황을 알려준다. 보통 안하는 게 낫다.
+```
+Moviepy - Building video <PATH>
+Moviepy - Writing video <PATH>
+Moviepy - Done !
+Moviepy - video ready <PATH>
+```
 
 **주의**
 
@@ -73,19 +96,30 @@ if not (self.terminated or self.truncated):
 
 그러므로 `AutoResetWrapper`을 적용하기 전에 `RecordVideo`를 써야한다. `AutoResetWrapper`는 에피소드의 종료정보를 `info`를 통해 알려주기 때문에 `RecordVideo`에서는 그것에 대해 알 수가 없다.
 
-**Parameter**
-* `env` : Wrappers를 적용할 환경
-* `video_folder` : 영상을 저장할 폴더
-* `episode_trigger` : 영상을 녹화할 조건이다. 200개의 episode마다 저장하고 싶다면 아래와 같이 하면 된다
-  * `episode_trigger=lambda x: x % 200 == 0`
-* `name_prefix` : 파일의 접두사이다. 귀찮아도 해주는게 편하다.
-* `disable_logger` : `moviepy`의 logger의 출력여부를 결정한다. `False`로 하여 출력할 경우 아래와 같은 문구가 출력되는데 영상이 길거나 용량이 클 경우 진행상황을 알려준다. 보통 안하는 게 낫다.
+## RecordVideoV0
+
+여러 버그 수정과 기능 추가를 위하여 experimental에 새로운 RecordVideoV0 wrapper이 있다.
+
+```python
+class gymnasium.experimental.wrappers.RecordVideoV0(env,
+                                    video_folder,
+                                    episode_trigger = None,
+                                    step_trigger = None,
+                                    video_length = 0,
+                                    name_prefix = 'rl-video',
+                                    fps = None,
+                                    disable_logger = False)
 ```
-Moviepy - Building video <PATH>
-Moviepy - Writing video <PATH>
-Moviepy - Done !
-Moviepy - video ready <PATH>
-```
+
+**추가된 Parameter**
+
+* `fps` : 녹화된 영상의 fps를 설정한다. 설정하지 않을 경우 환경의 기본 metadata에 저장된 fps를 사용한다. 환경에 fps가 저장되어 있지 않을 경우 fps는 30이 적용된다.
+
+확인한 차이는 다음과 같다.
+1. 녹화시에 동영상의 meta파일이 저장되지 않는다.
+   * 그냥 RecordVideo는 영상과 함께 메타 정보가 저장된다.
+2. 전 에피소드의 마지막 프레임이 현재 에피소드에 같이 녹화되는 버그를 해결하였다.
+
 
 # AutoResetWrapper
 
