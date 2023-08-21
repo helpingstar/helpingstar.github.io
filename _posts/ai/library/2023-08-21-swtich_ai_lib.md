@@ -26,15 +26,16 @@ test1 = layer_init1(nn.Linear(3, 4))
 ```
 
 ```python
->>> test1.weight
-Parameter containing:
-tensor([[0.4732, 0.6177, 0.9000],
-        [0.8306, 0.7678, 0.4814],
-        [0.7688, 0.3544, 0.8154],
-        [0.2101, 0.8717, 0.7821]], requires_grad=True)
->>> test1.bias
-Parameter containing:
-tensor([-1., -1., -1., -1.], requires_grad=True)
+>>> test1._parameters
+OrderedDict([('weight',
+              Parameter containing:
+              tensor([[0.4316, 0.7005, 0.3997],
+                      [0.0089, 0.4746, 0.2912],
+                      [0.1438, 0.6648, 0.1226],
+                      [0.4291, 0.0352, 0.6135]], requires_grad=True)),
+             ('bias',
+              Parameter containing:
+              tensor([-1., -1., -1., -1.], requires_grad=True))])
 ```
 
 ### Tensorflow
