@@ -1,0 +1,65 @@
+---
+layout: single
+title: "tensorflow ↔ pytorch"
+date: 2023-08-21 17:24:57
+lastmod : 2023-08-21 17:24:57
+categories: AI
+tag: [Pytorch, Tensorflow]
+toc: true
+toc_sticky: true
+---
+
+## Weight initialization
+
+### Pytorch
+
+```python
+import torch
+import torch.nn as nn
+
+def layer_init(layer, w_a=0, w_b=1, bias_const=-1):
+    torch.nn.init.uniform_(layer.weight, a=w_a, b=w_b)
+    torch.nn.init.constant_(layer.bias, bias_const)
+    return layer
+
+test1 = layer_init1(nn.Linear(3, 4))
+```
+
+```python
+>>> test1.weight
+Parameter containing:
+tensor([[0.4732, 0.6177, 0.9000],
+        [0.8306, 0.7678, 0.4814],
+        [0.7688, 0.3544, 0.8154],
+        [0.2101, 0.8717, 0.7821]], requires_grad=True)
+>>> test1.bias
+Parameter containing:
+tensor([-1., -1., -1., -1.], requires_grad=True)
+```
+
+### Tensorflow
+
+```python
+import tensorflow as tf
+from tensorflow.keras.initializers import RandomUniform, Constant
+
+test2 = tf.keras.models.Sequential()
+test2.add(tf.keras.Input(shape=(3,)))
+test2.add(
+    tf.keras.layers.Dense(
+        4,
+        activation="relu",
+        kernel_initializer=RandomUniform(0, 1),
+        bias_initializer=Constant(-1),
+    )
+)
+```
+
+```python
+>>> test2.weights
+[<tf.Variable 'dense/kernel:0' shape=(3, 4) dtype=float32, numpy=
+ array([[0.792158  , 0.76683366, 0.71274936, 0.3051616 ],
+        [0.22424495, 0.65580904, 0.06704581, 0.2954831 ],
+        [0.7401217 , 0.24613738, 0.8886342 , 0.7413529 ]], dtype=float32)>,
+ <tf.Variable 'dense/bias:0' shape=(4,) dtype=float32, numpy=array([-1., -1., -1., -1.], dtype=float32)>]
+```
