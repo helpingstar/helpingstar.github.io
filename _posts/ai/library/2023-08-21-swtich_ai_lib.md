@@ -9,6 +9,94 @@ toc: true
 toc_sticky: true
 ---
 
+## Tensor
+
+### 1
+
+#### Pytorch
+
+```python
+test1_pth = torch.tensor([[1., 2.], [3., 4.]])
+```
+
+```python
+>>> test1_pth
+tensor([[1., 2.],
+        [3., 4.]])
+```
+
+#### Tensorflow
+
+```python
+test1_tf = tf.constant([[1., 2.], [3., 4.]])
+```
+
+```python
+>>> test1_tf
+tf.Tensor([2. 2.], shape=(2,), dtype=float32)
+<tf.Tensor: shape=(2, 2), dtype=float32, numpy=
+array([[1., 2.],
+       [3., 4.]], dtype=float32)>
+```
+
+### 2
+
+#### Pytorch
+
+```python
+test2_pth = torch.tensor([[1., 2.], [3., 4.]])
+test2_pth[0][0] = 9.
+```
+
+```python
+>>> test2_pth
+tensor([[9., 2.],
+        [3., 4.]])
+```
+
+#### Tensorflow
+
+```python
+test2_tf = tf.constant([[1., 2.], [3., 4.]])
+test2_tf = tf.Variable(test2_tf)
+test2_tf[0, 0].assign(9.)
+```
+
+```python
+>>> test2_tf
+<tf.Variable 'Variable:0' shape=(2, 2) dtype=float32, numpy=
+array([[9., 2.],
+       [3., 4.]], dtype=float32)>
+```
+
+### 3
+
+#### Pytorch
+
+```python
+test3_pth = torch.tensor([[1.0, 2.0], [3.0, 4.0]], requires_grad=True)
+```
+
+```python
+>>> test3_pth
+tensor([[1., 2.],
+        [3., 4.]], requires_grad=True)
+```
+
+#### Tensorflow
+
+```python
+test3_tf = tf.constant([[1.0, 2.0], [3.0, 4.0]], dtype=tf.float32)
+test3_tf = tf.Variable(test3_tf, trainable=True)
+```
+
+```python
+>>> test3_tf
+<tf.Variable 'Variable:0' shape=(2, 2) dtype=float32, numpy=
+array([[1., 2.],
+       [3., 4.]], dtype=float32)>
+```
+
 ## Weight initialization
 
 ### Pytorch
@@ -67,7 +155,9 @@ test2.add(
 
 ## Gradient
 
-### Pytorch
+### 1
+
+#### Pytorch
 
 ```python
 x = torch.tensor(0.0, requires_grad=True)
@@ -90,7 +180,7 @@ print(grad_of_y_wrt_x)
 # tensor(2.)
 ```
 
-### Tensorflow
+#### Tensorflow
 
 ```python
 import tensorflow as tf
@@ -103,3 +193,75 @@ grad_of_y_wrt_x = tape.gradient(y, x)
 print(grad_of_y_wrt_x)
 # tf.Tensor(2.0, shape=(), dtype=float32)
 ```
+
+### 2
+
+#### Pytorch
+
+```python
+W = torch.tensor([[1., 2.], [3., 4.]], requires_grad=True)
+b = torch.tensor([[2., 1.], [1., 2.]], requires_grad=True)
+x = torch.tensor([[4., 5.], [6., 7.]], requires_grad=True)
+
+y = x.matmul(W) + b
+
+y.backward(torch.ones_like(y))
+```
+
+```python
+>>> b.grad, W.grad
+(tensor([[1., 1.],
+         [1., 1.]]),
+ tensor([[10., 10.],
+         [12., 12.]]))
+```
+
+#### Tensorflow
+
+```python
+W = tf.Variable(tf.constant([[1., 2.], [3., 4.]]))
+b = tf.Variable(tf.constant([[2., 1.], [1., 2.]]))
+x = tf.Variable(tf.constant([[4., 5.], [6., 7.]]))
+
+with tf.GradientTape() as tape:
+    y = tf.matmul(x, W) + b
+
+grad_of_y_wrt_W_and_b = tape.gradient(y, [b, W])
+```
+
+```python
+>>> grad_of_y_wrt_W_and_b
+[<tf.Tensor: shape=(2, 2), dtype=float32, numpy=
+ array([[1., 1.],
+        [1., 1.]], dtype=float32)>,
+ <tf.Tensor: shape=(2, 2), dtype=float32, numpy=
+ array([[10., 10.],
+        [12., 12.]], dtype=float32)>]x
+```
+
+
+<!--
+###
+
+#### Pytorch
+
+```python
+
+```
+
+```python
+>>>
+
+```
+
+#### Tensorflow
+
+```python
+
+```
+
+```python
+>>>
+
+```
+ -->
