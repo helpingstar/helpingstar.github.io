@@ -2,7 +2,7 @@
 layout: single
 title: "tensorflow ↔ pytorch"
 date: 2023-08-21 17:24:57
-lastmod : 2023-08-21 17:24:57
+lastmod : 2023-08-22 17:04:15
 categories: AI
 tag: [Pytorch, Tensorflow]
 toc: true
@@ -63,4 +63,43 @@ test2.add(
         [0.22424495, 0.65580904, 0.06704581, 0.2954831 ],
         [0.7401217 , 0.24613738, 0.8886342 , 0.7413529 ]], dtype=float32)>,
  <tf.Variable 'dense/bias:0' shape=(4,) dtype=float32, numpy=array([-1., -1., -1., -1.], dtype=float32)>]
+```
+
+## Gradient
+
+### Pytorch
+
+```python
+x = torch.tensor(0.0, requires_grad=True)
+y = 2 * x + 3
+
+y.backward()
+grad_of_y_wrt_x = x.grad
+
+print(grad_of_y_wrt_x)
+# tensor(2.)
+```
+
+```python
+x = torch.tensor(0., requires_grad=True)
+
+y = 2 * x + 3
+grad_of_y_wrt_x = torch.autograd.grad(y, x)[0]
+
+print(grad_of_y_wrt_x)
+# tensor(2.)
+```
+
+### Tensorflow
+
+```python
+import tensorflow as tf
+
+x = tf.Variable(0.)
+with tf.GradientTape() as tape:
+    y = 2 * x + 3
+grad_of_y_wrt_x = tape.gradient(y, x)
+
+print(grad_of_y_wrt_x)
+# tf.Tensor(2.0, shape=(), dtype=float32)
 ```
