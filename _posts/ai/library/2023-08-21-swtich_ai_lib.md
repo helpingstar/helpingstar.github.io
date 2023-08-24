@@ -239,6 +239,108 @@ grad_of_y_wrt_W_and_b = tape.gradient(y, [b, W])
         [12., 12.]], dtype=float32)>]x
 ```
 
+## Model
+
+### 1
+
+#### Pytorch
+
+```python
+class QNetwork(nn.Module):
+    def __init__(self, env):
+        super().__init__()
+        self.network = nn.Sequential(
+            nn.Linear(np.array(env.single_observation_space.shape).prod(), 120),
+            nn.ReLU(),
+            nn.Linear(120, 84),
+            nn.ReLU(),
+            nn.Linear(84, env.single_action_space.n),
+        )
+
+    def forward(self, x):
+        return self.network(x)
+```
+
+#### Tensorflow
+
+```python
+import tensorflow as tf
+
+class QNetwork(tf.keras.Model):
+    def __init__(self, env):
+        super(QNetwork, self).__init__()
+        self.network = tf.keras.Sequential([
+            tf.keras.layers.InputLayer(input_shape=(np.array(env.single_observation_space.shape).prod(),)),
+            tf.keras.layers.Dense(120, activation='relu'),
+            tf.keras.layers.Dense(84, activation='relu'),
+            tf.keras.layers.Dense(env.single_action_space.n)
+        ])
+
+    def call(self, x):
+        return self.network(x)
+```
+
+```python
+def create_q_network(env):
+    input_shape = (np.array(env.single_observation_space.shape).prod(),)
+    inputs = tf.keras.layers.Input(shape=input_shape)
+    x = tf.keras.layers.Dense(120, activation='relu')(inputs)
+    x = tf.keras.layers.Dense(84, activation='relu')(x)
+    outputs = tf.keras.layers.Dense(env.single_action_space.n)(x)
+    model = tf.keras.Model(inputs=inputs, outputs=outputs)
+    return model
+```
+
+### 2
+
+#### Pytorch
+
+```python
+class Actor(nn.Module):
+    def __init__(self, env):
+        super().__init__()
+        self.fc1 = nn.Linear(np.array(env.single_observation_space.shape).prod(), 256)
+        self.fc2 = nn.Linear(256, 256)
+        self.fc_mu = nn.Linear(256, np.prod(env.single_action_space.shape))
+        # action rescaling
+        self.register_buffer(
+            "action_scale", torch.tensor((env.action_space.high - env.action_space.low) / 2.0, dtype=torch.float32)
+        )
+        self.register_buffer(
+            "action_bias", torch.tensor((env.action_space.high + env.action_space.low) / 2.0, dtype=torch.float32)
+        )
+
+    def forward(self, x):
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = torch.tanh(self.fc_mu(x))
+        return x * self.action_scale + self.action_bias
+```
+
+#### Tensorflow
+
+```python
+class Actor(tf.keras.Model):
+    def __init__(self, env):
+        super(Actor, self).__init__()
+        self.fc1 = tf.keras.layers.Dense(256, activation='relu')
+        self.fc2 = tf.keras.layers.Dense(256, activation='relu')
+        self.fc_mu = tf.keras.layers.Dense(np.prod(env.single_action_space.shape), activation='tanh')
+
+        # action rescaling
+        action_scale = (env.action_space.high - env.action_space.low) / 2.0
+        action_bias = (env.action_space.high + env.action_space.low) / 2.0
+        self.action_scale = self.add_weight(name='action_scale', shape=action_scale.shape, initializer=tf.constant_initializer(action_scale), trainable=False)
+        self.action_bias = self.add_weight(name='action_bias', shape=action_bias.shape, initializer=tf.constant_initializer(action_bias), trainable=False)
+
+    def call(self, x):
+        x = self.fc1(x)
+        x = self.fc2(x)
+        x = self.fc_mu(x)
+        actions = x * self.action_scale + self.action_bias
+        return actions
+
+```
 
 <!--
 ###
