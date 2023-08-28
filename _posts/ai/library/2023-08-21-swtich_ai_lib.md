@@ -2,7 +2,7 @@
 layout: single
 title: "tensorflow ↔ pytorch"
 date: 2023-08-21 17:24:57
-lastmod : 2023-08-22 17:04:15
+lastmod : 2023-08-29 02:42:39
 categories: AI
 tag: [Pytorch, Tensorflow]
 toc: true
@@ -13,8 +13,6 @@ toc_sticky: true
 
 ### 1
 
-#### Pytorch
-
 ```python
 test1_pth = torch.tensor([[1., 2.], [3., 4.]])
 ```
@@ -24,8 +22,6 @@ test1_pth = torch.tensor([[1., 2.], [3., 4.]])
 tensor([[1., 2.],
         [3., 4.]])
 ```
-
-#### Tensorflow
 
 ```python
 test1_tf = tf.constant([[1., 2.], [3., 4.]])
@@ -41,8 +37,6 @@ array([[1., 2.],
 
 ### 2
 
-#### Pytorch
-
 ```python
 test2_pth = torch.tensor([[1., 2.], [3., 4.]])
 test2_pth[0][0] = 9.
@@ -53,8 +47,6 @@ test2_pth[0][0] = 9.
 tensor([[9., 2.],
         [3., 4.]])
 ```
-
-#### Tensorflow
 
 ```python
 test2_tf = tf.constant([[1., 2.], [3., 4.]])
@@ -71,8 +63,6 @@ array([[9., 2.],
 
 ### 3
 
-#### Pytorch
-
 ```python
 test3_pth = torch.tensor([[1.0, 2.0], [3.0, 4.0]], requires_grad=True)
 ```
@@ -82,8 +72,6 @@ test3_pth = torch.tensor([[1.0, 2.0], [3.0, 4.0]], requires_grad=True)
 tensor([[1., 2.],
         [3., 4.]], requires_grad=True)
 ```
-
-#### Tensorflow
 
 ```python
 test3_tf = tf.constant([[1.0, 2.0], [3.0, 4.0]], dtype=tf.float32)
@@ -99,7 +87,7 @@ array([[1., 2.],
 
 ## Weight initialization
 
-### Pytorch
+### 1.
 
 ```python
 import torch
@@ -125,8 +113,6 @@ OrderedDict([('weight',
               Parameter containing:
               tensor([-1., -1., -1., -1.], requires_grad=True))])
 ```
-
-### Tensorflow
 
 ```python
 import tensorflow as tf
@@ -157,8 +143,6 @@ test2.add(
 
 ### 1
 
-#### Pytorch
-
 ```python
 x = torch.tensor(0.0, requires_grad=True)
 y = 2 * x + 3
@@ -180,8 +164,6 @@ print(grad_of_y_wrt_x)
 # tensor(2.)
 ```
 
-#### Tensorflow
-
 ```python
 import tensorflow as tf
 
@@ -195,8 +177,6 @@ print(grad_of_y_wrt_x)
 ```
 
 ### 2
-
-#### Pytorch
 
 ```python
 W = torch.tensor([[1., 2.], [3., 4.]], requires_grad=True)
@@ -215,8 +195,6 @@ y.backward(torch.ones_like(y))
  tensor([[10., 10.],
          [12., 12.]]))
 ```
-
-#### Tensorflow
 
 ```python
 W = tf.Variable(tf.constant([[1., 2.], [3., 4.]]))
@@ -239,13 +217,63 @@ grad_of_y_wrt_W_and_b = tape.gradient(y, [b, W])
         [12., 12.]], dtype=float32)>]x
 ```
 
+### 3
+
+```python
+import torch
+
+t_c = torch.tensor([4])
+t_u = torch.tensor([3])
+learning_rate = 0.01
+
+def model(t_u, w, b):
+    return w * t_u + b
+
+def loss_fn(t_p, t_c):
+    squared_diffs = (t_p - t_c)**2
+    return squared_diffs.mean()
+
+params = torch.tensor([2.0, 7.0], requires_grad=True)
+loss = loss_fn(model(t_u, *params), t_c)
+loss.backward()
+
+print(params.grad)
+# tensor([54., 18.])
+```
+
+```python
+import tensorflow as tf
+
+t_c = tf.constant([4.0])
+t_u = tf.constant([3.0])
+learning_rate = 0.01
+
+def model(t_u, w, b):
+    return w * t_u + b
+
+def loss_fn(t_p, t_c):
+    squared_diffs = tf.square(t_p - t_c)
+    return tf.reduce_mean(squared_diffs)
+
+params = tf.Variable([2.0, 7.0], dtype=tf.float32)
+
+with tf.GradientTape() as tape:
+    t_p = model(t_u, *params)
+    loss = loss_fn(t_p, t_c)
+
+grads = tape.gradient(loss, params)
+print(grads)
+# tf.Tensor([54. 18.], shape=(2,), dtype=float32)
+```
+
 ## Model
 
 ### 1
 
-#### Pytorch
-
 ```python
+import torch
+import torch.nn as nn
+
 class QNetwork(nn.Module):
     def __init__(self, env):
         super().__init__()
@@ -260,8 +288,6 @@ class QNetwork(nn.Module):
     def forward(self, x):
         return self.network(x)
 ```
-
-#### Tensorflow
 
 ```python
 import tensorflow as tf
@@ -281,6 +307,8 @@ class QNetwork(tf.keras.Model):
 ```
 
 ```python
+import tensorflow as tf
+
 def create_q_network(env):
     input_shape = (np.array(env.single_observation_space.shape).prod(),)
     inputs = tf.keras.layers.Input(shape=input_shape)
@@ -293,9 +321,10 @@ def create_q_network(env):
 
 ### 2
 
-#### Pytorch
-
 ```python
+import torch
+import torch.nn as nn
+
 class Actor(nn.Module):
     def __init__(self, env):
         super().__init__()
@@ -317,9 +346,9 @@ class Actor(nn.Module):
         return x * self.action_scale + self.action_bias
 ```
 
-#### Tensorflow
-
 ```python
+import tensorflow as tf
+
 class Actor(tf.keras.Model):
     def __init__(self, env):
         super(Actor, self).__init__()
@@ -342,10 +371,77 @@ class Actor(tf.keras.Model):
 
 ```
 
+## BackPropagation
+
+### 1
+
+```python
+import torch
+import torch.optim as optim
+
+learning_rate = 0.1
+
+x = torch.tensor([2.0])
+y = torch.tensor([3.0])
+
+params = torch.tensor([1.0, 3.0], requires_grad=True)
+
+optimizer = optim.SGD([params], lr=learning_rate)
+
+result = x * params[0] + params[1]
+
+loss = (result - y) ** 2
+
+print(f"loss: {loss}")
+
+optimizer.zero_grad()
+loss.backward()
+optimizer.step()
+
+print(f"params: {params}")
+print(f"params.grad: {params.grad}")
+```
+
+```text
+loss: tensor([4.], grad_fn=<PowBackward0>)
+params: tensor([0.2000, 2.6000], requires_grad=True)
+params.grad: tensor([8., 4.])
+```
+
+```python
+import tensorflow as tf
+
+learning_rate = 0.1
+
+x = tf.constant([2.0])
+y = tf.constant([3.0])
+
+params = tf.Variable([1.0, 3.0], trainable=True)
+
+optimizer = tf.optimizers.SGD(learning_rate)
+
+with tf.GradientTape() as tape:
+    result = x * params[0] + params[1]
+    loss = tf.reduce_mean((result - y) ** 2)
+
+print(f"loss: {loss.numpy()}")
+
+gradients = tape.gradient(loss, [params])
+optimizer.apply_gradients(zip(gradients, [params]))
+
+print(f"params: {params.numpy()}")
+print(f"params_grad: {gradients[0].numpy()}")
+```
+
+```text
+loss: 4.0
+params: [0.19999999 2.6       ]
+params_grad: [8. 4.]
+```
+
+
 <!--
 ###
-
-#### Pytorch
 
 ```python
 
@@ -355,8 +451,6 @@ class Actor(tf.keras.Model):
 >>>
 
 ```
-
-#### Tensorflow
 
 ```python
 
