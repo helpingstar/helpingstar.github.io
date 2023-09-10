@@ -475,6 +475,36 @@ tf.Tensor(
  [6]], shape=(3, 1), dtype=int32)
 ```
 
+## max
+
+### 1.
+
+```python
+import torch
+
+test = torch.tensor([[1, 2], [3, 4], [5, 6]])
+result = test.max(1)
+
+print(result[0])
+```
+
+```text
+tf.Tensor([2 4 6], shape=(3,), dtype=int32)
+```
+
+```python
+import tensorflow as tf
+
+test = tf.constant([[1, 2], [3, 4], [5, 6]])
+result = tf.reduce_max(test, 1)
+
+print(result)
+```
+
+```text
+tensor([2, 4, 6])
+```
+
 <!--
 ###
 
