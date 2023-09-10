@@ -2,7 +2,7 @@
 layout: single
 title: "tensorflow ↔ pytorch"
 date: 2023-08-21 17:24:57
-lastmod : 2023-08-29 02:42:39
+lastmod : 2023-09-10 18:14:00
 categories: AI
 tag: [Pytorch, Tensorflow]
 toc: true
@@ -439,6 +439,41 @@ params: [0.19999999 2.6       ]
 params_grad: [8. 4.]
 ```
 
+## gather
+
+### 1.
+
+
+```python
+import torch
+
+test = torch.tensor([[1, 2], [3, 4], [5, 6]])
+a = torch.tensor([[0], [0], [1]])
+
+print(test.gather(1, a))
+```
+
+```
+tensor([[1],
+        [3],
+        [6]])
+```
+
+```python
+import tensorflow as tf
+
+test = tf.constant([[1, 2], [3, 4], [5, 6]])
+a = tf.constant([[0], [0], [1]])
+
+print(tf.experimental.numpy.take_along_axis(test, a, axis=1))
+```
+
+```
+tf.Tensor(
+[[1]
+ [3]
+ [6]], shape=(3, 1), dtype=int32)
+```
 
 <!--
 ###
