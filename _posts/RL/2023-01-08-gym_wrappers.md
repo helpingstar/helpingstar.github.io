@@ -2,7 +2,7 @@
 layout: single
 title: "gym Wrappers 정리"
 date: 2023-01-08 13:58:15
-lastmod : 2023-08-19 20:21:46
+lastmod : 2023-09-11 14:22:00
 categories: RL
 tag: [gymnaisum, gym, wrappers, RL]
 toc: true
@@ -28,7 +28,7 @@ env = gym.wrappers.YourWrapper(env, param1=param1, param2=param2, ...)
 
 |순위|Wrappers|
 |-|-|
-|1|`Misc/Obs/Action/Reward Wrappers`|
+|1|`Misc / Obs / Action / Reward Wrappers`|
 |2|`TimeLimit`|
 |3|`RecordVideo`|
 |4|`AutoResetWrapper`|
@@ -129,7 +129,8 @@ class gymnasium.wrappers.AutoResetWrapper(env)
 
 `step` 호출시 `episode`가 끝날 때마다 자동으로 `reset`을 호출하는 Wrapper이다.
 
-`env.step`이 호출될 때  `terminated=True` 또는 `truncated=True` 이 반환될 경우 `env.reset()`이 자동으로 호출된다. 이때 `env.step()`의 반환은 `(new_obs, final_reward, final_terminated, final_truncated, info)`이 된다. 여기서 `info`는 다음 내용을 반환한다.
+`env.step`이 호출될 때  `terminated=True` 또는 `truncated=True` 이 반환될 경우 `env.reset()`이 자동으로 호출된다. 이때 `env.step()`의 반환은 `(new_obs, final_reward, final_terminated, final_truncated, info)`이 된다. 여기서 `info`는 다음 내용을 반환한다. 만약 에피소드가 종료되지 않았다면(즉, `terminated=False` and `truncated=False`) `info`는 빈 dict를 반환한다.
+
 ```
 info
  ├ 'final_observation' : final_observation
@@ -151,7 +152,7 @@ info
 class gymnasium.wrappers.RecordEpisodeStatistics(env, deque_size = 100)
 ```
 
-Record 라고 써있어서 영상을 저장하는 것인가 싶었지만 아니다. 에피소드가 끝날 때마다 각 에피소드의 누적 보상, 에피소드 길이, 에피소드 경과 시간 `info`에 반환한다
+에피소드가 끝날 때마다 각 에피소드의 누적 보상, 에피소드 길이, 에피소드 경과 시간을 `info`에 반환한다. 즉 `info`가 빈 dict가 아니라면 `terminated=True` or `truncated=True`이다.
 
 ```
 info
@@ -161,7 +162,7 @@ info
      └ 't' : <array of elapsed time since beginning of episode>
 ```
 
-`AutoResetWrapper`, `RecordEpisodeStatistics` 두 개를 모두 하면 다음과 같이 된다.
+`AutoResetWrapper`, `RecordEpisodeStatistics` 두 개를 모두 하면 다음과 같이 된다. 에피소드가 종료하지 않았을 경우 빈 dict를 반환한다.
 
 ```
 info
@@ -183,4 +184,4 @@ class gymnasium.wrappers.TimeLimit(env, max_episode_steps = None)
 
 `AutoResetWrapper`보다 먼저 적용해야 한다. `TimeLimit` 은 `truncated` 신호를 보내고 `AutoResetWrapper`는 신호를 처리하기 때문에 신호를 먼저 발생시켜야 한다.
 
-이 또한 우선순위에 주의해야 한다. `RecordEpisodeStatistics`보다 앞서 사용되어야 한다. 왜냐하면 `RecordEpisodeStatistics`는 `terminated==True or truncated == True`일때 episode의 통계를 보여주는데 `TimeLimit`이 더 뒤에 있으면 통계도 나오지 않은 `info` 상태로 `truncated` 신호가 발생되어 에피소드가 끝났는데도 불구하고 통계를 보여주지 않는다.
+이 또한 우선순위에 주의해야 한다. `RecordEpisodeStatistics`보다 앞서 사용되어야 한다. 왜냐하면 `RecordEpisodeStatistics`는 `terminated == True or truncated == True`일때 episode의 통계를 보여주는데 `TimeLimit`이 더 뒤에 있으면 통계도 나오지 않은 `info` 상태로 `truncated` 신호가 발생되어 에피소드가 끝났는데도 불구하고 통계를 보여주지 않는다.
