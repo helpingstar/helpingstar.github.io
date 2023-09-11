@@ -2,7 +2,7 @@
 layout: single
 title: "gym Wrappers 정리"
 date: 2023-01-08 13:58:15
-lastmod : 2023-09-11 14:22:00
+lastmod : 2023-09-11 15:30:00
 categories: RL
 tag: [gymnaisum, gym, wrappers, RL]
 toc: true
@@ -31,8 +31,8 @@ env = gym.wrappers.YourWrapper(env, param1=param1, param2=param2, ...)
 |1|`Misc / Obs / Action / Reward Wrappers`|
 |2|`TimeLimit`|
 |3|`RecordVideo`|
-|4|`AutoResetWrapper`|
-|5|`RecordEpisodeStatistics`|
+|4|`RecordEpisodeStatistics`|
+|5|`AutoResetWrapper`|
 
 # RecordVideo
 
@@ -120,6 +120,21 @@ class gymnasium.experimental.wrappers.RecordVideoV0(env,
    * 그냥 RecordVideo는 영상과 함께 메타 정보가 저장된다.
 2. 전 에피소드의 마지막 프레임이 현재 에피소드에 같이 녹화되는 버그를 해결하였다.
 
+# RecordEpisodeStatistics
+
+```python
+class gymnasium.wrappers.RecordEpisodeStatistics(env, deque_size = 100)
+```
+
+에피소드가 끝날 때마다 각 에피소드의 누적 보상, 에피소드 길이, 에피소드 경과 시간을 `info`에 반환한다. 즉 `info`가 빈 dict가 아니라면 `terminated=True` or `truncated=True`이다.
+
+```
+info
+ └ 'episode'
+     ├ 'r' : <array of cumulative reward>
+     ├ 'l' : <array of episode length>
+     └ 't' : <array of elapsed time since beginning of episode>
+```
 
 # AutoResetWrapper
 
@@ -146,33 +161,55 @@ info
         new_obs, _ = env.reset()
 ```
 
-# RecordEpisodeStatistics
+`AutoResetWrapper`, `RecordEpisodeStatistics` 두 개를 모두 적용하면 다음과 같이 된다. 에피소드가 종료하지 않았을 경우 빈 dict를 반환한다.
 
 ```python
-class gymnasium.wrappers.RecordEpisodeStatistics(env, deque_size = 100)
+env = gym.wrappers.RecordEpisodeStatistics(env)
+env = gym.wrappers.AutoResetWrapper(env)
 ```
-
-에피소드가 끝날 때마다 각 에피소드의 누적 보상, 에피소드 길이, 에피소드 경과 시간을 `info`에 반환한다. 즉 `info`가 빈 dict가 아니라면 `terminated=True` or `truncated=True`이다.
-
-```
-info
- └ 'episode'
-     ├ 'r' : <array of cumulative reward>
-     ├ 'l' : <array of episode length>
-     └ 't' : <array of elapsed time since beginning of episode>
-```
-
-`AutoResetWrapper`, `RecordEpisodeStatistics` 두 개를 모두 하면 다음과 같이 된다. 에피소드가 종료하지 않았을 경우 빈 dict를 반환한다.
 
 ```
 info
  ├ 'final_observation' : final_observation
- ├ 'final_info'
+ └ 'final_info'
+    ├ 'episode'
+    │   ├ 'r' : <array of cumulative reward>
+    │   ├ 'l' : <array of episode length>
+    │   └ 't' : <array of elapsed time since beginning of episode>
+    └ ...
+```
+
+원리를 생각해보면 다음과 같다.
+1. 에피소드 종료시 `RecordEpisodeStatistics`에 의해 `episode`키와 함께 에피소드 정보가 `info`에 등록된다.
+2. `AutoResetWrapper` 는 에피소드 종료시 마지막 순간에 있었던 `info`를 `final_info` 안에 넣는다.
+
+## RecordEpisodeStatistics와 AutoReset의 순서에 대해
+
+왜 `RecordEpisodeStatistics`를 `AutoReset` 보다 먼저 적용하라는 것일까. 만약 환경이 한 개라면 상관이 없다. 
+
+```python
+env = gym.wrappers.AutoResetWrapper(env)
+env = gym.wrappers.RecordEpisodeStatistics(env)
+```
+만약 위와 같이 `AutoReset`을 먼저 적용한다면 에피소드 종료시 `info`는 아래와 같을 것이다.
+
+```text
+info
+ ├ 'final_observation' : final_observation
+ ├ 'final_info' : final_info
  └ 'episode'
     ├ 'r' : <array of cumulative reward>
     ├ 'l' : <array of episode length>
     └ 't' : <array of elapsed time since beginning of episode>
 ```
+1. 에피소드가 종료되었다면 `AutoReset`이 먼저 마지막으로 반환된 observation, info를 `info` 에 넣는다.
+2. 그리고 `RecordEpisodeStatistics` 는 종료된 에피소드의 정보를 `info` 에 넣는다
+
+그러므로 위 결과는 이치에 맞다.
+
+**하지만 환경을 Vectorize 하면 어떻게 될까**
+
+환경을 Vectorize 한다는 것은 같은 환경을 복사하여 각각의 독립된 환경을 병렬로 처리하는 것을 의미한다. 환경을 Vectorize 할 경우 이는 각각의 환경이 맨 마지막에 `AutoReset`이 적용된 것 처럼 기능한다. 그러니 이런 경우와 일관된 함수를 적용할 수 있게 `AutoReset`을 맨 마지막에 쓰는 것이 좋다고 하는 것이다.
 
 # TimeLimit
 
