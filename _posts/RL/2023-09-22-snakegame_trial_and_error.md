@@ -2,7 +2,7 @@
 layout: single
 title: "snakegame 강화학습 도전기"
 date: 2023-09-22 20:06:21
-lastmod : 2023-09-24 01:54:17
+lastmod : 2023-10-02 20:10:56
 categories: RL
 tag: [RL, PPO, snakegame]
 toc: true
@@ -106,7 +106,7 @@ use_math: true
 
 TimeLimit X (보통의 행동) < 가장 빠른 포기 행위로 지정해서 exploration의 여지를 최대한 늘려보기로 했다.
 
-## MDP 만족 여부
+## 4. MDP 만족 여부
 
 작은 환경에서 성공을 하였지만 의문이 있었다. 왜 `snake_length`가 64에 도달하지 못할까?
 
@@ -123,14 +123,10 @@ TimeLimit X (보통의 행동) < 가장 빠른 포기 행위로 지정해서 exp
 
 그러면 다음 상황을 시각화를 쉽게 하기 위해
 
-snake, blank, head, target을 각각 ●, □, ■, ▲이라 해보자
+snake, blank, head, target을 각각 흰색, 검은색, 빨간색, 초록색이라 해보자
 
-```text
-□ □ ▲ □ □
-□ ■ ● ● ●
-□ ● ● ● ●
-□ ● ● ● ●
-```
+![gym-snakegame-5](../../assets/images/rl/gym_snakegame/gym-snakegame-5.png)
+
 이라면 뱀은 어디를 향해 가는 것일까?
 
 몸통의 몸에 의하면 위(↑) 아니면 왼쪽(←)으로 향하고 있을 것이다. 즉 이 observation만 보고는 환경을 정확히 파악할 수 없다.
@@ -142,3 +138,47 @@ snake, blank, head, target을 각각 ●, □, ■, ▲이라 해보자
 하나가 더 있다. 한칸 앞으로 간다면 꼬리가 한칸 비게 될텐데 어느 공간이 비게 될까? 이것은 더 복잡하다. 뱀이 어떻게 꼬여서 저런 직사각형 모양을 형성했을 지 모르기 때문에 파악하기가 더 힘들다.
 
 일단 해당 문제에 대해 `info`에 snake의 방향도 같이 넣어주기로 하였고 학습을 위해서는 POMDP를 최대한 MDP로 취급할 수 있게 LSTM을 활용하던가 FrameStack을 활용할 생각이다.
+
+## 5. PPO-LSTM 1
+
+PPO-LSTM을 시도했다. 하지만 학습이 너무나 느려서 FrameStack을 시도했다. 하지만 이는 완벽한 대안이 아닌데 그 이유는 아래 서술한다.
+
+## 6. FrameStack
+
+MDP를 만족할 수 있게 `FrameStack`을 이용했다. 그렇다고 엄밀하게 충족되는 것은 아니다. 다음 그림를 보자
+
+![gym-snakegame-6](../../assets/images/rl/gym_snakegame/gym-snakegame-6.png)
+
+마지막 프레임에서 뱀의 머리는 윗 방향을 향하고 있다는 것을 알게 되었으므로 왼쪽 방향을 선택하지 않을 것이다. (우측으로 가는 것이라면 왼쪽 방향으로 가는 것이 아무런 방향 전환을 하지 않으므로 직접적인 죽음이 발생하지 않는다.)
+
+위로 올라가는 행동을 다시 선택하여 계속 위로 올라간다고 해보자 그럼 다음 observation은 다음과 같을 것이다.
+
+![gym-snakegame-7](../../assets/images/rl/gym_snakegame/gym-snakegame-7.png)
+
+그럼 여기서 문제가 발생한다. 여기서 왼쪽으로 꺾는다면 다음으로 없어지는 공간은 어디일까?
+
+대표적으로 다음과 같은 두 가지 경우가 있다. (더 있지만 편의를 위해 두가지만 생각해보자)
+
+![gym-snakegame-8](../../assets/images/rl/gym_snakegame/gym-snakegame-8.png)
+
+첫번째라면 꼬리에서 오른쪽 블록이 비게 될 것 이고 두번째라면 꼬리에서 위쪽 블록이 비게 될 것이다.
+
+이는 FrameStack으로도 알수 없는 부분이다. 그래도 어느정도 완화되는 부분이 있기에 학습을 진행해보았다.
+
+* ppo1 : FC Layer : 512
+* ppo2 : FC Layer : 2024
+* ppo3 : FC Layer : 512, FrameStack : 4
+
+![gym-snakegame-9](../../assets/images/rl/gym_snakegame/gym-snakegame-9.png){: width="80%" height="80%" class="align-center"}
+
+<p style="text-align: center; font-style: italic;"> Time Weighted EMA: 0.99 </p>
+
+![gym-snakegame-10](../../assets/images/rl/gym_snakegame/gym-snakegame-10.png){: width="80%" height="80%" class="align-center"}
+
+<p style="text-align: center; font-style: italic;"> Time Weighted EMA: 0.99 </p>
+
+그래프를 보면 100M 까지는 학습이 상당히 빨리 진행되는 것을 볼 수 있다. 하지만 그 이후부터는 학습이 느려지는 것을 볼 수 있다. snake의 길이가 길어지면서 몸통의 구조를 파악하기 훨씬 더 어려워지기 때문인 것 같다. 
+
+실험은 하나라서 정확한 파악은 힘들지만 snake_length은 비슷해질 수도 있겠지만 episodic_return의 경우는 유의미한 차이를 보이기 때문에 일단 FrameStack이 어느 정도 효과는 있었다고 볼 수 있겠다.
+
+하지만 여전히 한계는 있어보여 다른 방법을 더 찾아보기로 했다. LSTM의 경우는 학습을 오래 하면 되는 것 같긴 하지만 (컴퓨터를 써야하는) 현실적인 한계가 있어 어떻게 학습을 이어갈지에 대해 고민을 해봐야겠다.
