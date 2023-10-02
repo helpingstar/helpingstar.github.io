@@ -2,7 +2,7 @@
 layout: single
 title: "gym Wrappers 정리"
 date: 2023-01-08 13:58:15
-lastmod : 2023-09-11 15:30:00
+lastmod : 2023-10-02 23:01:31
 categories: RL
 tag: [gymnaisum, gym, wrappers, RL]
 toc: true
@@ -222,3 +222,65 @@ class gymnasium.wrappers.TimeLimit(env, max_episode_steps = None)
 `AutoResetWrapper`보다 먼저 적용해야 한다. `TimeLimit` 은 `truncated` 신호를 보내고 `AutoResetWrapper`는 신호를 처리하기 때문에 신호를 먼저 발생시켜야 한다.
 
 이 또한 우선순위에 주의해야 한다. `RecordEpisodeStatistics`보다 앞서 사용되어야 한다. 왜냐하면 `RecordEpisodeStatistics`는 `terminated == True or truncated == True`일때 episode의 통계를 보여주는데 `TimeLimit`이 더 뒤에 있으면 통계도 나오지 않은 `info` 상태로 `truncated` 신호가 발생되어 에피소드가 끝났는데도 불구하고 통계를 보여주지 않는다.
+
+# FrameStack
+
+Experimental 의 `FrameStackObservationV0`을 기준으로 설명한다. 엄밀히 말하면 ObservationStack이 맞는 표현같다.
+
+```python
+class gymnasium.experimental.wrappers.FrameStackObservationV0(env: gym.Env[ObsType, ActType], stack_size: int, *, zeros_obs: ObsType | None = None)
+```
+
+`stack_size` 개수만큼의 프레임을 겹쳐서 observation으로 반환한다.
+
+반환되는 observation의 shape는 `(stack_size, )` + `(env.observation_space)` 가 된다.
+
+에피소드 초반의 경우 앞 내용이 존재하지 않는데 이 부분은 0으로 채운다. 한 에피소드가 종료될 경우 새로운 에피소드의 observation은 이전 에피소드의 프레임이 아니라 0으로 채운다.
+
+[`MountainCar-v0`](https://gymnasium.farama.org/environments/classic_control/mountain_car/)을 예로 들어보자 `MountainCar-v0`은 2개의 실수를 observation으로 반환한다.
+
+```python
+env = gym.make("MountainCar-v0")
+env = gym.experimental.wrappers.FrameStackObservationV0(env, 5)
+```
+
+아래와 같이 observation_space가 변하는 것을 확인할 수 있다.
+
+```python
+>>> env = gym.make("MountainCar-v0")
+>>> print(env.observation_space)
+Box([-1.2  -0.07], [0.6  0.07], (2,), float32)
+
+>>> env = gym.experimental.wrappers.FrameStackObservationV0(env, 5)
+>>> print(env.observation_space)
+Box([[-1.2  -0.07]
+ [-1.2  -0.07]
+ [-1.2  -0.07]
+ [-1.2  -0.07]
+ [-1.2  -0.07]], [[0.6  0.07]
+ [0.6  0.07]
+ [0.6  0.07]
+ [0.6  0.07]
+ [0.6  0.07]], (5, 2), float32)
+```
+
+아직 경험하지 않은 부분은 0으로 채우는 것을 확인할 수 있다.
+
+```python
+# obs, _ = env.reset(), step=1
+[[ 0.          0.        ]
+ [ 0.          0.        ]
+ [ 0.          0.        ]
+ [ 0.          0.        ]
+ [-0.53346133  0.        ]]
+
+# obs, _, _, _, _ = env.step(action), step=2
+[[ 0.          0.        ]
+ [ 0.          0.        ]
+ [ 0.          0.        ]
+ [-0.53346133  0.        ]
+ [-0.53438735 -0.00092604]]
+```
+
+주의사항
+* observation shape가 (1, 15, 15)일 때 5개의 Frame을 Stack하면 (5, 1, 15, 15)가 된다. `gymnasium.experimental.wrappers.ReshapeObservationV0` 등을 통해 (1, 15, 15)를 (15, 15)로 만들어줘야 한다.
