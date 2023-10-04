@@ -2,7 +2,7 @@
 layout: single
 title: "snakegame 강화학습 도전기"
 date: 2023-09-22 20:06:21
-lastmod : 2023-10-02 20:10:56
+lastmod : 2023-10-04 17:10:56
 categories: RL
 tag: [RL, PPO, snakegame]
 toc: true
@@ -143,7 +143,7 @@ snake, blank, head, target을 각각 흰색, 검은색, 빨간색, 초록색이�
 
 PPO-LSTM을 시도했다. 하지만 학습이 너무나 느려서 FrameStack을 시도했다. 하지만 이는 완벽한 대안이 아닌데 그 이유는 아래 서술한다.
 
-## 6. FrameStack
+## 6. FrameStack-1
 
 MDP를 만족할 수 있게 `FrameStack`을 이용했다. 그렇다고 엄밀하게 충족되는 것은 아니다. 다음 그림를 보자
 
@@ -182,3 +182,21 @@ MDP를 만족할 수 있게 `FrameStack`을 이용했다. 그렇다고 엄밀하
 실험은 하나라서 정확한 파악은 힘들지만 snake_length은 비슷해질 수도 있겠지만 episodic_return의 경우는 유의미한 차이를 보이기 때문에 일단 FrameStack이 어느 정도 효과는 있었다고 볼 수 있겠다.
 
 하지만 여전히 한계는 있어보여 다른 방법을 더 찾아보기로 했다. LSTM의 경우는 학습을 오래 하면 되는 것 같긴 하지만 (컴퓨터를 써야하는) 현실적인 한계가 있어 어떻게 학습을 이어갈지에 대해 고민을 해봐야겠다.
+
+## 6. FrameStack-2
+
+FrameStack의 개수가 학습이 느려지는 것을 완화해줄 수 있지 않을까 싶어서 FrameStack의 개수를 4에서 16으로 늘려보았다.
+
+실험 결과는 다음과 같다.
+
+| | <span style="color: #5387DD">**ppo1**</span> | <span style="color: #479A5F">**ppo2**</span> | <span style="color: #F0B899">**ppo3**</span> | <span style="color: #DA4C4C">**ppo4**</span> |
+| - | - | - | - | - |
+|FrameStack| 1 | 1 | 4 | 16 |
+|FC Layer| 512 | 2024 | 512 | 512 |
+|Channel|1-16-32-64|1-16-32-64|4-32-64-64|16-32-64-64|
+
+![gym-snakegame-11](../../assets/images/rl/gym_snakegame/gym-snakegame-11.png){: width="80%" height="80%" class="align-center"}
+
+초반에 약 20M까지는 학습이 느리게 진행되고 이후에는 급속도로 학습이 되는 것을 확인할 수 있다. 이로 인해 다른 실험에 비해 높은 성능을 기대했지만 뱀의 길이 35 부근에서 학습이 정체되었다. 그도 그럴것이 뱀의 끝부분을 알고 싶다면 뱀의 길이만큼 FrameStack을 해야 하는데 15 X 15의 경우 215개의 FrameStack을 할 경우 학습이 너무 오래걸린다. 그래서 적당하게 16개로 설정하여 FrameStack의 개수를 늘려보았지만 한계가 있었다. 뱀의 길이가 16을 넘어가면 역시 [위에서 언급했던 MDP문제](#6-framestack-1)가 해결이 되지 않는 것은 같기 때문이다.
+
+학습을 더 하면 어떻게든 성능은 오를 수 있겠지만 MDP가 아닌 것은 자명하기 때문에 이 문제를 해결하면서 성능도 올릴 방법을 찾아야겠다.
