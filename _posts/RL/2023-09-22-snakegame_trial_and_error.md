@@ -2,7 +2,11 @@
 layout: single
 title: "snakegame 강화학습 도전기"
 date: 2023-09-22 20:06:21
+<<<<<<< HEAD
 lastmod : 2023-10-04 17:10:56
+=======
+lastmod : 2023-10-07 00:16:43
+>>>>>>> 7ceb9ded (update snakegame_trial_and_error)
 categories: RL
 tag: [RL, PPO, snakegame]
 toc: true
@@ -86,7 +90,7 @@ use_math: true
 
 * 주황색으로 학습한 후 weight를 저장한 후에 연두색에서 하습을 계속하였다.
 
-## 3. 무한루프 vs 포기
+## 4 무한루프 vs 포기
 
 포기 : 시작하자마자 게임을 안좋은 쪽으로 끝내는 행위 (Ja살을 직접 쓸 수 없어서 쓴 말)
 
@@ -106,7 +110,7 @@ use_math: true
 
 TimeLimit X (보통의 행동) < 가장 빠른 포기 행위로 지정해서 exploration의 여지를 최대한 늘려보기로 했다.
 
-## 4. MDP 만족 여부
+## 5. MDP 만족 여부
 
 작은 환경에서 성공을 하였지만 의문이 있었다. 왜 `snake_length`가 64에 도달하지 못할까?
 
@@ -139,11 +143,15 @@ snake, blank, head, target을 각각 흰색, 검은색, 빨간색, 초록색이�
 
 일단 해당 문제에 대해 `info`에 snake의 방향도 같이 넣어주기로 하였고 학습을 위해서는 POMDP를 최대한 MDP로 취급할 수 있게 LSTM을 활용하던가 FrameStack을 활용할 생각이다.
 
-## 5. PPO-LSTM 1
+## 6. PPO-LSTM 1
 
 PPO-LSTM을 시도했다. 하지만 학습이 너무나 느려서 FrameStack을 시도했다. 하지만 이는 완벽한 대안이 아닌데 그 이유는 아래 서술한다.
 
+<<<<<<< HEAD
 ## 6. FrameStack-1
+=======
+## 7. FrameStack
+>>>>>>> 7ceb9ded (update snakegame_trial_and_error)
 
 MDP를 만족할 수 있게 `FrameStack`을 이용했다. 그렇다고 엄밀하게 충족되는 것은 아니다. 다음 그림를 보자
 
@@ -183,6 +191,7 @@ MDP를 만족할 수 있게 `FrameStack`을 이용했다. 그렇다고 엄밀하
 
 하지만 여전히 한계는 있어보여 다른 방법을 더 찾아보기로 했다. LSTM의 경우는 학습을 오래 하면 되는 것 같긴 하지만 (컴퓨터를 써야하는) 현실적인 한계가 있어 어떻게 학습을 이어갈지에 대해 고민을 해봐야겠다.
 
+<<<<<<< HEAD
 ## 6. FrameStack-2
 
 FrameStack의 개수가 학습이 느려지는 것을 완화해줄 수 있지 않을까 싶어서 FrameStack의 개수를 4에서 16으로 늘려보았다.
@@ -200,3 +209,28 @@ FrameStack의 개수가 학습이 느려지는 것을 완화해줄 수 있지 �
 초반에 약 20M까지는 학습이 느리게 진행되고 이후에는 급속도로 학습이 되는 것을 확인할 수 있다. 이로 인해 다른 실험에 비해 높은 성능을 기대했지만 뱀의 길이 35 부근에서 학습이 정체되었다. 그도 그럴것이 뱀의 끝부분을 알고 싶다면 뱀의 길이만큼 FrameStack을 해야 하는데 15 X 15의 경우 215개의 FrameStack을 할 경우 학습이 너무 오래걸린다. 그래서 적당하게 16개로 설정하여 FrameStack의 개수를 늘려보았지만 한계가 있었다. 뱀의 길이가 16을 넘어가면 역시 [위에서 언급했던 MDP문제](#6-framestack-1)가 해결이 되지 않는 것은 같기 때문이다.
 
 학습을 더 하면 어떻게든 성능은 오를 수 있겠지만 MDP가 아닌 것은 자명하기 때문에 이 문제를 해결하면서 성능도 올릴 방법을 찾아야겠다.
+=======
+## 8. Local Optimum
+
+뱀의 길이만큼 FrameStack을 하면 성능이 좋아질까? [작은 환경에서 테스트](#3-작은-환경에서-테스트) 에서는 최고 64에서 평균 60을 넘지 못했는데 넘을 수 있을까?? 한번 실험해보았다.
+
+![gym-snakegame-11](../../assets/images/rl/gym_snakegame/gym-snakegame-11.png){: width="80%" height="80%" class="align-center"}
+
+<p style="text-align: center; font-style: italic;"> Time Weighted EMA: 0.99 </p>
+
+board_size는 8이다. 주황색이 FrameStack하지 않은 것이고 초록색이 FrameStack 64를 한 것이다. 두배로 많은 global_step에도 불구하고 성능은 더 높아지지 않았다.
+
+실험이 한 번이기에 단정할 수는 없지만 이번 실험에서 특이한 점이 있었다. 초록색 그래프를 보면 희미하게 보이지만 snake의 길이가 60을 넘지 못한다. 최댓값은 64인데도 말이다.
+
+영상을 보니 다음과 같은 현상이 나타났다.
+
+![gym-snakegame-12](../../assets/images/rl/gym_snakegame/gym-snakegame-12.png){: width="50%" height="50%" class="align-center"}
+
+![gym-snakegame-13](../../assets/images/rl/gym_snakegame/gym-snakegame-13.png){: width="50%" height="50%" class="align-center"}
+
+![gym-snakegame-14](../../assets/images/rl/gym_snakegame/gym-snakegame-14.png){: width="50%" height="50%" class="align-center"}
+
+셋은 각각 다른 사진이다. 그런데 특이하기 저렇게 자꾸 두칸씩 비슷한 공간을 비운다. 이유는 모른다. FrameStack과 관계된 일인지, 아니면 그저 Local Optimum인지는 모르겠다. 근데 어쨌든 1 Frame 환경을 이기지도 못했고 Local Optimum에 빠졌다.
+
+그래서 board_size=15 에서도 과연 FrameStack을 늘리는 것이 근본적인 해결책이 될 수 있을지 의문이 생겼다.
+>>>>>>> 7ceb9ded (update snakegame_trial_and_error)
