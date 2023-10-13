@@ -9,7 +9,7 @@ toc_sticky: true
 use_math: true
 ---
 
-뒷 내용(1~20)은 ["알고리즘 PS 오답노트/팁 2"](https://helpingstar.github.io/algorithm/algorithm_tip2/)에서 찾아볼 수 있다.
+뒷 내용(21~40)은 ["알고리즘 PS 오답노트/팁 2"](https://helpingstar.github.io/algorithm/algorithm_tip2/)에서 찾아볼 수 있다.
 
 
 ## 1.
