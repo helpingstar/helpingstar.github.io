@@ -2,7 +2,7 @@
 layout: single
 title: "snakegame 강화학습 도전기"
 date: 2023-09-22 20:06:21
-lastmod : 2023-10-07 00:16:43
+lastmod: 2023-10-07 00:16:43
 categories: RL
 tag: [RL, PPO, snakegame]
 toc: true
@@ -224,3 +224,27 @@ board_size는 8이다. 주황색이 FrameStack하지 않은 것이고 초록색�
 셋은 각각 다른 사진이다. 그런데 특이하기 저렇게 자꾸 두칸씩 비슷한 공간을 비운다. 이유는 모른다. FrameStack과 관계된 일인지, 아니면 그저 Local Optimum인지는 모르겠다. 근데 어쨌든 1 Frame 환경을 이기지도 못했고 Local Optimum에 빠졌다.
 
 그래서 board_size=15 에서도 과연 FrameStack을 늘리는 것이 근본적인 해결책이 될 수 있을지 의문이 생겼다.
+
+## 10. MDP 만족
+
+MDP를 만족하는 환경을 만드는 법을 생각해내었다. 간단히 설명하면 board의 size를 n이라 했을 때 $n \times n + 1$ 를 item으로 하고 1부터 꼬리까지 1씩 높인다.
+
+예를 들면 다음과 같다.
+
+![gym-snakegame-15](../../assets/images/rl/gym_snakegame/gym-snakegame-15.png){: width="50%" height="50%" class="align-center"}
+
+실제 학습시에는 Item의 숫자로 나눠서 정규화하여 사용한다.
+
+## 11. 학습
+
+그럼 이것을 가지고 오랫동안 학습을 진행해보았다. 학습 그래프는 다음과 같다.
+
+![gym-snakegame-16](../../assets/images/rl/gym_snakegame/gym-snakegame-16.png){: width="80%" height="80%" class="align-center"}
+
+<p style="text-align: center; font-style: italic;"> Time Weighted EMA: 0.99 </p>
+
+보드의 크기가 15이고 칸의 크기가 215개일 때 이다.
+
+200M까지는 학습이 빠르게 진행되었다. 그리고 200M 이후부터는 학습이 느려지는 것을 볼 수 있다. 그리고 500M 이후부터는 학습이 거의 진행되지 않는 것을 볼 수 있다.
+
+이제는 환경에 대한 개념보다는 학습의 알고리즘, 혹은 컴퓨터의 성능에 대한 한계로 보인다. 성능이 좋다고 하여도 결국 어느 시점 이상에서 그래프가 다시 위로 올라갈 수 있을지도 의문이다. 보드의 크기인 15도 너무 큰 것이 아닌가 하는 생각도 든다. 관련하여 실험이나 공부를 더 해볼 생각이다.
