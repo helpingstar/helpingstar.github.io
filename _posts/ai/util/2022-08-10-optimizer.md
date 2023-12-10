@@ -2,7 +2,7 @@
 layout: single
 title: "딥러닝 옵티마이저, Optimizer"
 date: 2022-08-10 05:03:56
-lastmod : 2022-09-27 15:15:54
+lastmod : 2023-12-10 17:58:11
 categories: optimization
 tag: [optimizer, momentum, nesterov, AdaGrad, RMSProp, Adam, Nadam]
 toc: true
@@ -112,31 +112,25 @@ AdaGrad 알고리즘은 가장 가파른 차원을 따라 그레이디언트 벡
 
 `Momentum`과 `RMSProp`의 아이디어를 합친 것이다. `Momentum`처럼 지난 그레이디언트의 지수 감소 평균을 따르고 `RMSProp`처럼 지난 그레이디언트 제곱의 지수 감소된 평균을 따른다.
 
-*[Adam Algorithm]*
-1. $m \leftarrow \beta_{1} m+(1-\beta_{1})\nabla_{\theta}J(\theta)$
-2. $s \leftarrow \beta_{2} s+(1-\beta_{2})\nabla_{\theta}J(\theta) \otimes \nabla_{\theta}J(\theta)$
-3. $\hat{m} \leftarrow \frac{m}{1-\beta_{1}^{t}}$
-4. $\hat{s} \leftarrow \frac{s}{1-\beta_{2}^{t}}$
-5. $\theta \leftarrow \theta+\eta \hat{m} \oslash \sqrt{\hat{s}+\varepsilon}$
+$$
+\begin{align*}
+&t \leftarrow t + 1 \\
+&g_t \leftarrow \nabla_{\theta} f_t(\theta_{t-1}) \\
+&m_t \leftarrow \beta_1 \cdot m_{t-1} + (1 - \beta_1) \cdot g_t  \tag{1}\\
+&v_t \leftarrow \beta_2 \cdot v_{t-1} + (1 - \beta_2) \cdot g_t^2 \tag{2}\\
+&\hat{m}_t \leftarrow \frac{m_t}{(1 - \beta_1^t)} \tag{3}\\
+&\hat{v}_t \leftarrow \frac{v_t}{(1 - \beta_2^t)} \tag{4}\\
+&\theta_t \leftarrow \theta_{t-1} - \alpha \cdot \frac{\hat{m}_t}{(\sqrt{\hat{v}_t} + \epsilon)} \tag{5}\\
+\end{align*}
+$$
 
-* $t$ : (1부터 시작하는) 반복 횟수
 * $\beta_{1}$ : 모멘텀 감쇠 하이퍼파라미터, 보통 `0.9`로 초기화한다.
 * $\beta_{2}$ : 스케일 감쇠 하이퍼파라미터, `0.999`로 초기화하는 경우가 많다.
-* $\varepsilon$ : 안정된 계산을 위해 $10^{-7}$ 같은 아주 작은 수로 초기화한다.
+* $\epsilon$ : 안정된 계산을 위해 $10^{-7}$ 같은 아주 작은 수로 초기화한다.
 
-단계 1, 2, 5 : `모멘텀 최적화`, `RMSProp`과 아주 비슷하다.
-차이 : 단계 1에서 지수 감소 합 대신 지수 감소 평균을 이용한다. 사실 이들은 상수 배인 것을 제외하면 동일하다.(지수 감소 평균은 지수 감소 합의 $1-\beta_{1}$배이다.)
+단계 3, 4 : $m$과 $v$가 0으로 초기화되기 때문에 훈련 초기에 0쪽으로 치우치게 될 것이다. 그래서 이 두 단계가 훈련 초기에 $m$과 $v$의 값을 증폭시키는 데 도움을 준다.
 
-모멘텀 알고리즘의
-
-1. $m \leftarrow \beta m-\eta \nabla_{\theta}J(\theta)$
-2. $\beta=\frac{\beta_{1}}{1-\beta_{1}}$
-3. $m \leftarrow \frac{\beta_{1}}{1-\beta_{1}} m-\eta \nabla_{\theta}J(\theta)$
-4. $m(1-\beta_{1}) \leftarrow \beta_{1} m-(1-\beta_{1})\eta \nabla_{\theta}J(\theta)$
-
-단계 3, 4 : $m$과 $s$가 0으로 초기화되기 때문에 훈련 초기에 0쪽으로 치우치게 될 것이다. 그래서 이 두 단계가 훈련 초기에 $m$과 $s$의 값을 증폭시키는 데 도움을 준다.
-
-$m$과 $s$가 0부터 시작하므로 $\beta_{1}m$과 $\beta_{2}s$가 반복 초기에 크게 기여를 못한다. 단계 3, 4는 이를 보상해주기 위해 반복 초기에 $m$과 $s$를 증폭시켜주지만 반복이 많이 진행되면 3, 4의 분모는 1에 가까워져($t$를 제곱하기 때문에) 거의 증폭되지 않는다.
+단계 1, 2에서 $m$과 $v$가 0부터 시작하므로 $\beta_{1} \cdot m$과 $\beta_{2} \cdot v$가 반복 초기에 크게 기여를 못한다. 단계 3, 4는 이를 보상해주기 위해 반복 초기에 $m$과 $v$를 증폭시켜주지만 반복이 많이 진행되면 3, 4의 분모는 1에 가까워져($0 \ll \beta_{1}, \beta_{2} < 1$) 거의 증폭되지 않는다.
 
 
 
