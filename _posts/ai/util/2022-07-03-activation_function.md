@@ -2,7 +2,7 @@
 layout: single
 title: "딥러닝 활성화 함수, Activation Function"
 date: 2022-07-03 01:28:01
-lastmod : 2022-10-05 15:28:14
+lastmod : 2023-12-11 19:01:57
 categories: DL
 tag: [sigmoid, tanh, xavier, glorot, kaiming, weight initialization, relu, prelu, rrelu, leaky relu, elu, selu]
 toc: true
@@ -22,7 +22,7 @@ use_math: true
 
 $\sigma (t)=\frac{1}{1+exp(-t)}$
 
-![sigmoid_function](../../../assets/images/ai/sigmoid_function.png){: width="75%" height="75%" class="align-center"}
+![sigmoid_function](../../../assets/images/ai/sigmoid_function.png){: width="50%" height="50%" class="align-center"}
 
  - 출력 범위가 0~1 사이로 한정되어 있어 양극단에서 기울기가 급격히 감소하므로 오차 그레이디언트를 잘 역전파하지 못한다.
 
@@ -30,7 +30,7 @@ $\sigma (t)=\frac{1}{1+exp(-t)}$
 
 $tanh(z)=2\sigma(2z)-1$
 
-![tanH_graph](../../../assets/images/ai/tanh_graph.jpg){: width="60%" height="60%" class="align-center"}
+![tanH_graph](../../../assets/images/ai/tanh_graph.jpg){: width="50%" height="50%" class="align-center"}
 
 `sigmoid` 함수처럼 S자 모양이고 연속적이며 미분 가능하다. 하지만 출력 범위가 -1에서 1사이이다. 이 범위는 훈련 초기에 각 층의 출력을 원점 근처로 모으는 경향이 있다. 이는 종종 빠르게 수렴되도록 도와준다.
 
@@ -55,7 +55,7 @@ $tanh(z)=2\sigma(2z)-1$
 
 그에 대해 대안을 제시했는데 아래의 식의 방식대로 무작위로 초기화 하는 것이다.
 
-![sigmoid_function](../../../assets/images/ai/glorot_xavier_init.jpg){: width="75%" height="75%" class="align-center"}
+![sigmoid_function](../../../assets/images/ai/glorot_xavier_init.jpg){: width="70%" height="70%" class="align-center"}
 
 위 식에서 $fan_{avg}$를 $fan_{in}$로 바꾸면 르쿤(LeCun) 초기화라고 부른다(1990) $fan_{in}=fan_{avg}$이면 르쿤 초기화는 글로럿 초기화와 동일하다.
 
@@ -153,7 +153,7 @@ def kaiming_uniform_(tensor: Tensor, a=0, mode='fan_in', nonlinearity='leaky_rel
 
 이므로 `weight`는 `uniform(-1.82574, +1.82574)`가 되야 한다. 확인해보자
 
-![weight_init_colab](../../../assets/images/ai/weight_init_colab.jpg){: width="75%" height="75%"}
+![weight_init_colab](../../../assets/images/ai/weight_init_colab.jpg){: width="70%" height="70%"}
 
 이로써 파이토치에서의 가중치 초기화가 확인되었다.
 
@@ -209,7 +209,7 @@ def calculate_gain(nonlinearity, param=None):
 글로럿과 벤지오의 2010년 논문에서 얻은 통찰 중 하나는 활성화 함수를 잘못 선택하면 자칫 그레이디언트의 소실이나 폭주로 이어질 수 있다는 것이었다. 그래서 전에는 `sigmoid`함수가 최선일 것이라고 생각했으나 `ReLU` 같은 다른 활성화 함수가 심층 신경망에서 훨씬 더 잘 작동한다는 사실이 밝혀졌다.
 
 $ReLU(z)=max(0, z)$
-![ReLU](../../../assets/images/ai/ReLU.jpg){: width="75%" height="75%" class="align-center"}
+![ReLU](../../../assets/images/ai/ReLU.jpg){: width="50%" height="50%" class="align-center"}
 
  - 연속적이지만 $z=0$에서 미분 가능하지 않다. 기울기가 갑자기 변해서 경사 하강법이 엉뚱한 곳으로 튈 수 있다.
  - $ReLU(z) > 0$일 때 오차 그레이디언트를 그대로 역전파시킨다. 원점에서는 일반적으로 0을 사용한다. 따라서 $ReLU(z) \leq 0$ 일 때는 오차 그레이디언트를 역전파하지 않는다.
@@ -237,19 +237,19 @@ $ReLU(x)=0, \; for \; x \leq 0$
 
 $ReLU(z)=max(0, z)$
 
-![relu_ex1](../../../assets/images/ai/relu_ex1.jpg){: width="75%" height="75%" class="align-center"}
+![relu_ex1](../../../assets/images/ai/relu_ex1.jpg){: width="50%" height="50%" class="align-center"}
 
 위 식을 $x$방향으로 $c(=5)$만큼 평행이동 해보자
 
 $ReLU(x-c)=0, \; for \; x \leq c$
 
-![relu_ex2](../../../assets/images/ai/relu_ex2.jpg){: width="75%" height="75%" class="align-center"}
+![relu_ex2](../../../assets/images/ai/relu_ex2.jpg){: width="50%" height="50%" class="align-center"}
 
 이제 이 함수를 더하면 다음과 같은 모양이 나온다
 
 $ReLU(x)+ReLU(x-c)$
 
-![relu_ex3](../../../assets/images/ai/relu_ex3.jpg){: width="75%" height="75%" class="align-center"}
+![relu_ex3](../../../assets/images/ai/relu_ex3.jpg){: width="50%" height="50%" class="align-center"}
 
 이 식을 일반화하면 다음과 같다
 
@@ -261,11 +261,11 @@ $f(x)+ReLU(x-c)=f(x), \; for \; x \leq c$
 
 $ReLU(x) + (-3)ReLU(x-c)$
 
-![relu_ex4](../../../assets/images/ai/relu_ex4.jpg){: width="75%" height="75%" class="align-center"}
+![relu_ex4](../../../assets/images/ai/relu_ex4.jpg){: width="50%" height="50%" class="align-center"}
 
 이와같은 방식으로 항을 늘려 보면 다음과 같은 모양도 만들 수 있게 된다
 
-![relu_ex5](../../../assets/images/ai/relu_ex5.jpg){: width="75%" height="75%" class="align-center"}
+![relu_ex5](../../../assets/images/ai/relu_ex5.jpg){: width="50%" height="50%" class="align-center"}
 
 순전파 공식을 다시 떠올려보자
 
@@ -293,9 +293,9 @@ $LeakyReLU_{\alpha}(z)=max(\alpha z, z)$
 ## `RReLU`
 Randomized Leaky ReLU
 
-![rrelu_graph](../../../assets/images/ai/rrelu_graph.jpg){: width="80%" height="80%" class="align-center"}
+![rrelu_graph](../../../assets/images/ai/rrelu_graph.jpg){: width="50%" height="50%" class="align-center"}
 
-![rrelu_info](../../../assets/images/ai/rrelu_info.jpg){: width="80%" height="80%" class="align-center"}
+![rrelu_info](../../../assets/images/ai/rrelu_info.jpg){: width="50%" height="50%" class="align-center"}
 
 위의 논문<sup>[4](#footnote_4)</sup>에서 $\alpha$를 무작위로 선택하고 테스트시에는 평균을 사용하는 방법도 사용했는데 이 방법도 꽤 잘 작동했으며 규제(regularization)의 역할을 하는 것처럼 보였다.
 
@@ -304,7 +304,7 @@ Randomized Leaky ReLU
 ## `PReLU`
 Parametric Leaky ReLU
 
-![prelu_info](../../../assets/images/ai/prelu_info.jpg){: width="80%" height="80%" class="align-center"}
+![prelu_info](../../../assets/images/ai/prelu_info.jpg){: width="50%" height="50%" class="align-center"}
 
 $\alpha$가 훈련되면서 학습된다. 대규모 이미지에서는 `ReLU`보다 성능이 크게 앞섰지만, 소규모 데이터셋에서는 훈련세트에 과대적합될 위험이 있다.
 
@@ -313,7 +313,7 @@ $\alpha$가 훈련되면서 학습된다. 대규모 이미지에서는 `ReLU`보
 
 이 함수는 저자들의 실험에서 다른 모든 `ReLU` 변종의 성능을 앞질렀다. 훈련 시간이 줄고 신경망의 테스트 성능도 더 높았다.
 
-![elu_function](../../../assets/images/ai/elu_function.jpg){: width="60%" height="60%" class="align-center"}
+![elu_function](../../../assets/images/ai/elu_function.jpg){: width="50%" height="50%" class="align-center"}
 
 ![elu_graph](../../../assets/images/ai/elu_graph.jpg){: width="50%" height="50%" class="align-center"}
 
