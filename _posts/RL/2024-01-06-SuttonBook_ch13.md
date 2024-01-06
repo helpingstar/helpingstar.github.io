@@ -97,3 +97,89 @@ $$
 $$
 
 * $\frac{\nabla \pi (A_t \vert S_t, \boldsymbol{\theta}_t)}{\pi (A_t \vert S_t, \boldsymbol{\theta}_t)} = \nabla \ln \pi (A_t \vert S_t, \boldsymbol{\theta}_t)$
+
+
+$$
+\nabla J(\boldsymbol{\theta}) \propto \sum_s \mu(s) \sum_a \left( q_{\pi}(s, a) - b(s) \right) \nabla \pi(a|s, \boldsymbol{\theta}) \tag{13.10}
+$$
+
+$$
+\sum_a b(s) \nabla \pi(a|s, \boldsymbol{\theta}) = b(s) \nabla \sum_a \pi(a|s, \boldsymbol{\theta}) = b(s) \nabla 1 = 0
+$$
+
+$$
+\boldsymbol{\theta}_{t+1} \doteq \boldsymbol{\theta}_t + \alpha \left( G_t - b(S_t) \right) \frac{\nabla \pi(A_t|S_t, \boldsymbol{\theta}_t)}{\pi(A_t|S_t, \boldsymbol{\theta}_t)} \tag{13.11}
+$$
+
+$$
+\begin{align*}
+\boldsymbol{\theta}_{t+1} & \doteq \boldsymbol{\theta}_t + \alpha \left( G_{t:t+1} - \hat{v}(S_t, \mathbf{w}) \right) \frac{\nabla \pi(A_t|S_t, \boldsymbol{\theta}_t)}{\pi(A_t|S_t, \boldsymbol{\theta}_t)} \tag{13.12} \\
+&= \boldsymbol{\theta}_t + \alpha \left( R_{t+1} + \gamma \hat{v}(S_{t+1}, \mathbf{w}) - \hat{v}(S_t, \mathbf{w}) \right) \frac{\nabla \pi(A_t|S_t, \boldsymbol{\theta}_t)}{\pi(A_t|S_t, \boldsymbol{\theta}_t)} \tag{13.13} \\
+&= \boldsymbol{\theta}_t + \alpha \delta_t \frac{\nabla \pi(A_t|S_t, \boldsymbol{\theta}_t)}{\pi(A_t|S_t, \boldsymbol{\theta}_t)} \tag{13.14}
+\end{align*}
+$$
+
+$$
+\begin{align*}
+J(\theta) \doteq r(\pi) & \doteq \lim_{h \to \infty} \frac{1}{h} \sum_{t=1}^{h} \mathbb{E}[R_t | S_0, A_{0:t-1} \sim \pi] \\
+&= \lim_{t \to \infty} \mathbb{E}[R_t | S_0, A_{0:t-1} \sim \pi] \\
+&= \sum_s \mu(s) \sum_a \pi(a|s) \sum_{s', r} p(s', r | s, a) r,
+\end{align*}\tag{13.10}
+$$
+
+* $\mu(s) \doteq \lim_{t \rightarrow \infty} \text{Pr}\{ S_t = s \vert A_{0:t} \sim \pi \}$
+
+$$
+\sum_s \mu(s) \sum_a \pi(a|s, \boldsymbol{\theta}) p(s'|s, a) = \mu(s'), \text{ for all } s' \in \mathcal{S}. \tag{13.16}
+$$
+
+$$
+G_t \doteq R_{t+1} - r(\pi) + R_{t+2} - r(\pi) + R_{t+3} - r(\pi) + \cdots .\tag{13.17}
+$$
+
+---
+
+### (연속적 문제의 경우) 정책 경사도 정리의 증명
+
+$$
+\begin{align*}
+\nabla v_{\pi}(s) &= \nabla \left[ \sum_a \pi(a|s)q_{\pi}(s, a) \right], \quad \text{ for all } s \in \mathcal{S} && \text{(Exr. 3.18)} \\
+&= \sum_a \left[ \nabla \pi(a|s)q_{\pi}(s, a) + \pi(a|s)\nabla q_{\pi}(s, a) \right] && \text{(product rule of calculus)} \\
+&= \sum_a \left[ \nabla \pi(a|s)q_{\pi}(s, a) + \pi(a|s) \sum_{s',r} p(s',r|s,a) \left( r - r(\boldsymbol{\theta}) + v_{\pi}(s') \right) \right] \\
+&= \sum_a \left[ \nabla \pi(a|s)q_{\pi}(s, a) + \pi(a|s) [ -\nabla r(\boldsymbol{\theta}) + \sum_{s'} p(s'|s,a) \nabla v_{\pi}(s') ] \right].
+\end{align*}
+$$
+
+$$
+\begin{align*}
+  \nabla r(\boldsymbol{\theta}) = \sum_a \left[ \nabla \pi(a|s)q_{\pi}(s, a) + \pi(a|s) \sum_{s'} p(s'|s, a) \nabla v_{\pi}(s') \right] - \nabla v_{\pi}(s).
+\end{align*}
+$$
+
+$$
+\begin{align*}
+\nabla J(\boldsymbol{\theta}) & = \sum_s \mu(s) \left( \sum_a \left[ \nabla \pi(a|s)q_{\pi}(s, a) + \pi(a|s) \sum_{s'} p(s'|s, a) \nabla v_{\pi}(s') \right] - \nabla v_{\pi}(s) \right) \\
+& = \sum_s \mu(s) \sum_a \nabla \pi(a|s)q_{\pi}(s, a) \\ & \qquad + \sum_s \mu(s) \sum_a \pi(a|s) \sum_{s'} p(s'|s, a) \nabla v_{\pi}(s') - \sum_s \mu(s) \nabla v_{\pi}(s) \\
+& = \sum_s \mu(s) \sum_a \nabla \pi(a|s)q_{\pi}(s, a) \\
+& \qquad + \sum_{s'} \underbrace{\sum_s \mu(s) \sum_a \pi(a|s)p(s'|s, a)}_{\mu(s') \ (13.16)} \nabla v_{\pi}(s') - \sum_s \mu(s) \nabla v_{\pi}(s) \\
+& = \sum_s \mu(s) \sum_a \nabla \pi(a|s)q_{\pi}(s, a) + \sum_{s'} \mu(s') \nabla v_{\pi}(s') - \sum_s \mu(s) \nabla v_{\pi}(s) \\
+& = \sum_s \mu(s) \sum_a \nabla \pi(a|s)q_{\pi}(s, a). \qquad \text{Q.E.D.}
+\end{align*}
+$$
+
+---
+
+$$
+p(x) \doteq \frac{1}{\sigma\sqrt{2\pi}} \exp \left( -\frac{(x - \mu)^2}{2\sigma^2} \right)\tag{13.18}
+$$
+
+$$
+\pi(a|s, \boldsymbol{\theta}) \doteq \frac{1}{\sigma(s, \boldsymbol{\theta})\sqrt{2\pi}} \exp \left( -\frac{(a - \mu(s, \boldsymbol{\theta}))^2}{2\sigma(s, \boldsymbol{\theta})^2} \right), \tag{13.19}
+$$
+
+* $\mu$ : $\mathcal{S} \times \mathbb{R}^{d'} \rightarrow \mathbb{R}$
+* $\sigma$ : $\mathcal{S} \times \mathbb{R}^{d'} \rightarrow \mathbb{R}^{+}$
+
+$$
+\mu(s, \boldsymbol{\theta}) \doteq \boldsymbol{\theta}_{\mu}^\top \mathbf{x}_{\mu}(s) \quad \text{and} \quad \sigma(s, \boldsymbol{\theta}) \doteq \exp \left(\boldsymbol{\theta}_{\sigma}^\top \mathbf{x}_{\sigma}(s) \right), \tag{13.20}
+$$
