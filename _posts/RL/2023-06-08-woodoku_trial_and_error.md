@@ -2,7 +2,7 @@
 layout: single
 title: "Woodoku/BlockPuzzle 게임 강화학습 도전기"
 date: 2023-06-08 17:15:13
-lastmod : 2023-06-13 13:51:24
+lastmod : 2024-01-28 00:00:09
 categories: RL
 tag: [RL, PPO, Woodoku, BLockPuzzle]
 toc: true
@@ -306,3 +306,151 @@ step을 늘려보고 다시 실험해본 의미가 있는 것 같다. 이전 실
 초록색이 MLP를 2048로 한 것이고 옥색은 4096이다. 옥색은 유닛이 너무 많아 초반에 시간이 좀 걸린 것 같다. 여기서 확신이 생겼다. 신경망은 CPU에 영향을 주지 않는다면 점점 줄여나가는 것이 맞는 것 같다. 그럼 두 개중 어느 것을 선택해야 할까. 두개는 학습속도에 있어서는 큰 차이가 나지 않는 것 같다. 그런데 일정 구간 이후에 학습 속도가 평행하다. 그렇다면 처음부터 올라가는 초록색을 선택하는 것이 맞지 않을까? 그런데 또 더 진행한다면 옥색이 역전할지도 모른다.
 
 그래도 일단 보이는 것은 초록색이 더 높기 때문에 초록색(2048)로 학습을 더 진행해보기로 했다.
+
+# 9. 환경의 중요성
+
+이전 내용을 쓴 후 시간이 많이 지났는데 다시 도전하던 중 뭔가 이상한 것을 발견하였다.
+
+새롭게 구한 컴퓨터가 16스레드인데 여기에 작업을 하기 위해 병렬을 16개로 늘리고 학습을 돌렸는데 1step iteration에 31초가 드는 것이다. 본능적으로 이것은 이상하다는 생각이 들었다. 왜냐하면 내가 이 환경을 구현했고 다른 환경도 구현해 봤을때 이정도 속도가 나올리가 없기 때문이다. 이럴 경우 문제는 환경, 학습 알고리즘 둘 중 하나이다. 그런데 학습 알고리즘은 오픈소스를 쓰기 때문에 문제가 있을 확률은 거의 없다.
+
+이전에는 3~6개의 환경으로 돌렸기 때문에 1 iteration에 3초가 나와도 그러려니 했는데 이정도가 되니 뭔가 잘못됨을 느꼈다.
+
+그래서 환경을 하나하나 쪼개가면서 각 부분의 시간을 측정했다.
+
+```python
+class Tracker:
+    def __init__(self) -> None:
+        self.count = dict()
+        self.timer = dict()
+
+    def start(self, n):
+        if n not in self.count:
+            self.count[n] = 0
+            self.timer[n] = 0
+        self.s_time = time.time()
+
+    def end(self, n):
+        self.timer[n] += time.time() - self.s_time
+        self.count[n] += 1
+
+for k in tracker.timer.keys():
+    result[k] = tracker.timer[k] / tracker.count[k]
+
+print(sorted(result.items(), key=lambda x: x[1]))
+```
+
+임시로 위와 같은 클래스를 정의하여 각 부분을 n으로 표시하고 각 시간을 합산하고 방문횟수로 나누어 시간이 얼마나 들었는지를 측정하였다.
+
+시간이 많이 나온 부분은 쪼개고 계속 쪼갰더니 다음과 같은 결과가 나왔다.
+
+```
+[(5, 8.103847503662109e-07), 
+(9, 1.0602749311006987e-06), 
+(0, 1.1301957643949068e-06), 
+(-1, 1.7571907777052659e-06), 
+(2, 9.246349334716796e-06), 
+(6, 1.4503161112467448e-05), 
+(1, 4.3779611587524414e-05), 
+(4, 7.352383931477864e-05), 
+(7, 0.0031295727094014488), 
+(8, 0.00621118453832773)]
+```
+
+지수를 보면 알 수 있듯이 3위 이하는 시간이 압도적으로 적게 들었는데, 1위의 경우 함수 딱 하나였다. 다음과 같은 함수였다.
+
+```python
+    def _get_legal_actions(self):
+        """
+        Checks whether there is a block corresponding to the action
+        Check if the block can be placed at the location.
+        """
+        for action in range(243):
+            if self._is_valid_block(action) and self._is_valid_position(action):
+                self.legality[action] = 1
+            else:
+                self.legality[action] = 0
+```
+
+다음 함수를 실행하는 부분이었다.
+
+`self.is_valid_block`은 해당 블록이 존재하는지 여부를 판단하는 것으로 바로 판단이 되지만 `self._is_valid_position`의 경우 
+
+```python
+    def _is_valid_position(self, action: int) -> bool:
+        block, location = self.action_to_blk_pos(action)
+        # board와 block 비교
+        for row in range(0, self.BLOCK_LENGTH):
+            for col in range(0, self.BLOCK_LENGTH):
+                # Condition for block position in block array
+                if block[row][col] == 1:
+                    # location - 2 : leftmost top (0, 0)
+                    # When the block is located outside the board
+                    if not (
+                        0 <= (location[0] - 2 + row) < 9
+                        and 0 <= (location[1] - 2 + col) < 9
+                    ):
+                        return False
+
+                    # When there is already another block
+                    if self._board[location[0] - 2 + row][location[1] - 2 + col] == 1:
+                        return False
+
+        return True
+```
+
+이해못해도 된다. 5 x 5 공간을 하나하나씩 훑으며 해당 공간에 블록이 있으면 (`if block[row][col] == 1`) 그때 검사를 하는 것이다.
+그것을 모든 공간에다 하니 시간이 엄청 오래 걸렸다.
+
+이 부분에 대해서 생각을 하다가 5 x 5 공간을 매번 훑기보다 3개의 블록을 뽑는 순간 해당 블록이 존재하는 칸을 미리 저장해두면 되지 않나 하는 생각이 들었다. 블록이 아예 없을 경우에는 `self._is_valid_block`에서 걸러지기 때문에 상관이 없다.
+
+그래서 다음과 같이 코드를 짰다.
+
+```python
+    def _get_3_blocks(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        a = self.np_random.choice(range(self._block_list.shape[0]), 3, replace=False)
+        self._block_valid_pos = []
+        for i in range(3):
+            valid_list = []
+            for r in range(5):
+                for c in range(5):
+                    if self._block_list[a[i]][r][c] == 1:
+                        valid_list.append((r, c))
+            self._block_valid_pos.append(valid_list)
+```
+블록을 뽑는 순간에 `self._block_valid_pos`에 유효 위치를 저장하고 해당 부분만 검증하는 것이다.
+
+```python
+    def _is_valid_position(self, action: int) -> bool:
+        block, location = self.action_to_blk_pos(action)
+        # board와 block 비교
+        for row, col in self._block_valid_pos[action // 81]:
+            # location - 2 : leftmost top (0, 0)
+            # When the block is located outside the board
+            if not (
+                0 <= (location[0] - 2 + row) < 9
+                and 0 <= (location[1] - 2 + col) < 9
+            ):
+                return False
+
+            # When there is already another block
+            if self._board[location[0] - 2 + row][location[1] - 2 + col] == 1:
+                return False
+```
+
+`for ... for ... if`가 `for`문 하나로 줄은 모습을 볼 수 있다.
+
+수정 내용은 [해당 커밋](https://github.com/helpingstar/gym-woodoku/commit/1f4a50f2b32bdf071788fbdd888f4d85e0018d65)에서 볼 수 있다.
+
+결과는 어떻게 되었을까?
+
+```
+(7, 0.0031295727094014488), 
+(8, 0.00621118453832773)
+↓
+(7, 0.0005186151663462321),
+(8, 0.0010165496611259353)
+```
+
+시간낭비 최대부분을 차지하는 지역들이 1/6으로 시간이 줄은 것을 확인할 수 있다.
+
+아주 간단한 메커니즘 아닌가? 싶을 수 있다. 아직 완전한 해결책도 아닐 수 있다. 근데 내가 이상한 것을 느끼고 직접 검증하기 위한 클래스를 만들어서 시간이 많이 드는 부분을 찾아내고 직접 개선했다는 것. 너무 뿌듯하여 이렇게 기록으로 남긴다.
