@@ -312,3 +312,9 @@ MDP를 만족하는 환경을 만드는 법을 생각해내었다. 간단히 설
 에피소드 길이가 가장긴 2개가 에피소드 리턴이 가장 낮은 두개와 일치한다. 하지만 언제부터 끊어야 할지 애매하다, 사이즈 12의 보드에서 144개의 아이템을 획득하는데 67개를 얻는데 1348 step이라면 144개를 얻는 데는 3000 step은 훌쩍 넘기는 것이 자명하니 2500으로 끊기에도 애매하다.
 
 그래서 일단은 learning_rate랑, clip-coef를 각각 0.0001, 0.1로 줄여서 실험해보기로 했다.
+
+## 14. action masking 적용
+
+관련 내용은 아래 서술하였다.
+
+[https://helpingstar.github.io/rl/invalid_action_masking/](https://helpingstar.github.io/rl/invalid_action_masking/)

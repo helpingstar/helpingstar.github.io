@@ -454,3 +454,9 @@ print(sorted(result.items(), key=lambda x: x[1]))
 시간낭비 최대부분을 차지하는 지역들이 1/6으로 시간이 줄은 것을 확인할 수 있다.
 
 아주 간단한 메커니즘 아닌가? 싶을 수 있다. 아직 완전한 해결책도 아닐 수 있다. 근데 내가 이상한 것을 느끼고 직접 검증하기 위한 클래스를 만들어서 시간이 많이 드는 부분을 찾아내고 직접 개선했다는 것. 너무 뿌듯하여 이렇게 기록으로 남긴다.
+
+## 10. action masking 적용
+
+관련 내용은 아래 서술하였다. 그동안 왜 안했지 싶을 정도로 정말 높은 성능 향상이 있었다.
+
+[https://helpingstar.github.io/rl/invalid_action_masking/](https://helpingstar.github.io/rl/invalid_action_masking/)
