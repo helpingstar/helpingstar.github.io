@@ -2,7 +2,7 @@
 layout: single
 title: "snakegame 강화학습 도전기"
 date: 2023-09-22 20:06:21
-lastmod: 2023-10-28 21:56:53
+lastmod: 2024-03-20 19:30:00
 categories: RL
 tag: [RL, PPO, snakegame]
 toc: true
@@ -313,7 +313,35 @@ MDP를 만족하는 환경을 만드는 법을 생각해내었다. 간단히 설
 
 그래서 일단은 learning_rate랑, clip-coef를 각각 0.0001, 0.1로 줄여서 실험해보기로 했다.
 
-## 14. action masking 적용
+## 14. 채널의 명시적인 분리
+
+특징적인 요소들을 채널을 분리하여 학습할 경우 성능이 더 좋게 나타났다.
+
+[gym-snakegame/README.md](https://github.com/helpingstar/gym-snakegame?tab=readme-ov-file#channel) 에 서술한 바와 같이
+
+채널의 개수를 1로 설정하면 모든 요소를 한 채널에 나타내고, 2로 설정하면 뱀과 아이템을 분리하고, 4로 설정하면 머리, 몸, 꼬리, 아이템으로 분리한다.
+
+그래서 위 내용에 대해 실험을 해 보았다.
+
+원래 이 내용이 먼저였으나 실험을 모르고 삭제하여, 다시 학습하여 그래프를 그렸기에 15. 단락의 action masking 내용을 포함했다.
+
+![gym-snakegame-20](../../assets/images/rl/gym_snakegame/gym-snakegame-20.png){: width="80%" height="80%" class="align-center"}
+<p style="text-align: center; font-style: italic;"> EMA: 0.9, 6 seed </p>
+
+![gym-snakegame-21](../../assets/images/rl/gym_snakegame/gym-snakegame-21.png){: width="80%" height="80%" class="align-center"}
+<p style="text-align: center; font-style: italic;"> EMA: 0.9, 6 seed </p>
+
+보다시피 action masking 적용 여부에 상관없이 채널이 많을 수록 성능이 좋아지는 것을 볼 수 있다.
+
+자세한 실험은 [**여기**](https://wandb.ai/iamhelpingstar/snakegame_size12?nw=nwuseriamhelpingstar)에서 볼 수 있다.
+
+단순히 네트워크의 파라미터가 많아서 그런지에 대해서는 더 공부할 여지가 있다. 1 channel observation을 무작위로 4개로 나누어 동일한 네트워크로 구성한 후 학습 성능이 나오는지 확인할 필요가 있다.
+
+하지만 FCN에 비해 CNN의 파라미터 비중이 적기 때문에 과연 그것 때문일까 하는 생각은 든다.
+
+아직 실험을 해보지는 않았지만 해당 요소를 명시적으로 분리한 것이 채널간의 one-hot vector 가 되지 않았을까 하는 생각이 든다.
+
+## 15. action masking 적용
 
 관련 내용은 아래 서술하였다.
 
