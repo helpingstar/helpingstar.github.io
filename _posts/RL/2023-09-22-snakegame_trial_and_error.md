@@ -84,7 +84,7 @@ use_math: true
 
 ![gym-snakegame-4](../../assets/images/rl/gym_snakegame/gym-snakegame-4.png){: width="80%" height="80%" class="align-center"}
 
-* 주황색으로 학습한 후 weight를 저장한 후에 연두색에서 하습을 계속하였다.
+* 주황색으로 학습한 후 weight를 저장한 후에 연두색에서 학습을 계속하였다.
 
 ## 4 무한루프 vs 포기
 
@@ -104,7 +104,9 @@ use_math: true
 
 그래서 보상을
 
-TimeLimit X (보통의 행동) < 가장 빠른 포기 행위로 지정해서 exploration의 여지를 최대한 늘려보기로 했다.
+$\text{(TimeLimit)} \times \text{(Normal Action)} < \text{(가장 빠른 포기 행위)}$
+
+로 지정해서 exploration의 여지를 최대한 늘려보기로 했다.
 
 ## 5. MDP 만족 여부
 
@@ -121,7 +123,7 @@ TimeLimit X (보통의 행동) < 가장 빠른 포기 행위로 지정해서 exp
 * 3 : head
 * 5 : target
 
-그러면 다음 상황을 시각화를 쉽게 하기 위해
+위 처럼 구현하였을 때 특정 상황에서 에이전트입장에서 어떻게 보이는지 보자.
 
 snake, blank, head, target을 각각 흰색, 검은색, 빨간색, 초록색이라 해보자
 
@@ -129,11 +131,11 @@ snake, blank, head, target을 각각 흰색, 검은색, 빨간색, 초록색이�
 
 이라면 뱀은 어디를 향해 가는 것일까?
 
-몸통의 몸에 의하면 위(↑) 아니면 왼쪽(←)으로 향하고 있을 것이다. 즉 이 observation만 보고는 환경을 정확히 파악할 수 없다.
+몸통의 위치에 의하면 위(↑) 아니면 왼쪽(←)으로 향하고 있을 것이다. 즉 이 observation만 보고는 환경을 정확히 파악할 수 없다.
 
-예를 들어서 위로 가고 있는 상황에서 오른쪽을 선택하게 된다면 몸통에 부딪혀 바로 게임이 끝나게 되지만, 왼쪽으로 가고 있을 경우 오른쪽을 선택하면 아무 일도 일어나지 않기 때문에 왼쪽으로 한 칸 전진하게 될 것이다.
+예를 들어서 위로 가고 있는 상황에서 오른쪽을 선택하게 된다면 몸통에 부딪혀 바로 게임이 끝나게 되지만, 왼쪽으로 가고 있을 경우 오른쪽을 선택하면 아무 일도 일어나지 않기 때문에 왼쪽으로 한 칸 전진하게 될 것이다. (진행방향과 반대방향키는 눌러도 아무 변화가 없다.)
 
-그럼 저런 상황에서는 무조건 위로 가게 하면 되지 않나? 할 수 있지만 왼쪽에 타겟이 바로 왼쪽에 있고 왼쪽으로 바로 가는 것이 최적의 행동이라면 그것을 선택 할 수 없게 된다.
+그럼 이런 상황에서는 무조건 위로 가게 하면 되지 않나? 할 수 있지만 타겟이 바로 왼쪽에 있고 왼쪽으로 바로 가는 것이 최적의 행동이라면 그것을 선택 할 수 없게 된다.
 
 하나가 더 있다. 한칸 앞으로 간다면 꼬리가 한칸 비게 될텐데 어느 공간이 비게 될까? 이것은 더 복잡하다. 뱀이 어떻게 꼬여서 저런 직사각형 모양을 형성했을 지 모르기 때문에 파악하기가 더 힘들다.
 
@@ -149,7 +151,7 @@ MDP를 만족할 수 있게 `FrameStack`을 이용했다. 그렇다고 엄밀하
 
 ![gym-snakegame-6](../../assets/images/rl/gym_snakegame/gym-snakegame-6.png)
 
-마지막 프레임에서 뱀의 머리는 윗 방향을 향하고 있다는 것을 알게 되었으므로 왼쪽 방향을 선택하지 않을 것이다. (우측으로 가는 것이라면 왼쪽 방향으로 가는 것이 아무런 방향 전환을 하지 않으므로 직접적인 죽음이 발생하지 않는다.)
+마지막 프레임에서 뱀의 머리는 윗 방향을 향하고 있다는 것을 알게 되었으므로 왼쪽 방향을 선택하지 않을 것이다.
 
 위로 올라가는 행동을 다시 선택하여 계속 위로 올라간다고 해보자 그럼 다음 observation은 다음과 같을 것이다.
 
@@ -221,7 +223,7 @@ board_size는 8이다. 주황색이 FrameStack하지 않은 것이고 초록색�
 
 ![gym-snakegame-14](../../assets/images/rl/gym_snakegame/gym-snakegame-14.png){: width="50%" height="50%" class="align-center"}
 
-셋은 각각 다른 사진이다. 그런데 특이하기 저렇게 자꾸 두칸씩 비슷한 공간을 비운다. 이유는 모른다. FrameStack과 관계된 일인지, 아니면 그저 Local Optimum인지는 모르겠다. 근데 어쨌든 1 Frame 환경을 이기지도 못했고 Local Optimum에 빠졌다.
+셋은 각각 다른 사진이다. 그런데 특이하게 저렇게 자꾸 두칸씩 비슷한 공간을 비운다. 이유는 모른다. FrameStack과 관계된 일인지, 아니면 그저 Local Optimum인지는 모르겠다. 근데 어쨌든 1 Frame 환경을 이기지도 못했고 Local Optimum에 빠졌다.
 
 그래서 board_size=15 에서도 과연 FrameStack을 늘리는 것이 근본적인 해결책이 될 수 있을지 의문이 생겼다.
 
@@ -262,7 +264,7 @@ MDP를 만족하는 환경을 만드는 법을 생각해내었다. 간단히 설
 
 <p style="text-align: center; font-style: italic;"> Time Weighted EMA: 0.99 </p>
 
-**-0.1/10**, **-0.1/5** 가 가장 높은 성능을 보였다. 다른 것들은 빈 공간에 움직이는 경우와 아이템을 먹을 때의 보상이 가까운데, 성능 높은 두 개는 그 차이가 비교적 큰 편이며 아이템을 먹었을 때 보상이 높은 경향이 있다. 보상에 대해 편차를 크게 하지 않기 위해 1로 하였으나 더 높여도 되지 않을까 하는 생각이 들었다.
+**-0.1/10**, **-0.1/5** 가 가장 높은 성능을 보였다. 다른 것들은 빈 공간에 움직이는 경우의 음의 보상과 아이템을 먹을 때의 양의 보상의 절댓값의 차이가 작은데, 성능 높은 두 개는 그 차이가 비교적 큰 편이며 아이템을 먹었을 때 보상이 높은 경향이 있다. 보상에 대해 편차를 크게 하지 않기 위해 1로 하였으나 더 높여도 되지 않을까 하는 생각이 들었다.
 
 ## 13. 음의 보상의 누적
 
@@ -326,10 +328,10 @@ MDP를 만족하는 환경을 만드는 법을 생각해내었다. 간단히 설
 원래 이 내용이 먼저였으나 실험을 모르고 삭제하여, 다시 학습하여 그래프를 그렸기에 15. 단락의 action masking 내용을 포함했다.
 
 ![gym-snakegame-20](../../assets/images/rl/gym_snakegame/gym-snakegame-20.png){: width="80%" height="80%" class="align-center"}
-<p style="text-align: center; font-style: italic;"> EMA: 0.9, 6 seed </p>
+<p style="text-align: center; font-style: italic;"> EMA: 0.9, 6 seed, board size : 12 </p>
 
 ![gym-snakegame-21](../../assets/images/rl/gym_snakegame/gym-snakegame-21.png){: width="80%" height="80%" class="align-center"}
-<p style="text-align: center; font-style: italic;"> EMA: 0.9, 6 seed </p>
+<p style="text-align: center; font-style: italic;"> EMA: 0.9, 6 seed, board size : 12 </p>
 
 보다시피 action masking 적용 여부에 상관없이 채널이 많을 수록 성능이 좋아지는 것을 볼 수 있다.
 
