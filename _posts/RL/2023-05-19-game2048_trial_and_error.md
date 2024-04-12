@@ -2,7 +2,7 @@
 layout: single
 title: "2048 게임 강화학습 도전기"
 date: 2023-05-19 22:18:12
-lastmod : 2023-06-15 21:53:02
+lastmod : 2024-04-12 20:22:00
 categories: RL
 tag: [RL, PPO, '2048']
 toc: true
