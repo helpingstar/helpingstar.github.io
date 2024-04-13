@@ -2,7 +2,7 @@
 layout: single
 title: "NDCG, 추천 시스템 평가 지표"
 date: 2022-07-09 16:05:24
-lastmod : 2022-07-09 16:05:21
+lastmod : 2024-04-13 18:44:50
 categories: RecSys
 tag: [CG, DCG, NDCG, RecSys, 추천 시스템]
 toc: true
@@ -60,7 +60,7 @@ $DCG_{6}=6.86113$
 
 $nDCG=\frac{DCG_{p}}{IDCG_{p}}$
 
-$IDCG_{p}=\sum_{i=1}^{\left|| REL_{p} \right||}\frac{rel_{i}}{\log_{2}(i+1)}$
+$IDCG_{p}=\sum_{i=1}^{\left\| REL_{p} \right\|}\frac{rel_{i}}{\log_{2}(i+1)}$
 
  - $REL_{p}$ : $p$ 위치까지 의 관련성 순서
 
