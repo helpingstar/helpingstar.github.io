@@ -2,7 +2,7 @@
 layout: single
 title: "gymnasium 기반 single agent custom 강화학습 환경 만들기"
 date: 2024-02-06 14:00:00
-lastmod: 2024-02-06 14:00:00
+lastmod: 2024-04-13 17:52:00
 categories: RL
 tag: [RL, gymnasium]
 toc: true
@@ -253,3 +253,9 @@ class FlattenObservation(gym.ObservationWrapper, gym.utils.RecordConstructorArgs
     def observation(self, observation):
         return spaces.flatten(self.env.observation_space, observation)
 ```
+
+## 랜덤 에이전트의 평균치를 기록하면 도움이 된다.
+
+따로 문서에 쓴다기보다는 랜덤 에이전트로 에피소드를 반복해보면서 평균 보상, 평균 에피소드 길이(step), 에피소드가 종료될 때 환경의 상태, 에이전트의 상태를 대충 알아두는 것이 알고리즘 설계시 도움이 된다.
+
+[`RecordEpisodeStatistics`](https://gymnasium.farama.org/api/wrappers/misc_wrappers/#gymnasium.wrappers.RecordEpisodeStatistics) Wrapper와 같이 활용하면 더 편할 것이다.
