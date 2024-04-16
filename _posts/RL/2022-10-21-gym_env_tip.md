@@ -2,11 +2,19 @@
 layout: single
 title: "gym(gymnasium) 환경 구성시 고려할 점"
 date: 2022-10-13 15:17:26
-lastmod : 2023-05-29 20:44:30
+lastmod : 2024-04-16 18:22:54
 categories: RL
 tag: [openai, gym, RL, gymnasium, pettingzoo]
-toc: true
-toc_sticky: true
+toc: false
+toc_sticky: false
+---
+
+### 해당 포스트는 아래 글로 새로 업데이트 되었습니다. 삭제하기 아까워 남깁니다.
+
+### [gymnasium 기반 single agent custom 강화학습 환경 만들기](https://helpingstar.github.io/rl/custom_rl_env_single/)
+
+---
+
 ---
 
 # State
