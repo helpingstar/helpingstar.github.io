@@ -71,4 +71,5 @@ class TrainState(struct.PyTreeNode):
   * `tx.init`에서 반환된 optimizer state(`opt_state`)를 저장한다.
   * 클래스 변수 `step`을 0으로 저장하고, 클래스 변수 `opt_state`에 `tx.init`로부터 얻은 `opt_state`를 저장하고 각 클래스 변수에 각 인자를 대입한 `TrainState`를 반환한다.
 
-<!-- struct.field(pytree_node=True)??? -->
+<!-- TODO : struct.field(pytree_node=True)??? -->
+<!-- TODO : update -> apply_updates 원리 -->
