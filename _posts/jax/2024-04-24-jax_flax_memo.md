@@ -70,6 +70,26 @@ class TrainState(struct.PyTreeNode):
 * `create`
   * `tx.init`에서 반환된 optimizer state(`opt_state`)를 저장한다.
   * 클래스 변수 `step`을 0으로 저장하고, 클래스 변수 `opt_state`에 `tx.init`로부터 얻은 `opt_state`를 저장하고 각 클래스 변수에 각 인자를 대입한 `TrainState`를 반환한다.
+* `optax.inject_hyperparams`를 통해 `GradientTransformation`(ex. `optax.adam`)를 Wrapping 하면 하이퍼파라미터에 직접 접근이 가능해진다. 그런 optimizer state 정보는 `TrainState.opt_state`에 저장되기 때문에 `TrainState.opt_state.hyperparams[<name of parameter>]`를 통해 optimizer의 state의 hyperparameter에 접근이 가능하다. 
+  * `TrainState.tx` 가 `optax.chain`을 통해 여러 개의 `GradientTransformation`으로 이루어져 있다면 인덱스로 접근 후 `.hyperparams`를 통해 접근해야 한다.
+    * ex. `agent_state.opt_state[1].hyperparams["learning_rate"]`
+  * `TrainState.tx.opt_state`로 접근할 수 있다고 생각하기보다는 `TrainState`는 `apply_gradient`, `init`의 과정에서 `opt_state`를 자동으로 내부에 저장하는데 그것에 접근하는 것이라 생각하는 것이 좋을 것 같다.
+
+ex. `TrainState`의 `optimizer`(`tx`)의 learning_rate를 얻기
+
+```python
+# learning_rate를 얻으려는 경우 learning_rate는 schedule일 확률이 높다.
+tx = optax.inject_hyperparams(optax.adam)(learning_rate=scalar_or_schedule)
+
+train_state = CustomTrainState.create(
+  ...
+  tx=tx,
+)
+
+...
+
+lr_adam = train_state.opt_state.hyperparams["learning_rate"]
+```
 
 <!-- TODO : struct.field(pytree_node=True)??? -->
 <!-- TODO : update -> apply_updates 원리 -->
