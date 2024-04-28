@@ -8,7 +8,7 @@ tag: [RL, Policy Gradient]
 toc: true
 toc_sticky: true
 use_math: true
-published: false
+published: true
 ---
 
 ## Policy Gradient
