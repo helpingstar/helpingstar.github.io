@@ -24,6 +24,7 @@ published: false
 * input 데이터를 그대로 사용했기 때문에 unsupervised learning
 * Encoding : input -> Encoder network -> Latent vector
 * Decoding : Latent vector -> Decoder network -> reconstructed output
+* Latent Vector : single value for each attribute
 
 
 
