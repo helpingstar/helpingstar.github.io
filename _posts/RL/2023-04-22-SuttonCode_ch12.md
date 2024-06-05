@@ -201,7 +201,7 @@ class TemporalDifferenceLambda(ValueFunction):
 * **(1~2)** : $\text{TD}(\lambda)$를 나타내는 클래스, [`ValueFunction`](#valuefunction)을 상속한다.
 * **(3~4)** : 상속한 [`ValueFunction`](#valuefunction)의 생성자를 호출하여 `weights` 배열, `rate`($\lambda$), `step_size`($\alpha$) 을 클래스 변수로 저장한다.
 * **(5)** : 각 에피소드별로 [`random_walk`](#random_walk) 호출시에 `new_episode()`가 실행되므로 중복된 코드이다.
-* **(7)** : 새로운 에피소드가 시작될떄 호출되는 함수이다.
+* **(7)** : 새로운 에피소드가 시작될때 호출되는 함수이다.
 * **(8~9)** : 적격 흔적 벡터를 0으로 초기화한다.
 * **(10~11)** : 마지막(최근) 상태를 시작상태로 초기화한다.
 * **(13)** : 상태와 보상을 인수로 받는 클래스 함수이다. 여기서 $\nabla\hat{v}(S, \textbf{w})=1$, $\gamma = 1$ 이다. 
@@ -248,7 +248,7 @@ class TrueOnlineTemporalDifferenceLambda(ValueFunction):
 ```
 * **(1~2)** : $\text{TD}(\lambda)$를 나타내는 클래스, [`ValueFunction`](#valuefunction)을 상속한다.
 * **(3~4)** : 상속한 [`ValueFunction`](#valuefunction)의 생성자를 호출하여 `weights` 배열, `rate`($\lambda$), `step_size`($\alpha$) 을 클래스 변수로 저장한다.
-* **(6)** : 새로운 에피소드가 시작될떄 호출되는 함수이다.
+* **(6)** : 새로운 에피소드가 시작될때 호출되는 함수이다.
 * **(7~8)** : 적격 흔적 벡터($\textbf{z}$)를 0으로 초기화한다.
 * **(9~10)** : 마지막(최근) 상태를 시작상태로 초기화한다.
 * **(11~12)** : 이전 상태 가치($V_{\text{old}}$)를 0으로 초기화한다

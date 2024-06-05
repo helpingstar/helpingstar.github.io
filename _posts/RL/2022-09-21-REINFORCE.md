@@ -143,7 +143,7 @@ $R_t(\tau)=\sum_{t'=t}^{T}\gamma^{t'-t}r_{t'}$
 
 # Improve REINFORCE
 
-`Monte Carlo sampling`은 `return`이 궤적에 따라 크게 변할 수 있기 떄문에 `policy gradient` 추정값은 큰 분산을 가질 수 있다. 이는 세 가지 요인에 기인한다.
+`Monte Carlo sampling`은 `return`이 궤적에 따라 크게 변할 수 있기 때문에 `policy gradient` 추정값은 큰 분산을 가질 수 있다. 이는 세 가지 요인에 기인한다.
 
 1. 행동이 확률분포로부터 추출됐기 때문에 어느정도 무작위성을 갖는다.
 2. 시작 상태가 에피소드마다 다를 수 있다.

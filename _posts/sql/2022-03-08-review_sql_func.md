@@ -384,7 +384,7 @@ mysql> SELECT language_id,
 ### **`distinct`, 중복 제거**
 경우에 따라 쿼리가 중복된 데이터 행을 반환할 수 있다.
 
-`distinct` 결과를 생성하려면 데이터를 정렬해야 하므로 결과셋의 용량이 클 떄는 시간이 오래 걸릴 수 있다. 
+`distinct` 결과를 생성하려면 데이터를 정렬해야 하므로 결과셋의 용량이 클 때는 시간이 오래 걸릴 수 있다. 
 ```sql
 mysql> SELECT actor_id FROM film_actor ORDER BY actor_id;
 +----------+

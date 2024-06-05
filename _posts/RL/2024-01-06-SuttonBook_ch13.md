@@ -23,7 +23,7 @@ $$
 h(s, a, \boldsymbol{\theta}) = \boldsymbol{\theta}^\top \mathbf{x}(s, a) \tag{13.3}
 $$
 
-* $\mathbf{x}(s, a)$ : 상태 $s$에서 행동 a를 취할 떄 드러나는 특징 벡터
+* $\mathbf{x}(s, a)$ : 상태 $s$에서 행동 a를 취할 때 드러나는 특징 벡터
 
 $$
 J(\boldsymbol{\theta}) \doteq v_{\pi_{\boldsymbol{\theta}}}(s_0) \tag{13.4}
