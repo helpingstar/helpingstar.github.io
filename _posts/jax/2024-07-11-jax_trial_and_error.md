@@ -5,7 +5,7 @@ date: 2024-07-11 13:54:14
 lastmod : 2024-07-11 13:54:14
 categories: jax
 tag: [jax, flax]
-use_math: false
+use_math: true
 ---
 
 ## 1.
@@ -551,3 +551,354 @@ inverse_idx = jnp.argsort(BOX_IDX.flatten()).reshape(9, 9)
 jnp.all(BOX_IDX == inverse_idx)
 # Array(True, dtype=bool)
 ```
+
+## 6. `dynamic_slice`, `slice`, indexing
+
+![alt text](../../assets/images/jax/slice_1.png){: width="30%" height="30%" class="align-center"}
+
+위와같이 (6, 5) shape를 가진 배열의 굵게 처리된 부분을 얻고 싶다고 한다면 세가지 방법이 있을 것이다.
+
+1. `jax.lax.dynamic_slice`
+2. `jax.lax.slice`
+3. indexing
+
+
+```python
+def d_slice_3x2(arr, x, y):
+    return jax.lax.dynamic_slice(arr, (x, y), (3, 2))
+
+def slice_fn_3x2(arr, x, y):
+    return jax.lax.slice(arr, (x, y), (x+3, y+2))
+
+def slice_index_3x2(arr, x, y):
+    return arr[x:x+3, y:y+2]
+
+arr = jnp.arange(30).reshape(6, 5)
+```
+
+각 함수를 실행하면 결과는 다음과 같다.
+
+```python
+print("d_slice")
+print(d_slice_3x2(arr, 2, 3))
+
+print("slice_fn")
+print(slice_fn_3x2(arr, 2, 3))
+
+print("slice_index")
+print(slice_index_3x2(arr, 2, 3))
+```
+
+```text
+d_slice
+[[13 14]
+ [18 19]
+ [23 24]]
+slice_fn
+[[13 14]
+ [18 19]
+ [23 24]]
+slice_index
+[[13 14]
+ [18 19]
+ [23 24]]
+```
+
+그렇다면 얻고자 하는 범위가 배열의 크기를 넘어가면 어떻게 될까? 예를 들어 다음과 같은 범위를 얻고 싶다고 가정하자.
+
+![alt text](../../assets/images/jax/slice_2.png){: width="80%" height="80%" class="align-center"}
+
+그럼 위 그림에도 나와있다시피 실행시 결과는 다음과 같이 나온다.
+
+```python
+print(d_slice_3x2(arr, 5, 4))
+print(slice_fn_3x2(arr, 5, 4))
+print(slice_index_3x2(arr, 5, 4))
+```
+
+```text
+[[18 19]
+ [23 24]
+ [28 29]]
+[[18 19]
+ [23 24]
+ [28 29]]
+[[29]]
+```
+
+여기서 각 함수를 jitting 하면 결과가 다음과 같다.
+
+```python
+jitted_d_slice_3x2(arr, 2, 3)
+```
+
+```text
+Array([[13, 14],
+       [18, 19],
+       [23, 24]], dtype=int32)
+```
+
+```python
+jitted_slice_fn_3x2(arr, 2, 3)
+```
+
+```text
+TracerArrayConversionError: The numpy.ndarray conversion method __array__() was called on traced array with shape int32[].
+The error occurred while tracing the function slice_fn_3x2 at <ipython-input-4-6fbf264c417e>:4 for jit. This concrete value was not available in Python because it depends on the value of the argument x.
+See https://jax.readthedocs.io/en/latest/errors.html#jax.errors.TracerArrayConversionError
+```
+
+```python
+jitted_slice_index_3x2(arr, 2, 3)
+```
+
+```text
+IndexError: Array slice indices must have static start/stop/step to be used with NumPy indexing syntax.
+Found slice(Traced<ShapedArray(int32[], weak_type=True)>with<DynamicJaxprTrace(level=1/0)>, Traced<ShapedArray(int32[], weak_type=True)>with<DynamicJaxprTrace(level=1/0)>, None).
+To index a statically sized array at a dynamic position, try lax.dynamic_slice/dynamic_update_slice (JAX does not support dynamically sized arrays within JIT compiled functions).
+```
+
+`dynamic_slice` 만 가능하다. 아직 정확한 이유는 파악하기 어렵지만 `dynamic_slice`는 함수 호출시에 반환되는 배열의 크기를 확정할 수 있기 때문인 것으로 보인다.
+
+[**DynamicSlice에 대한 XLA 공식 문서**](https://openxla.org/xla/operation_semantics?hl=ko#dynamicslice)에는 다음과 같이 적혀있다. (사실상 JAX와 같다)
+
+---
+
+`DynamicSlice(operand, start_indices, size_indices)`
+
+The effective slice indices are computed by applying the following transformation for each index i in [1, N) before performing the slice:
+
+```
+start_indices[i] = clamp(start_indices[i], 0, operand.dimension_size[i] - size_indices[i])
+```
+
+This ensures that the extracted slice is always in-bounds with respect to the operand array. If the slice is in-bounds before the transformation is applied, the transformation has no effect.
+
+---
+
+`start_indices`가 `clamp` 연산된다는 것을 이해하면 방금 (5, 4)에서 인덱싱한 결과가 왜 저렇게 나왔는지 이해가 될 것이다.
+
+## 7. `functools.partial` 활용하기
+
+[**직접올린 JAX의 Discussion Q&A**](https://github.com/google/jax/discussions/23306)를 재구성하였다.
+
+일단 `functools.partial`에 대해 이해해보자
+
+[**`functools.partial` 공식문서**](https://docs.python.org/3/library/functools.html#functools.partial)에서는 다음과 같이 설명하고 있다.
+
+Return a new partial object which when called will behave like *func* called with the positional arguments *args* and keyword arguments *keywords*. If more arguments are supplied to the call, they are appended to *args*. If additional keyword arguments are supplied, they extend and override *keywords*. Roughly equivalent to:
+
+새로운 partial 객체를 반환하며, 호출 시에 *args*라는 위치 인자와 *keywords*라는 키워드 인자를 사용하여 *func*가 호출된 것처럼 동작합니다. 호출 시에 더 많은 인자가 제공되면 그것들은 *args*에 추가됩니다. 추가적인 키워드 인자가 제공되면, 그것들은 *keywords*를 확장하거나 덮어씁니다. 이는 대략적으로 다음과 동등합니다:
+
+```python
+def partial(func, /, *args, **keywords):
+    def newfunc(*fargs, **fkeywords):
+        newkeywords = {**keywords, **fkeywords}
+        return func(*args, *fargs, **newkeywords)
+    newfunc.func = func
+    newfunc.args = args
+    newfunc.keywords = keywords
+    return newfunc
+```
+
+The `partial()` is used for partial function application which “freezes” some portion of a function’s arguments and/or keywords resulting in a new object with a simplified signature. For example, `partial()` can be used to create a callable that behaves like the `int()` function where the base argument defaults to two:
+
+`partial()` 함수는 함수의 인자나 키워드 중 일부를 "고정"하여 간소화된 서명(signature)을 가진 새로운 객체(object)를 생성하는 데 사용됩니다. 예를 들어, `partial()`을 사용하면 `int()` 함수처럼 동작하되, `base` 인자를 기본값으로 2로 설정한 호출 가능한 객체를 만들 수 있습니다.
+
+```python
+>>> from functools import partial
+>>> basetwo = partial(int, base=2)
+>>> basetwo.__doc__ = 'Convert base 2 string to an int.'
+>>> basetwo('10010')
+18
+```
+
+예시를 하나만 더 들면 다음과 같다.
+
+```python
+import functools
+
+
+def cal(x, y, z):
+    return x * y + z
+
+
+cal_ver1 = functools.partial(cal, x=3, z=2)
+cal_ver2 = functools.partial(cal, 3, 2)
+
+print(cal_ver1(y=5))
+# print(cal_ver1(3)) # 오류 : 3은 왼쪽부터 채워져 x=3으로 취급됨, 중복인자
+print(cal_ver2(5))  # 3, 2가 왼쪽부터 채워져 x=3, y=2, z=5 로 취급됨.
+
+```
+
+`functools.partial`에 *func*를 제외하고 positional arguments를 입력할지 keyword arguments로 입력할지 잘 선택해야 한다. positional arguemnts로 입력시 왼쪽부터 채워지며 keyword arguments로 입력시 해당 키워드에 맞게 채워진다.
+
+
+`functools.partial`에 대해 설명하였다. 나는 이것을 다음과 같이 활용하였다. 아래 내용은 실제 문제를 상당히 간소화한 버전이다.
+
+```python
+@jax.jit
+def get_result(x):
+    fn_list = (
+        lambda x: x + 1,
+        lambda x: x + 2,
+        lambda x: x + 3,
+    )
+
+    def add_number(fn_index, x):
+        return jax.lax.switch(fn_index, fn_list, x)
+
+    result = jax.lax.fori_loop(0, len(fn_list), add_number, x)
+    return result
+
+get_result(4)
+# Array(10, dtype=int32, weak_type=True)
+```
+
+`fn_list`가 있고 각 iteration 마다 적용하기 위한 함수가 저장되어 있었고 각 iteration마다 해당 `fn`을 실행해야 했다. 하지만 해당 `fn` 연산은 `add_number`에서 상당히 많이 이루어지고 그리고 `x`에만 적용하는 것이 아니고 다른 변수에도 적용할 수 있기 때문에 계속해서 적용할 방법이 필요했다.
+
+그렇다고 매번 `jax.lax.switch`를 쓰자니 코드가 너무 지저분했다.
+
+이럴 경우 `functools.partial`을 활용할 수 있다.
+
+```python
+@jax.jit
+def get_result_partial(x):
+    fn_list = (
+        lambda x: x + 1,
+        lambda x: x + 2,
+        lambda x: x + 3,
+    )
+
+    def add_number(fn_index, x):
+        fn = functools.partial(jax.lax.switch, fn_index, fn_list)
+        return fn(x)
+
+    result = jax.lax.fori_loop(0, len(fn_list), add_number, x)
+    return result
+
+get_result_partial(4)
+# Array(10, dtype=int32, weak_type=True)
+```
+
+위와같이 `jax.lax.switch` 활용시 `fn_index`, `fn_list`는 계속 고정되니 해당 연산을 `functools.partial`를 이용하여 변수에 따로 저장할 수 있다.
+
+## 8. `lax.select`, `lax.cond`
+
+`lax.cond`의 문서를 살펴보면 다음과 같은 내용이 있다.
+
+In contrast with `jax.lax.select()`, using `cond` indicates that only one of the two branches is executed (up to compiler rewrites and optimizations). However, when transformed with `vmap()` to operate over a batch of predicates, `cond` is converted to `select()`.
+
+위 내용 중 *only one of the two branches is excuted* 부분을 실험해 보려고 한다.
+
+실험 방법은 다음과 같다.
+
+* 연산 대상 배열의 크기가 큰 것과 작은 것
+* 연산량이 큰 연산과 작은 연산
+* True/False
+
+각각 조합하면 8개가 나온다. 다음과 같은 코드로 연산한다. 
+
+코드에 나와있다시피 `True`일 경우 `x`와 `x`의 내적을 구하고, `False`일 경우 `x`에 1을 더한다. 즉 `True`일 경우 연산량이 크고, `False`일 경우 연산량이 작다.
+
+```python
+@jax.jit
+def cond_fn(c, x):
+    return jax.lax.cond(c, lambda x: jnp.dot(x, x), lambda x: x+1, x)
+
+@jax.jit
+def select_fn(c, x):
+    return jax.lax.select(c, jnp.dot(x, x), x+1)
+
+
+arr_small = jnp.ones((10, 10))
+arr_large = jnp.ones((10000, 10000))
+
+# warming up
+cond_fn(True, arr_small)
+cond_fn(False, arr_small)
+select_fn(True, arr_small)
+select_fn(False, arr_small)
+
+cond_fn(True, arr_large)
+cond_fn(False, arr_large)
+select_fn(True, arr_large)
+select_fn(False, arr_large)
+```
+
+`cond_fn`과 `select_fn`의 결과는 같다.
+
+시간 측정은 다음과 같이 하였다.
+
+```python
+%%timeit
+
+<cond/select>_fn(<True/False>, arr_<small/large>).block_until_ready()
+```
+
+각 연산 결과는 다음과 같다. 절대적 수치보다는 상대적 수치에 주목하자
+
+| | arr_small | arr_small | arr_large | arr_large |
+|-|-|-|-|-|
+| | TRUE | FALSE | TRUE | FALSE |
+| cond_fn | 38 | 34.6 | 26100 | 1100 |
+| select_fn| 33.7 | 32.5 | 27200 | 27300 |
+
+
+결과는 다음과 같다.
+
+* 연산량이 적을 경우 `lax.select`가 더 빠르다.
+* `lax.cond`는 확실히 한 분기만 실행하는 것처럼 보인다. `lax.select`의 경우 모든 경우에서 연산량이 거의 차이가 없다. 하지만 `lax.cond`의 경우 `True`일 경우 연산량이 크고, `False`일 경우 연산량이 작다. 이는 `lax.cond`가 한 분기만 실행하는 것을 보여준다.
+
+연산량이 적을 경우 `lax.select`가 더 빠른 것에 대하여 `make_jaxpr`을 살펴보았다.
+
+```python
+make_jaxpr(cond_fn)(True, arr_small)  # True/False 가 결과가 같다.
+```
+```
+{ lambda ; a:bool[] b:f32[10,10]. let
+    c:f32[10,10] = pjit[
+      name=cond_fn
+      jaxpr={ lambda ; d:bool[] e:f32[10,10]. let
+          f:i32[] = convert_element_type[new_dtype=int32 weak_type=False] d
+          g:f32[10,10] = cond[
+            branches=(
+              { lambda ; h:f32[10,10]. let i:f32[10,10] = add h 1.0 in (i,) }
+              { lambda ; j:f32[10,10]. let
+                  k:f32[10,10] = dot_general[
+                    dimension_numbers=(([1], [0]), ([], []))
+                    preferred_element_type=float32
+                  ] j j
+                in (k,) }
+            )
+            linear=(False,)
+          ] f e
+        in (g,) }
+    ] a b
+  in (c,) }
+```
+
+```python
+make_jaxpr(select_fn)(True, arr_small)
+```
+
+```
+{ lambda ; a:bool[] b:f32[10,10]. let
+    c:f32[10,10] = pjit[
+      name=select_fn
+      jaxpr={ lambda ; d:bool[] e:f32[10,10]. let
+          f:f32[10,10] = dot_general[
+            dimension_numbers=(([1], [0]), ([], []))
+            preferred_element_type=float32
+          ] e e
+          g:f32[10,10] = add e 1.0
+          h:f32[10,10] = select_n d g f
+        in (h,) }
+    ] a b
+  in (c,) }
+```
+
+`lax.cond`의 경우 jaxpr에 branches가 나타나있다. 이 부분에서 연산이 생기기 때문에 이 연산보다 다른 분기 연산이 더 작을 경우 `lax.select`가 더 빠른 것으로 보인다.
+
+하지만 `lax.cond`의 경우 `vmap`을 사용할 경우 `lax.select`로 변환된다. 이 부분도 구현시 고려해야 할 것이다.
