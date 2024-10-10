@@ -2,7 +2,7 @@
 layout: single
 title: "(WIP)Policy Gradient"
 date: 2024-04-10 17:00:00
-lastmod: 2024-04-10 17:00:00
+lastmod: 2024-10-10 12:52:35
 categories: RL
 tag: [RL, Policy Gradient]
 toc: true
@@ -132,13 +132,13 @@ $$
 $\log p\_{\theta}(\tau)$를 구하기 위해 위 식에 $\log$를 씌우면 식이 아래와 같아진다.
 
 $$
-\log p_{\theta}(\tau) = \log p(\mathbf{s}_1) + \sum_{t=1}^{T} \log \pi_{\theta}(\mathbf{a}_t \vert \mathbf{s}_t) + \log p(\mathbf{s}_{t+1} \vert \mathbf{s}_t, \mathbf{a}_t)
+\log p_{\theta}(\tau) = \log p(\mathbf{s}_1) + \sum_{t=1}^{T} \left[ \log \pi_{\theta}(\mathbf{a}_t \vert \mathbf{s}_t) + \log p(\mathbf{s}_{t+1} \vert \mathbf{s}_t, \mathbf{a}_t) \right]
 $$
 
 마지막으로 최종 목표인 $\nabla\_\theta \log p\_{\theta}(\tau)$를 구하기 위해 $\nabla\_\theta$를 씌우면
 
 $$
-\nabla_\theta \log p_{\theta}(\tau) = \nabla_\theta \left[ \log p(\mathbf{s}_1) + \sum_{t=1}^{T} \log \pi_{\theta}(\mathbf{a}_t \vert \mathbf{s}_t) + \log p(\mathbf{s}_{t+1} \vert \mathbf{s}_t, \mathbf{a}_t) \right]
+\nabla_\theta \log p_{\theta}(\tau) = \nabla_\theta \left[ \log p(\mathbf{s}_1) + \sum_{t=1}^{T} \left[ \log \pi_{\theta}(\mathbf{a}_t \vert \mathbf{s}_t) + \log p(\mathbf{s}_{t+1} \vert \mathbf{s}_t, \mathbf{a}_t) \right] \right]
 $$
 
 인데 가운데 항만 $\theta$의 함수이므로 $\log p(\mathbf{s}\_1)$, $\log p(\mathbf{s}\_{t+1} \vert \mathbf{s}\_t, \mathbf{a}\_t)$를 제거하면
@@ -146,7 +146,7 @@ $$
 $$
 \require{cancel}
 \begin{align*}
-\nabla_\theta \log p_{\theta}(\tau) &= \nabla_\theta \left[ \cancel{\log p(\mathbf{s}_1)} + \sum_{t=1}^{T} \log \pi_{\theta}(\mathbf{a}_t \vert \mathbf{s}_t) + \cancel{\log p(\mathbf{s}_{t+1} \vert \mathbf{s}_t, \mathbf{a}_t)} \right] \\
+\nabla_\theta \log p_{\theta}(\tau) &= \nabla_\theta \left[ \cancel{\log p(\mathbf{s}_1)} + \sum_{t=1}^{T} \left[ \log \pi_{\theta}(\mathbf{a}_t \vert \mathbf{s}_t) + \cancel{\log p(\mathbf{s}_{t+1} \vert \mathbf{s}_t, \mathbf{a}_t)} \right] \right] \\
 &= \nabla_\theta \left[\sum_{t=1}^{T} \log \pi_{\theta}(\mathbf{a}_t \vert \mathbf{s}_t) \right] \\
 &= \sum_{t=1}^{T} \nabla_\theta \log \pi_{\theta}(\mathbf{a}_t \vert \mathbf{s}_t)
 \end{align*}
