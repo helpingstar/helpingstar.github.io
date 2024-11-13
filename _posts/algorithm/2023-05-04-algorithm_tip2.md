@@ -1,7 +1,7 @@
 ---
 title: "알고리즘 PS 오답노트/팁 2"
 date: 2023-05-04 23:51:31
-lastmod : 2024-10-08 10:09:16
+lastmod : 2024-11-13 12:39:20
 categories: algorithm
 tag: [algorithm]
 toc: true
@@ -138,3 +138,8 @@ number = number * 10 + board[r][c]
 `visited[0][1][0][0][1][1][r][c]`
 
 하지만 이것은 `visited[bit][r][c]` 와 같이 작성될 수 있다. 이것이 훨씬 깔끔하다.
+
+
+## 30.
+
+`itertools` 는 1회용이다. 여러 번 사용하려면 `tuple`, 또는 `list`로 저장해야 한다.
