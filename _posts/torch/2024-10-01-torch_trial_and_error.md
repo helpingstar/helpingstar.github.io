@@ -6,6 +6,7 @@ lastmod : 2024-07-11 13:54:14
 categories: torch
 tag: [torch]
 use_math: true
+published: false
 ---
 
 ## 1. `torch.tenosr`는 `grad` 를 제거한다.
