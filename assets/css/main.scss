@@ -4,5 +4,129 @@
 
 @charset "utf-8";
 
+/* Custom Font Faces - Pretendard */
+@font-face {
+  font-family: 'Pretendard';
+  font-weight: 200;
+  font-style: normal;
+  src: url('/assets/fonts/pretendard/Pretendard-ExtraLight.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  font-weight: 300;
+  font-style: normal;
+  src: url('/assets/fonts/pretendard/Pretendard-Light.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/assets/fonts/pretendard/Pretendard-Regular.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  font-weight: 500;
+  font-style: normal;
+  src: url('/assets/fonts/pretendard/Pretendard-Medium.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  font-weight: 600;
+  font-style: normal;
+  src: url('/assets/fonts/pretendard/Pretendard-SemiBold.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/assets/fonts/pretendard/Pretendard-Bold.woff2') format('woff2');
+  font-display: swap;
+}
+
+/* Custom Font Faces - JetBrains Mono */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/assets/fonts/jetbrains-mono/JetBrainsMono-Regular.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/assets/fonts/jetbrains-mono/JetBrainsMono-Italic.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-weight: 500;
+  font-style: normal;
+  src: url('/assets/fonts/jetbrains-mono/JetBrainsMono-Medium.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-weight: 600;
+  font-style: normal;
+  src: url('/assets/fonts/jetbrains-mono/JetBrainsMono-SemiBold.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/assets/fonts/jetbrains-mono/JetBrainsMono-Bold.woff2') format('woff2');
+  font-display: swap;
+}
+
+/* Custom Font Variables */
+$sans-serif: "Pretendard", -apple-system, BlinkMacSystemFont, "Nanum Gothic", Arial, sans-serif;
+$monospace: "JetBrains Mono", Monaco, Consolas, "Lucida Console", monospace;
+
 @import "minimal-mistakes/skins/{{ site.minimal_mistakes_skin | default: 'default' }}"; // skin
 @import "minimal-mistakes"; // main partials
+
+/* Custom styles for strong tag and code highlighting */
+
+/* Make strong tag more visible for Korean text */
+strong, b {
+  font-weight: 700 !important;
+}
+
+/* Ensure code highlighting works with strong tag */
+strong > code,
+b > code {
+  padding-top: 0.1rem;
+  padding-bottom: 0.1rem;
+  font-size: 0.8em;
+  background: $code-background-color;
+  border-radius: $border-radius;
+  font-weight: 700;
+
+  &:before,
+  &:after {
+    letter-spacing: -0.2em;
+    content: "\00a0";
+  }
+}
+
+/* Preserve syntax highlighting in code blocks with strong */
+.highlight strong,
+.highlight b {
+  font-weight: 700;
+}
