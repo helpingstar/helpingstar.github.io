@@ -130,3 +130,26 @@ b > code {
 .highlight b {
   font-weight: 700;
 }
+
+/* Fix long URLs and links breaking on mobile */
+.page__content {
+  a {
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* Specific handling for blockquote links (reference sections) */
+  blockquote a {
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  /* Prevent long URLs in plain text from overflowing */
+  p, li, blockquote {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+}
