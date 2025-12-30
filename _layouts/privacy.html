@@ -1,0 +1,42 @@
+---
+---
+
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.24.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="{{ site.locale | slice: 0,2 | default: " en" }}" class="no-js">
+
+<head>
+  {% include head.html %}
+  {% include head/custom.html %}
+  {% if page.use_math %}
+  {% include mathjax_support.html %}
+  {% endif %}
+</head>
+
+<body
+  class="layout--{{ page.layout | default: layout.layout }}{% if page.classes or layout.classes %}{{ page.classes | default: layout.classes | join: ' ' | prepend: ' ' }}{% endif %}">
+  <div class="initial-content">
+    <div id="main" role="main">
+      <article class="page h-entry" itemscope itemtype="https://schema.org/CreativeWork">
+        <div class="page__inner-wrap">
+          <header>
+            {% if page.title %}<h1 id="page-title" class="page__title p-name" itemprop="headline">{{ page.title }}</h1>
+            {% endif %}
+          </header>
+
+          <section class="page__content e-content" itemprop="text">
+            {{ content }}
+          </section>
+        </div>
+      </article>
+    </div>
+  </div>
+
+</body>
+
+</html>
