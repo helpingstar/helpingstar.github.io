@@ -1,7 +1,7 @@
 ---
 layout: privacy
 title: "Dayloader Privacy Policy"
-permalink: /app/protestalert/privacy/
+permalink: /app/dayloader/privacy/
 author_profile: false
 sitemap: false
 ---
