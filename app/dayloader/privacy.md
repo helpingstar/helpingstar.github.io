@@ -1,14 +1,6 @@
----
-layout: privacy
-title: "Dayloader Privacy Policy"
-permalink: /app/dayloader/privacy/
-author_profile: false
-sitemap: false
----
-
 # Privacy Policy
 
-**Last Updated: February 9, 2026**
+**Last Updated: February 10, 2026**
 
 Dayloader ("the App", "we", "our") is committed to protecting user privacy. This Privacy Policy explains what information we collect, how we use it, and how we handle your data.
 
@@ -16,12 +8,23 @@ Dayloader ("the App", "we", "our") is committed to protecting user privacy. This
 
 ## 1. Information We Collect
 
-The App does not automatically collect personal information. However, if you choose to use the feedback feature, you may voluntarily provide:
+### 1.1 App Data (Stored Locally)
+The App stores your planning data (such as categories, tasks, routines, and completion history) locally on your device. We do not automatically collect or transmit this app data to external servers.
 
-- Email address (to receive a response)
-- Message content
+### 1.2 Feedback Submissions (Sent Only When You Choose to Send Feedback)
+If you choose to use the feedback feature, you may voluntarily provide:
+- **Contact email address** (to receive a response)
+- **Message content**
 
-We use this information solely to respond to your inquiry.
+When you submit feedback, the App also includes limited **technical information** to help us troubleshoot issues and prevent duplicate submissions:
+- **App identifier** (e.g., app package/app ID)
+- **App version** (version name and version code)
+- **Device model**
+- **Operating system version**
+- **Locale/language**
+- **Client-generated ID** (a randomly generated identifier used to deduplicate feedback submissions; it is **not** linked to an account)
+
+We use feedback information only to respond to your inquiry, troubleshoot, and prevent duplicate feedback submissions.
 
 ---
 
@@ -41,13 +44,18 @@ The App provides a backup and restore feature. Backup files are saved to the loc
 
 ## 4. Feedback and Inquiries
 
-When you use the feedback feature, the email address and message you provide are transmitted to our support backend hosted on **Supabase**. This data is used solely to respond to your inquiry. We do not use this data for marketing, analytics, or advertising.
+When you use the feedback feature, the information described in Section 1.2 (including your email address, message content, and technical metadata) is transmitted to our support backend hosted on **Supabase**. This data is used solely for:
+- responding to your inquiry,
+- troubleshooting, and
+- preventing duplicate feedback submissions.
+
+We do not use feedback data for marketing, analytics, or advertising.
 
 ---
 
 ## 5. Data Retention and Deletion
 
-Feedback submissions (email address and message content) are retained only as long as necessary to resolve your inquiry.
+Feedback submissions (including contact email, message content, and technical metadata) are retained only as long as necessary to resolve your inquiry and handle duplicate-submission prevention.
 
 You may request deletion of your feedback submission at any time by contacting us at the email address below.
 
@@ -71,7 +79,7 @@ The App does not knowingly collect personal information from children under the 
 
 App data is stored locally on your device and protected by your device's operating system security.
 
-Feedback data is transmitted over a secure connection and stored in our support backend (Supabase) for the limited purpose described in this policy.
+Feedback data is transmitted over a secure connection and stored in our support backend (Supabase) for the limited purposes described in this policy.
 
 ---
 
