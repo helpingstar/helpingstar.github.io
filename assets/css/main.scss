@@ -153,3 +153,20 @@ b > code {
     overflow-wrap: break-word;
   }
 }
+
+/* Halve the default list indentation in post content.
+   Browsers indent <ul>/<ol> by 40px per level, which makes 2nd/3rd-level
+   bullets push too far to the right; 20px halves each level's indent. */
+.page__content {
+  ul,
+  ol {
+    padding-left: 20px;
+  }
+
+  /* Leave the in-content table of contents at its original (0) padding —
+     its indentation comes from per-level link padding, not list padding. */
+  .toc ul,
+  .toc ol {
+    padding-left: 0;
+  }
+}
