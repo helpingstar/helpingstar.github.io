@@ -1,6 +1,11 @@
 {% assign date_format = site.date_format | default: "%B %-d, %Y" %}
-{% if page.last_modified_at %}
-  <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> {{ site.data.ui-text[site.locale].date_label | default: "Updated:" }}</strong> <time class="dt-published" datetime="{{ page.last_modified_at | date: "%Y-%m-%d" }}">{{ page.last_modified_at | date: date_format }}</time></p>
-{% elsif page.date %}
-  <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> {{ site.data.ui-text[site.locale].date_label | default: "Updated:" }}</strong> <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: date_format }}</time></p>
+{% assign published_date = page.date %}
+{% assign modified_date = page.last_modified_at | default: page.lastmod %}
+{% if published_date or modified_date %}
+  {% if published_date %}
+    <p class="page__date"><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> <span class="page__date-label">{{ site.data.ui-text[site.locale].published_label | default: "Published:" }}</span> <time class="page__date-value dt-published" datetime="{{ published_date | date_to_xmlschema }}">{{ published_date | date: date_format }}</time></p>
+  {% endif %}
+  {% if modified_date %}
+    <p class="page__date"><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> <span class="page__date-label">{{ site.data.ui-text[site.locale].date_label | default: "Updated:" }}</span> <time class="page__date-value dt-published" datetime="{{ modified_date | date_to_xmlschema }}">{{ modified_date | date: date_format }}</time></p>
+  {% endif %}
 {% endif %}

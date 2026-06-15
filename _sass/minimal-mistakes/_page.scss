@@ -298,6 +298,21 @@ body {
   }
 }
 
+.page__meta-date {
+  font-weight: 400;
+}
+
+.page__meta-label,
+.page__date-label {
+  font-weight: 400;
+}
+
+.page__meta-date time,
+.page__date-value {
+  font-size: 1.05em;
+  font-weight: 400;
+}
+
 .page__meta-title {
   margin-bottom: 10px;
   font-size: $type-size-6;

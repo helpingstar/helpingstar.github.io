@@ -22,6 +22,7 @@ en: &DEFAULT_EN
   meta_label                 :
   tags_label                 : "Tags:"
   categories_label           : "Categories:"
+  published_label            : "Published:"
   date_label                 : "Updated:"
   comments_label             : "Leave a comment"
   comments_title             : "Comments"
@@ -613,7 +614,8 @@ ko: &DEFAULT_KO
   meta_label                 :
   tags_label                 : "태그:"
   categories_label           : "카테고리:"
-  date_label                 : "업데이트:"
+  published_label            : "Published:"
+  date_label                 : "Updated:"
   comments_label             : "댓글남기기"
   comments_title             : "댓글"
   more_label                 : "더 보기"

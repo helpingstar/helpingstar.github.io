@@ -98,8 +98,10 @@
   <meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}">
 {% endif %}
 
-{% if og_type == "article" and page.last_modified_at %}
-  <meta property="article:modified_time" content="{{ page.last_modified_at | date_to_xmlschema }}">
+{% if og_type == "article" %}
+  {% if page.last_modified_at or page.lastmod %}
+    <meta property="article:modified_time" content="{{ page.last_modified_at | default: page.lastmod | date_to_xmlschema }}">
+  {% endif %}
 {% endif %}
 
 {% if site.facebook %}
